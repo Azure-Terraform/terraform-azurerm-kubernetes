@@ -24,7 +24,6 @@ This module will enalbe pod identity within a managed Kubernetes cluster hosted 
 | kubectl\_client\_key | kubernetes certificate key | `string` | n/a | yes |
 | kubectl\_cluster\_ca\_certificate | kubernetes certificate bundle | `string` | n/a | yes |
 | kubectl\_host | kubernetes hostname | `string` | n/a | yes |
-| kubernetes\_namespace | namespce in which to install the identity | `string` | `"default"` | no |
 
 ## Outputs
 

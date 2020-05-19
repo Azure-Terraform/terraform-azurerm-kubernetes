@@ -19,12 +19,6 @@ variable "kubectl_cluster_ca_certificate" {
   type        = string
 }
 
-variable "kubernetes_namespace" {
-  description = "namespce in which to install the identity"
-  type        = string
-  default     = "default"
-}
-
 variable "helm_name" {
   description = "name of helm installation (defaults to pod-id-<identity_name>"
   type        = string
