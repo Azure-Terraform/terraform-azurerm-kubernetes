@@ -10,20 +10,17 @@ This module will enable aad pod identity within a managed Kubernetes cluster hos
 
 | Name | Version |
 |------|---------|
+| azuread | n/a |
+| azurerm | n/a |
 | helm | n/a |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| helm\_name | name of helm installation (defaults to pod-id-<identity\_name> | `string` | `""` | no |
-| identity\_client\_id | client id of the managed identity | `string` | n/a | yes |
-| identity\_name | name for Azure identity to be used by AAD | `string` | n/a | yes |
-| identity\_resource\_id | resource id of the managed identity | `string` | n/a | yes |
-| kubectl\_client\_certificate | kubernetes client certificate | `string` | n/a | yes |
-| kubectl\_client\_key | kubernetes certificate key | `string` | n/a | yes |
-| kubectl\_cluster\_ca\_certificate | kubernetes certificate bundle | `string` | n/a | yes |
-| kubectl\_host | kubernetes hostname | `string` | n/a | yes |
+| aad\_pod\_identity\_version | Azure AD pod identity helm chart version | `string` | `"1.6.0"` | no |
+| resource\_group\_name | Resource group name | `string` | n/a | yes |
+| service\_principal\_name | Azure Service Principal Name | `string` | n/a | yes |
 
 ## Outputs
 
