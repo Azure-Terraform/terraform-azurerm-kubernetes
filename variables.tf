@@ -89,12 +89,6 @@ variable "enable_aad_pod_identity" {
   default     = true
 }
 
-variable "aad_pod_identity_version" {
-  description = "Azure AD pod identity helm chart version"
-  type        = string
-  default     = "1.6.0"
-}
-
 variable "enable_kube_dashboard" {
   description = "enable kubernetes dashboard"
   type        = bool
