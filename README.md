@@ -12,13 +12,11 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 |------|---------|
 | azuread | n/a |
 | azurerm | >= 2.0.0 |
-| helm | n/a |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| aad\_pod\_identity\_version | Azure AD pod identity helm chart version | `string` | `"1.6.0"` | no |
 | default\_node\_pool\_availability\_zones | default node pool availability zones | `list(number)` | <pre>[<br>  1,<br>  2,<br>  3<br>]</pre> | no |
 | default\_node\_pool\_enable\_auto\_scaling | enable default node pool auto scaling | `bool` | `true` | no |
 | default\_node\_pool\_name | default node pool name | `string` | `"default"` | no |
