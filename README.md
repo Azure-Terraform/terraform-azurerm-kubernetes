@@ -145,7 +145,7 @@ module "aad-pod-identity" {
   }
 
   resource_group_name    = module.resource_group.name
-  service_principal_name = "ris-azr-app-infrastructure-aks-test"
+  service_principal_name = "service-principal-name"
 
   aad_pod_identity_version = "1.6.0"
 }
