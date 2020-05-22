@@ -1,12 +1,3 @@
-provider "helm" {
-  kubernetes {
-    host                   = var.kubectl_host
-    client_certificate     = base64decode(var.kubectl_client_certificate)
-    client_key             = base64decode(var.kubectl_client_key)
-    cluster_ca_certificate = base64decode(var.kubectl_cluster_ca_certificate)
-  }
-}
-
 resource "helm_release" "vault_init_identity" {
   name       = (var.helm_name != "" ? var.helm_name : "pod-id-${var.identity_name}")
   chart      = "${path.module}/chart"
