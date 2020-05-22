@@ -63,12 +63,12 @@ provider "azurerm" {
 
 # Subscription
 module "subscription" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
+  source = "git@github.com:Azure-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
 }
 
 # Metadata
 module "metadata" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-metadata.git?ref=v1.0.0"
+  source = "git@github.com:Azure-Terraform/terraform-azurerm-metadata.git?ref=v1.0.0"
 
   subscription_id     = module.subscription.output.subscription_id
   # These values should be taken from https://github.com/openrba/python-azure-naming
@@ -91,7 +91,7 @@ module "metadata" {
 
 # Resource group
 module "resource_group" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-resource-group.git?ref=v1.0.0"
+  source = "git@github.com:Azure-Terraform/terraform-azurerm-resource-group.git?ref=v1.0.0"
 
   location = module.metadata.location
   tags     = module.metadata.tags
@@ -101,7 +101,7 @@ module "resource_group" {
 # AKS
 ## This will create a managed kubernetes cluster
 module "aks" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git"
+  source = "git@github.com:Azure-Terraform/terraform-azurerm-kubernetes.git"
 
   service_principal_id     = var.service_principal_id
   service_principal_secret = var.service_principal_secret
@@ -138,7 +138,7 @@ provider "helm" {
 }
 
 module "aad-pod-identity" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git/aad-pod-identity"
+  source = "git@github.com:Azure-Terraform/terraform-azurerm-kubernetes.git/aad-pod-identity"
   
   providers = {
     helm = helm.aks
