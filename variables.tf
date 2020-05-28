@@ -38,7 +38,6 @@ variable "tags" {
 variable "kubernetes_version" {
   description = "kubernetes version"
   type        = string
-  default     = "1.16.7"
 }
 
 variable "default_node_pool_name" {
