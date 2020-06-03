@@ -27,5 +27,4 @@ variable "cert_manager_version" {
 variable "domains" {
   description = "domains certificates will be generated for"
   type        = list(string)
-  default     = []
 }

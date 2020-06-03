@@ -1,17 +1,3 @@
-#resource "helm_release" "cert_manager" {
-#  name             = "cert-manager"
-#  namespace        = "cert-manager"
-#  create_namespace = true
-#  repository       = "https://charts.jetstack.io"
-#  chart            = "cert-manager"
-#  version          = var.cert_manager_version
-#
-#  set {
-#    name  = "installCRDs"
-#    value = "true"
-#  }
-#}
-
 data "azurerm_resource_group" "rg" {
   name = var.resource_group_name
 }
@@ -19,7 +5,7 @@ data "azurerm_resource_group" "rg" {
 data "azurerm_dns_zone" "zone" {
   count               = length(var.domains)
   name                = var.domains[count.index]
-  #resource_group_name = "search-service"
+  resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_user_assigned_identity" "cert_manager" {
@@ -30,10 +16,10 @@ resource "azurerm_user_assigned_identity" "cert_manager" {
 }
 
 resource "azurerm_role_definition" "cert_manager" {
-  count       = (length(var.domains) > 0 ? 1 : 0)
-  name        = "${var.names.product_group}-${var.names.subscription_type}-certmgr"
-  scope       = data.azurerm_resource_group.rg.id
+  count       = length(var.domains)
+  name        = "${var.names.product_group}-${var.names.subscription_type}-certmgr-${var.domains[count.index]}"
   description = "Allow cert manager to use TXT entries for verification"
+  scope       = data.azurerm_resource_group.rg.id
 
   permissions {
     actions     = ["Microsoft.Network/dnszones/TXT/read",
@@ -42,5 +28,39 @@ resource "azurerm_role_definition" "cert_manager" {
     not_actions = []
   }
 
-  assignable_scopes = data.azurerm_dns_zone.zone.*.id
+  assignable_scopes = [data.azurerm_resource_group.rg.id]
+}
+
+resource "azurerm_role_assignment" "cert_manager" {
+  count              = length(var.domains)
+  scope              = data.azurerm_dns_zone.zone.*.id[count.index]
+  role_definition_id = azurerm_role_definition.cert_manager.*.id[count.index]
+  principal_id       = azurerm_user_assigned_identity.cert_manager.principal_id
+}
+
+module "identity" {
+  source = "github.com/Azure-Terraform/terraform-azurerm-kubernetes.git//aad-pod-identity/identity?ref=v1.0.0"
+
+  identity_name        = azurerm_user_assigned_identity.cert_manager.name
+  identity_client_id   = azurerm_user_assigned_identity.cert_manager.client_id
+  identity_resource_id = azurerm_user_assigned_identity.cert_manager.id
+}
+
+resource "helm_release" "cert_manager" {
+  name             = "cert-manager"
+  namespace        = "cert-manager"
+  create_namespace = true
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  version          = var.cert_manager_version
+
+  values = [
+    yamlencode({
+      installCRDs = "true"
+      podLabels = {
+        aadpodidbinding = "${azurerm_user_assigned_identity.cert_manager.name}"
+      }
+    }
+    )
+  ]
 }
