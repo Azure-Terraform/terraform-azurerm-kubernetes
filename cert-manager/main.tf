@@ -64,3 +64,23 @@ resource "helm_release" "cert_manager" {
     )
   ]
 }
+
+resource "helm_release" "cluster_issuer" {
+  count            = length(var.domains)
+  name             = "cert-manager-ci-${var.domains[count.index]}"
+  namespace        = "cert-manager"
+  chart            = "${path.module}/charts/letsencrypt-acme"
+
+  values = [
+    yamlencode({
+      name           = "letsencrypt-acme-${var.domains[count.index]}"
+      email          = "tim.miller@lexisnexisrisk.com"
+      server         = "https://acme-staging-v02.api.letsencrypt.org/directory"
+      secretName     = "secret-${var.domains[count.index]}"
+      subscriptionID = var.subscription_id
+      resourceGroup  = var.resource_group_name
+      dnsZone        = "${var.domains[count.index]}"
+    }
+    )
+  ]
+}
