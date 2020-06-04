@@ -60,8 +60,11 @@ resource "helm_release" "cert_manager" {
       podLabels = {
         aadpodidbinding = "${azurerm_user_assigned_identity.cert_manager.name}"
       }
-    }
-    )
+      podDnsPolicy = "None"
+      podDnsConfig = {
+        nameservers = ["8.8.8.8","8.8.4.4"]
+      }
+    })
   ]
 }
 
