@@ -1,8 +1,12 @@
+locals {
+  cluster_name = "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}"
+}
+
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                 = "aks-${var.names.market}-${var.names.environment}-${var.names.location}-${var.names.product_name}"
+  name                 = local.cluster_name
   location             = var.location
   resource_group_name  = var.resource_group_name
-  dns_prefix           = "${var.names.market}${var.names.environment}${var.names.location}"
+  dns_prefix           = "${var.names.product_name}-${var.names.environment}-${var.names.location}"
   tags                 = var.tags
 
   kubernetes_version = var.kubernetes_version
