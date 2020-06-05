@@ -26,7 +26,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | default\_node\_pool\_vm\_size | default node pool VM size | `string` | `"Standard_D2s_v3"` | no |
 | enable\_aad\_pod\_identity | enable Azure AD pod identity enable kubernetes dashboard | `bool` | `true` | no |
 | enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `true` | no |
-| kubernetes\_version | kubernetes version | `string` | `"1.16.7"` | no |
+| kubernetes\_version | kubernetes version | `string` | n/a | yes |
 | location | Azure Region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
@@ -46,6 +46,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | host | kubernetes host |
 | id | kubernetes managed cluster id |
 | kube\_config\_raw | raw kubernetes config to be used by kubectl and other compatible tools |
+| name | kubernetes managed cluster name |
 | node\_resource\_group | auto-generated resource group which contains the resources for this managed kubernetes cluster |
 | password | kubernetes password |
 | service\_principal\_client\_id | client id of the service principal used by this managed kubernetes cluster |
