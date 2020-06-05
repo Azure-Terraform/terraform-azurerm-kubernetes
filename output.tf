@@ -3,6 +3,11 @@ output "id" {
   value       = azurerm_kubernetes_cluster.aks.id
 }
 
+output "name" {
+  description = "kubernetes managed cluster name"
+  value       = local.cluster_name
+}
+
 output "fqdn" {
   description = "kubernetes managed cluster fqdn"
   value       = azurerm_kubernetes_cluster.aks.id
