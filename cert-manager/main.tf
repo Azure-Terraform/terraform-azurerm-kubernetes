@@ -78,7 +78,7 @@ resource "helm_release" "cluster_issuer" {
     yamlencode({
       name           = "letsencrypt-acme-${var.domains[count.index]}"
       email          = "tim.miller@lexisnexisrisk.com"
-      server         = "https://acme-staging-v02.api.letsencrypt.org/directory"
+      server         = lookup(local.le_endpoint, var.letsencrypt_endpoint, var.letsencrypt_endpoint)
       secretName     = "secret-${var.domains[count.index]}"
       subscriptionID = var.subscription_id
       resourceGroup  = var.resource_group_name

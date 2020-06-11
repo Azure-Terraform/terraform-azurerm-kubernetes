@@ -23,8 +23,14 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "letsencrypt_endpoint" {
+  description = "letsencrypt endpoint (https://letsencrypt.org/docs/acme-protocol-updates).  Allowable inputs are 'staging', 'production' or a full URL."
+  type        = string
+  default     = "staging"
+}
+
 variable "cert_manager_version" {
-  description = "enable cert-manager helm chart"
+  description = "cert-manager helm chart version"
   type        = string
   default     = "v0.15.0"
 }
@@ -32,4 +38,11 @@ variable "cert_manager_version" {
 variable "domains" {
   description = "domains certificates will be generated for"
   type        = list(string)
+}
+
+locals {
+  le_endpoint = {
+    "staging"    = "https://acme-staging-v02.api.letsencrypt.org/directory"
+    "production" = "https://acme-v02.api.letsencrypt.org/directory"
+  }
 }
