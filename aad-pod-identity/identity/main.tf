@@ -1,4 +1,4 @@
-resource "helm_release" "vault_init_identity" {
+resource "helm_release" "identity" {
   name       = (var.helm_name != "" ? var.helm_name : "pod-id-${var.identity_name}")
   chart      = "${path.module}/chart"
 

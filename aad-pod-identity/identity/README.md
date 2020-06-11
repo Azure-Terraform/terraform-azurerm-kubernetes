@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This module will enalbe pod identity within a managed Kubernetes cluster hosted on Azure Kubernetes Service.
+This module will create a pod identity within a managed Kubernetes cluster hosted on Azure Kubernetes Service.
 <br />
 
 <!--- BEGIN_TF_DOCS --->

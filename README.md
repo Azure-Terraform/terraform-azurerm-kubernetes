@@ -127,6 +127,20 @@ module "aks" {
   
 }
 
+resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
+  name                  = "gpu"
+  kubernetes_cluster_id = module.aks.id
+  vm_size               = "Standard_NC6s_v3"
+  availability_zones    = [1,2,3]
+
+  enable_auto_scaling = true
+  node_count          = 1
+  min_count           = 1
+  max_count           = 5
+
+  tags = module.metadata.tags
+}
+
 # Helm
 provider "helm" {
   alias = "aks"
