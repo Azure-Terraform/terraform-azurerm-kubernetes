@@ -10,17 +10,19 @@ This module will install an NGINX ingress module into an AKS cluster.  This is l
 
 | Name | Version |
 |------|---------|
-| azuread | n/a |
-| azurerm | n/a |
 | helm | n/a |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| aad\_pod\_identity\_version | Azure AD pod identity helm chart version | `string` | `"1.6.0"` | no |
-| resource\_group\_name | Resource group name | `string` | n/a | yes |
-| service\_principal\_name | Azure Service Principal Name | `string` | n/a | yes |
+| additional\_yaml\_config | yaml config for helm chart to be processed last | `string` | `""` | no |
+| helm\_chart\_version | helm chart version | `string` | `"1.39.0"` | no |
+| helm\_release\_name | helm release name | `string` | `"nginx-ingress"` | no |
+| helm\_repository | nginx-ingress helm repository url | `string` | `"https://kubernetes-charts.storage.googleapis.com"` | no |
+| kubernetes\_create\_namespace | create kubernetes namespace | `bool` | `false` | no |
+| kubernetes\_namespace | kubernetes\_namespace | `string` | `"default"` | no |
+| load\_balancer\_ip | loadBalancerIP | `string` | n/a | yes |
 
 ## Outputs
 
