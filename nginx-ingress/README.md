@@ -145,7 +145,7 @@ provider "helm" {
 }
 
 module "nginx_ingress" {
-  source = "/Users/tmiller/gitlab-repos/tfe/terraform-azurerm-kubernetes/nginx-ingress"
+  source = "git@github.com:Azure-Terraform/terraform-azurerm-kubernetes.git/nginx-ingress"
 
   providers = {
     helm = helm.aks
