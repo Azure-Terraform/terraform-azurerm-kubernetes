@@ -1,0 +1,6 @@
+email: ""
+server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+secretName: ""
+subscriptionID: ""
+resourceGroup: ""
+dnsZone: ""
