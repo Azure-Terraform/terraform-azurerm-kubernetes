@@ -1,8 +1,8 @@
-# Azure - Kubernetes Cert-Manager Certificate Module
+# Azure - Kubernetes Cert-Manager Module
 
 ## Introduction
 
-This module will use cert-manager to create Let's Encrypt certificate and Kubernetes secret.
+This module will use install cert-manager into a Kubernetes cluster and configure support for letsencrypt/azuredns.
 
 <br />
 
