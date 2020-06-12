@@ -64,11 +64,13 @@ resource "helm_release" "cert_manager" {
       podDnsConfig = {
         nameservers = ["8.8.8.8","8.8.4.4"]
       }
+      extraArgs	= ["--enable-certificate-owner-ref=true"]
     })
   ]
 }
 
 resource "helm_release" "cluster_issuer" {
+  depends_on       = [helm_release.cert_manager]
   count            = length(var.domains)
   name             = "cert-manager-ci-${var.domains[count.index]}"
   namespace        = "cert-manager"

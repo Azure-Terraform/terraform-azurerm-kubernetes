@@ -8,5 +8,4 @@ spec:
   issuerRef:
     name: {{ .Values.issuerRefName }}
     kind: ClusterIssuer
-  dnsNames:
-{{ .Values.dnsNames | indent 2 }}
+  dnsNames: {{ .Values.dnsNames }}

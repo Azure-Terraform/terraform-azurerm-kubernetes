@@ -1,21 +1,31 @@
 variable "certificate_name" {
   description = "name of certificate"
   type        = string
-  default     = "letsencrypt-certificate-"
 }
 
-variable "identity_name" {
-  description = "name for Azure identity to be used by AAD"
+variable "helm_release_name" {
+  description = "name for helm release (defauls to le-cert-<certificate_name>)"
+  type        = string
+  default     = ""
+}
+
+variable "namespace" {
+  description = "kubernetes namespace"
+  type        = string
+  default     = "default"
+}
+
+variable "secret_name" {
+  description = "name of kubernetes secret"
   type        = string
 }
 
-
-variable "identity_client_id" {
-  description = "client id of the managed identity"
+variable "issuer_ref_name" {
+  description = "name of kubernetes cluster issuer"
   type        = string
 }
 
-variable "identity_resource_id" {
-  description = "resource id of the managed identity"
-  type        = string
+variable "dns_names" {
+  description = "dns name(s) for certificate"
+  type        = list(string)
 }
