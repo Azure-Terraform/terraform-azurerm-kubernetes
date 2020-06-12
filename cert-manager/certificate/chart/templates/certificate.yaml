@@ -9,4 +9,4 @@ spec:
     name: {{ .Values.issuerRefName }}
     kind: ClusterIssuer
   dnsNames:
-  - '*.iogdev.nonprod.us.lnrisk.io'
+{{ .Values.dnsNames | indent 2 }}

@@ -1,7 +1,7 @@
-variable "helm_name" {
-  description = "name of helm installation (defaults to pod-id-<identity_name>"
+variable "certificate_name" {
+  description = "name of certificate"
   type        = string
-  default     = ""
+  default     = "letsencrypt-certificate-"
 }
 
 variable "identity_name" {
