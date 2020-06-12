@@ -11,20 +11,27 @@ This module will use install cert-manager into a Kubernetes cluster and configur
 
 | Name | Version |
 |------|---------|
+| azurerm | n/a |
 | helm | n/a |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| helm\_name | name of helm installation (defaults to pod-id-<identity\_name> | `string` | `""` | no |
-| identity\_client\_id | client id of the managed identity | `string` | n/a | yes |
-| identity\_name | name for Azure identity to be used by AAD | `string` | n/a | yes |
-| identity\_resource\_id | resource id of the managed identity | `string` | n/a | yes |
+| cert\_manager\_version | cert-manager helm chart version | `string` | `"v0.15.0"` | no |
+| domains | domains certificates will be generated for | `list(string)` | n/a | yes |
+| letsencrypt\_endpoint | letsencrypt endpoint (https://letsencrypt.org/docs/acme-protocol-updates).  Allowable inputs are 'staging', 'production' or a full URL. | `string` | `"staging"` | no |
+| location | Azure Region | `string` | n/a | yes |
+| names | names to be applied to resources | `map(string)` | n/a | yes |
+| resource\_group\_name | Resource group name | `string` | n/a | yes |
+| subscription\_id | Azure Subscription ID | `string` | n/a | yes |
+| tags | tags to be applied to resources | `map(string)` | n/a | yes |
 
 ## Outputs
 
-No output.
+| Name | Description |
+|------|-------------|
+| cluster\_issuer\_names | n/a |
 <!--- END_TF_DOCS --->
 ## Example
 
