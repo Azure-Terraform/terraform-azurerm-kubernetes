@@ -119,7 +119,7 @@ module "dns" {
   iog_resource_group_name = "rg-iog-sandbox-eastus2-contoso"
   iog_subscription_id     = "00000000-0000-0000-0000-000000000000"
   sre_resource_group_name = module.resource_group.name
-  sre_subscription_id     = module.subscription.id
+  sre_subscription_id     = module.subscription.output.subscription_id
 
   names               = module.metadata.names
   tags                = module.metadata.tags
