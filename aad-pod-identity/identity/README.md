@@ -111,7 +111,7 @@ provider "helm" {
 }
 
 module "aad-pod-identity" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git/aad-pod-identity"
+  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git//aad-pod-identity?ref=v1.0.1"
   
   providers = {
     helm = helm.aks
@@ -131,7 +131,7 @@ resource "azurerm_user_assigned_identity" "test" {
 }
 
 module "test_identity" {
-  source = "/Users/tmiller/gitlab-repos/tfe/terraform-azurerm-kubernetes/aad-pod-identity/identity"
+  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git//aad-pod-identity/identity?ref=v1.0.1"
 
   providers = {
     helm = helm.aks

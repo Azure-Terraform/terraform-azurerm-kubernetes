@@ -29,6 +29,11 @@ variable "letsencrypt_endpoint" {
   default     = "staging"
 }
 
+variable "email_address" {
+  description = "email address used for expiration notification"
+  type        = string
+}
+
 variable "cert_manager_version" {
   description = "cert-manager helm chart version"
   type        = string

@@ -79,7 +79,7 @@ resource "helm_release" "cluster_issuer" {
   values = [
     yamlencode({
       name           = "letsencrypt-acme-${var.domains[count.index]}"
-      email          = "tim.miller@lexisnexisrisk.com"
+      email          = var.email_address
       server         = lookup(local.le_endpoint, var.letsencrypt_endpoint, var.letsencrypt_endpoint)
       secretName     = "secret-${var.domains[count.index]}"
       subscriptionID = var.subscription_id
