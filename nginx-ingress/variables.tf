@@ -13,7 +13,6 @@ variable "helm_chart_version" {
 variable "helm_release_name" {
   description = "helm release name"
   type        = string
-  default     = "nginx-ingress"
 }
 
 variable "kubernetes_namespace" {
