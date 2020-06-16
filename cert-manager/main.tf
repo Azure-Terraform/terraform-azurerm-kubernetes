@@ -3,21 +3,21 @@ data "azurerm_resource_group" "rg" {
 }
 
 data "azurerm_dns_zone" "zone" {
-  count               = length(var.domains)
-  name                = var.domains[count.index]
+  for_each            = var.domains
+  name                = each.key
   resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_user_assigned_identity" "cert_manager" {
-  name                 = "${var.names.product_group}-${var.names.subscription_type}-certmgr"
+  name                 = "${var.names.product_group}-${var.names.subscription_type}-certmgr${local.delimiter}${var.name_identifier}"
   location             = var.location
   resource_group_name  = var.resource_group_name
   tags                 = var.tags
 }
 
 resource "azurerm_role_definition" "cert_manager" {
-  count       = length(var.domains)
-  name        = "${var.names.product_group}-${var.names.subscription_type}-certmgr-${var.domains[count.index]}"
+  for_each    = var.domains
+  name        = "${var.names.product_group}-${var.names.subscription_type}-certmgr${local.delimiter}${var.name_identifier}-${each.key}"
   description = "Allow cert manager to use TXT entries for verification"
   scope       = data.azurerm_resource_group.rg.id
 
@@ -32,9 +32,9 @@ resource "azurerm_role_definition" "cert_manager" {
 }
 
 resource "azurerm_role_assignment" "cert_manager" {
-  count              = length(var.domains)
-  scope              = data.azurerm_dns_zone.zone.*.id[count.index]
-  role_definition_id = azurerm_role_definition.cert_manager.*.id[count.index]
+  for_each           = var.domains
+  scope              = data.azurerm_dns_zone.zone[each.key].id
+  role_definition_id = azurerm_role_definition.cert_manager[each.key].id
   principal_id       = azurerm_user_assigned_identity.cert_manager.principal_id
 }
 
@@ -56,7 +56,7 @@ resource "helm_release" "cert_manager" {
 
   values = [
     yamlencode({
-      installCRDs = "true"
+      installCRDs = "${var.install_crds}"
       podLabels = {
         aadpodidbinding = "${azurerm_user_assigned_identity.cert_manager.name}"
       }
@@ -65,27 +65,31 @@ resource "helm_release" "cert_manager" {
         nameservers = ["8.8.8.8","8.8.4.4"]
       }
       extraArgs	= ["--enable-certificate-owner-ref=true"]
-    })
+    }),
+    var.additional_yaml_config
   ]
 }
 
-resource "helm_release" "cluster_issuer" {
+resource "helm_release" issuer {
   depends_on       = [helm_release.cert_manager]
-  count            = length(var.domains)
-  name             = "cert-manager-ci-${var.domains[count.index]}"
-  namespace        = "cert-manager"
-  chart            = "${path.module}/charts/letsencrypt-acme"
+  for_each         = var.issuers
+
+  name      = "cert-manager-issuer-${each.key}"
+  namespace = each.value.namespace
+  chart     = "${path.module}/charts/letsencrypt-acme"
 
   values = [
     yamlencode({
-      name           = "letsencrypt-acme-${var.domains[count.index]}"
-      email          = var.email_address
-      server         = lookup(local.le_endpoint, var.letsencrypt_endpoint, var.letsencrypt_endpoint)
-      secretName     = "secret-${var.domains[count.index]}"
+      kind           = (each.value.cluster_issuer ? "ClusterIssuer" : "Issuer")
+      name           = "letsencrypt-acme-${each.key}"
+      email          = each.value.email_address
+      server         = lookup(local.le_endpoint, each.value.letsencrypt_endpoint, each.value.letsencrypt_endpoint)
+      secretName     = "cert-manager-issuer-${each.key}"
       subscriptionID = var.subscription_id
       resourceGroup  = var.resource_group_name
-      dnsZone        = "${var.domains[count.index]}"
+      dnsZone        = each.value.domain
     }
     )
   ]
+
 }

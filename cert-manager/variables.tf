@@ -23,6 +23,12 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "name_identifier" {
+  description = "allows for unique resources when multiple aks cluster exist in same environment"
+  type        = string
+  default     = ""
+}
+
 variable "cert_manager_version" {
   description = "cert-manager helm chart version"
   type        = string
@@ -47,23 +53,36 @@ variable "create_kubernetes_namespace" {
   default     = true
 }
 
-variable "letsencrypt_endpoint" {
-  description = "letsencrypt endpoint (https://letsencrypt.org/docs/acme-protocol-updates).  Allowable inputs are 'staging', 'production' or a full URL."
-  type        = string
-  default     = "staging"
-}
-
-variable "email_address" {
-  description = "email address used for expiration notification"
-  type        = string
+variable "install_crds" {
+  description = "install cert-manager crds"
+  type        = bool
+  default     = true
 }
 
 variable "domains" {
   description = "domains certificates will be generated for"
-  type        = list(string)
+  type        = set(string)
+}
+
+variable "additional_yaml_config" {
+  description = "yaml config for helm chart to be processed last"
+  type        = string
+  default     = ""
+}
+
+variable "issuers" {
+  default = {} 
+  type    = map(object({
+    namespace             = string # kubernetes namespace
+    cluster_issuer        = bool   # setting 'true' will create a ClusterIssuer, setting 'false' will create a namespace isolated Issuer
+    email_address         = string # email address used for expiration notification
+    domain                = string # azuredns hosted domain (must be listed in var.domains)
+    letsencrypt_endpoint  = string # letsencrypt endpoint (https://letsencrypt.org/docs/acme-protocol-updates).  Allowable inputs are 'staging', 'production' or a full URL
+  }))
 }
 
 locals {
+  delimiter   = (var.name_identifier == "" ? "" : "-")
   le_endpoint = {
     "staging"    = "https://acme-staging-v02.api.letsencrypt.org/directory"
     "production" = "https://acme-v02.api.letsencrypt.org/directory"

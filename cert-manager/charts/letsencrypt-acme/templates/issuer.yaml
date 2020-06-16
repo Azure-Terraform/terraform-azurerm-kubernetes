@@ -1,5 +1,5 @@
 apiVersion: cert-manager.io/v1alpha2
-kind: ClusterIssuer
+kind: {{ .Values.kind }}
 metadata:
   name: {{ .Values.name }}
 spec:

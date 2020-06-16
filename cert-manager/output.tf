@@ -1,3 +1,3 @@
-output "cluster_issuer_names" {
-  value = zipmap(var.domains, formatlist("letsencrypt-acme-%s", var.domains))
+output "issuers" {
+  value = zipmap(keys(var.issuers), formatlist("letsencrypt-acme-%s", keys(var.issuers)))
 }
