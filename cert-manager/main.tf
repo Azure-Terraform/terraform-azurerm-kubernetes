@@ -49,7 +49,7 @@ module "identity" {
 resource "helm_release" "cert_manager" {
   name             = var.helm_release_name
   namespace        = var.kubernetes_namespace
-  create_namespace = var.create_kubernetes_namespactruee
+  create_namespace = var.create_kubernetes_namespace
   repository       = "https://charts.jetstack.io"
   chart            = "cert-manager"
   version          = var.cert_manager_version
