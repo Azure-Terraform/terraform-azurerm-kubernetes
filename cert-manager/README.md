@@ -19,8 +19,11 @@ This module will use install cert-manager into a Kubernetes cluster and configur
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
 | cert\_manager\_version | cert-manager helm chart version | `string` | `"v0.15.0"` | no |
+| create\_kubernetes\_namespace | create kubernetes namespace if not present | `bool` | `true` | no |
 | domains | domains certificates will be generated for | `list(string)` | n/a | yes |
 | email\_address | email address used for expiration notification | `string` | n/a | yes |
+| helm\_release\_name | helm release name | `string` | `"cert-manager"` | no |
+| kubernetes\_namespace | kubernetes namespace | `string` | `"cert-manager"` | no |
 | letsencrypt\_endpoint | letsencrypt endpoint (https://letsencrypt.org/docs/acme-protocol-updates).  Allowable inputs are 'staging', 'production' or a full URL. | `string` | `"staging"` | no |
 | location | Azure Region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
