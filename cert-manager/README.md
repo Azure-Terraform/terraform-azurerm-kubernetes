@@ -148,7 +148,26 @@ module "cert_manager" {
   names = module.metadata.names
   tags  = module.metadata.tags
 
+  cert_manager_version = "v0.15.1"
+
   domains = [module.dns.name]
+
+  issuers = {
+    testing = {
+      namespace             = "cert-manager"
+      cluster_issuer        = true
+      email_address         = "foo@bar.com"
+      domain                = module.dns.name
+      letsencrypt_endpoint  = "staging"
+    }
+    production = {
+      namespace             = "cert-manager"
+      cluster_issuer        = true
+      email_address         = "foo@bar.com"
+      domain                = module.dns.name
+      letsencrypt_endpoint  = "production"
+    }
+  }
 
 }
 
@@ -159,7 +178,7 @@ module "wildcard_certificate" {
   certificate_name = "tf-cert-wildcard"
   namespace = "demo"
   secret_name = "tf-secret"
-  issuer_ref_name = module.cert_manager.cluster_issuer_names[module.dns.name]
+  issuer_ref_name = module.cert_manager.issuers["testing"]
 
   dns_names = ["*.${module.dns.name"]
 }
