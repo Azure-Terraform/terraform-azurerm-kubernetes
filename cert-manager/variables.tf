@@ -23,6 +23,30 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "cert_manager_version" {
+  description = "cert-manager helm chart version"
+  type        = string
+  default     = "v0.15.0"
+}
+
+variable "helm_release_name" {
+  description = "helm release name"
+  type        = string
+  default     = "cert-manager"
+}
+
+variable "kubernetes_namespace" {
+  description = "kubernetes namespace"
+  type        = string
+  default     = "cert-manager"
+}
+
+variable "create_kubernetes_namespace" {
+  description = "create kubernetes namespace if not present"
+  type        = bool
+  default     = true
+}
+
 variable "letsencrypt_endpoint" {
   description = "letsencrypt endpoint (https://letsencrypt.org/docs/acme-protocol-updates).  Allowable inputs are 'staging', 'production' or a full URL."
   type        = string
@@ -32,12 +56,6 @@ variable "letsencrypt_endpoint" {
 variable "email_address" {
   description = "email address used for expiration notification"
   type        = string
-}
-
-variable "cert_manager_version" {
-  description = "cert-manager helm chart version"
-  type        = string
-  default     = "v0.15.0"
 }
 
 variable "domains" {
