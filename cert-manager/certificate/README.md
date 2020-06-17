@@ -33,6 +33,7 @@ This module will use cert-manager to create Let's Encrypt certificate and Kubern
 | issuer\_ref\_name | n/a |
 | namespace | n/a |
 | secret\_name | n/a |
+| secret\_path | n/a |
 <!--- END_TF_DOCS --->
 ## Example
 
