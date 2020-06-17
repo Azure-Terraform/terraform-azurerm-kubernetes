@@ -15,7 +15,7 @@ output "secret_name" {
 }
 
 output "secret_path" {
-  value = "${var.namespace}/${var.secret_path}"
+  value = "${var.namespace}/${var.secret_name}"
 }
 
 output "issuer_ref_name" {
