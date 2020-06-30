@@ -38,6 +38,7 @@ This module will use install cert-manager into a Kubernetes cluster and configur
 | Name | Description |
 |------|-------------|
 | issuers | n/a |
+| namespaces | n/a |
 <!--- END_TF_DOCS --->
 ## Example
 
