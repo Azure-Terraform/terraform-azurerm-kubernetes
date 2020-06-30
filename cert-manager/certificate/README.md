@@ -1,8 +1,9 @@
-# Azure - Kubernetes Pod Identity Module
+# Azure - Kubernetes Cert-Manager Certificate Module
 
 ## Introduction
 
-This module will create a pod identity within a managed Kubernetes cluster hosted on Azure Kubernetes Service.
+This module will use cert-manager to create Let's Encrypt certificate and Kubernetes secret.
+
 <br />
 
 <!--- BEGIN_TF_DOCS --->
@@ -16,14 +17,23 @@ This module will create a pod identity within a managed Kubernetes cluster hoste
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| helm\_name | name of helm installation (defaults to pod-id-<identity\_name> | `string` | `""` | no |
-| identity\_client\_id | client id of the managed identity | `string` | n/a | yes |
-| identity\_name | name for Azure identity to be used by AAD | `string` | n/a | yes |
-| identity\_resource\_id | resource id of the managed identity | `string` | n/a | yes |
+| certificate\_name | name of certificate | `string` | n/a | yes |
+| dns\_names | dns name(s) for certificate | `list(string)` | n/a | yes |
+| helm\_release\_name | name for helm release (defauls to le-cert-<certificate\_name>) | `string` | `""` | no |
+| issuer\_ref\_name | name of kubernetes cluster issuer | `string` | n/a | yes |
+| namespace | kubernetes namespace | `string` | `"default"` | no |
+| secret\_name | name of kubernetes secret | `string` | n/a | yes |
 
 ## Outputs
 
-No output.
+| Name | Description |
+|------|-------------|
+| certificate\_name | n/a |
+| helm\_release\_name | n/a |
+| issuer\_ref\_name | n/a |
+| namespace | n/a |
+| secret\_name | n/a |
+| secret\_path | n/a |
 <!--- END_TF_DOCS --->
 ## Example
 
@@ -86,7 +96,7 @@ module "aks" {
   names = module.metadata.names
   tags  = module.metadata.tags
 
-  kubernetes_version = "1.16.7"
+  kubernetes_version = "1.16.8"
 
   default_node_pool_name                = "default"
   default_node_pool_vm_size             = "Standard_D2s_v3"
@@ -110,36 +120,45 @@ provider "helm" {
   }
 }
 
-module "aad-pod-identity" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git//aad-pod-identity?ref=v1.0.1"
-  
-  providers = {
-    helm = helm.aks
-  }
+module "dns" {
+  source = "github.com/Azure-Terraform/terraform-azurerm-dns-zone.git"
 
-  resource_group_name    = module.resource_group.name
-  service_principal_name = "ris-azr-app-infrastructure-aks-test"
+  domain_prefix = "application.eastus2"
 
-  aad_pod_identity_version = "1.6.0"
+  iog_resource_group_name = "rg-iog-sandbox-eastus2-contoso"
+  iog_subscription_id     = "00000000-0000-0000-0000-000000000000"
+  sre_resource_group_name = module.resource_group.name
+  sre_subscription_id     = module.subscription.output.subscription_id
+
+  names               = module.metadata.names
+  tags                = module.metadata.tags
 }
 
-resource "azurerm_user_assigned_identity" "test" {
-  name                 = "test"
-  location             = var.location
-  resource_group_name  = var.resource_group_name
-  tags                 = var.tags
+module "cert_manager" {
+  source    = "git::https://github.com/Azure-Terraform/terraform-azurerm-kubernetes.git//cert-manager?ref=v1.1.0"
+  providers = { helm = helm.aks }
+
+  subscription_id = module.subscription.output.subscription_id
+
+  resource_group_name = module.resource_group.name
+  location            = module.resource_group.location
+
+  names = module.metadata.names
+  tags  = module.metadata.tags
+
+  domains = [module.dns.name]
+
 }
 
-module "test_identity" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git//aad-pod-identity/identity?ref=v1.0.1"
+module "wildcard_certificate" {
+  source    = "git::https://github.com/Azure-Terraform/terraform-azurerm-kubernetes.git//cert-manager/certificate?ref=v1.1.0"
+  providers = { helm = helm.aks }
 
-  providers = {
-    helm = helm.aks
-  }
+  certificate_name = "tf-cert-wildcard"
+  namespace = "demo"
+  secret_name = "tf-secret"
+  issuer_ref_name = module.cert_manager.cluster_issuer_names[module.dns.name]
 
-  identity_name        = azurerm_user_assigned_identity.test.name
-  identity_client_id   = azurerm_user_assigned_identity.test.client_id
-  identity_resource_id = azurerm_user_assigned_identity.test.id
-
+  dns_names = ["*.${module.dns.name"]
 }
 ~~~~

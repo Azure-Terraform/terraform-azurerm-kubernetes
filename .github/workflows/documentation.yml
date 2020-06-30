@@ -32,6 +32,22 @@ jobs:
         tf_docs_output_method: inject
         tf_docs_git_push: 'true'
 
+    - name: Cert Manager Module Docs
+      uses: Dirrk/terraform-docs@v1.0.7
+      with:
+        tf_docs_working_dir: ./cert-manager/
+        tf_docs_output_file: README.md
+        tf_docs_output_method: inject
+        tf_docs_git_push: 'true'
+
+    - name: Cert Manager Certificate Module Docs
+      uses: Dirrk/terraform-docs@v1.0.7
+      with:
+        tf_docs_working_dir: ./cert-manager/certificate/
+        tf_docs_output_file: README.md
+        tf_docs_output_method: inject
+        tf_docs_git_push: 'true'
+
     - name: NGINX Ingress Module Docs
       uses: Dirrk/terraform-docs@v1.0.7
       with:
