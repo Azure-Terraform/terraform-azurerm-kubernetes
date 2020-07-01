@@ -88,8 +88,6 @@ resource "helm_release" issuer {
       subscriptionID = var.subscription_id
       resourceGroup  = var.resource_group_name
       dnsZone        = each.value.domain
-    }
-    )
+    })
   ]
-
 }

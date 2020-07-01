@@ -15,6 +15,12 @@ variable "namespace" {
   default     = "default"
 }
 
+variable "create_namespace" {
+  description = "create kubernetes namespace"
+  type        = bool
+  default     = true
+}
+
 variable "secret_name" {
   description = "name of kubernetes secret"
   type        = string

@@ -24,7 +24,7 @@ variable "kubernetes_namespace" {
 variable "kubernetes_create_namespace" {
   description = "create kubernetes namespace"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "load_balancer_ip" {
