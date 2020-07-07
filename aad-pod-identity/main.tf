@@ -1,8 +1,16 @@
+data "azurerm_resource_group" "node_rg" {
+  name = var.node_resource_group_name
+}
+
+#data "azurerm_resource_group" "rg" {
+#  name = var.resource_group_name
+#}
+
 resource "helm_release" "aad_pod_identity" {
-  depends_on = [azurerm_role_assignment.virtual_machine_contributor, azurerm_role_assignment.managed_identity_operator]
+  depends_on = [azurerm_role_assignment.k8s_virtual_machine_contributor, azurerm_role_assignment.k8s_managed_identity_operator,azurerm_role_assignment.additional_managed_identity_operator]
   name       = "aad-pod-identity"
   namespace  = "default"
-  repository = "https://raw.githubusercontent.com/Azure/aad-pod-identity/v${var.aad_pod_identity_version}/charts"
+  repository = "https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts"
   chart      = "aad-pod-identity"
   version    = var.aad_pod_identity_version
 
@@ -12,14 +20,21 @@ resource "helm_release" "aad_pod_identity" {
   }
 }
 
-resource "azurerm_role_assignment" "virtual_machine_contributor" {
-  scope                = data.azurerm_resource_group.rg.id
+resource "azurerm_role_assignment" "k8s_virtual_machine_contributor" {
+  scope                = data.azurerm_resource_group.node_rg.id
   role_definition_name = "Virtual Machine Contributor"
-  principal_id         = data.azuread_service_principal.aks.id
+  principal_id         = var.principal_id
 }
 
-resource "azurerm_role_assignment" "managed_identity_operator" {
-  scope                = data.azurerm_resource_group.rg.id
+resource "azurerm_role_assignment" "k8s_managed_identity_operator" {
+  scope                = data.azurerm_resource_group.node_rg.id
   role_definition_name = "Managed Identity Operator"
-  principal_id         = data.azuread_service_principal.aks.id
+  principal_id         = var.principal_id
+}
+
+resource "azurerm_role_assignment" "additional_managed_identity_operator" {
+  count                = length(var.additional_scopes)
+  scope                = var.additional_scopes[count.index]
+  role_definition_name = "Managed Identity Operator"
+  principal_id         = var.principal_id
 }
