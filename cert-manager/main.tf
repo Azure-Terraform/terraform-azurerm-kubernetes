@@ -2,12 +2,6 @@ data "azurerm_resource_group" "rg" {
   name = var.resource_group_name
 }
 
-data "azurerm_dns_zone" "zone" {
-  for_each            = var.domains
-  name                = each.key
-  resource_group_name = var.resource_group_name
-}
-
 resource "azurerm_user_assigned_identity" "cert_manager" {
   name                 = "${var.names.product_group}-${var.names.subscription_type}-certmgr${local.delimiter}${var.name_identifier}"
   location             = var.location
@@ -33,7 +27,7 @@ resource "azurerm_role_definition" "cert_manager" {
 
 resource "azurerm_role_assignment" "cert_manager" {
   for_each           = var.domains
-  scope              = data.azurerm_dns_zone.zone[each.key].id
+  scope              = each.value
   role_definition_id = azurerm_role_definition.cert_manager[each.key].id
   principal_id       = azurerm_user_assigned_identity.cert_manager.principal_id
 }
