@@ -12,7 +12,7 @@ resource "helm_release" "aad_pod_identity" {
   namespace  = "default"
   repository = "https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts"
   chart      = "aad-pod-identity"
-  version    = var.aad_pod_identity_version
+  version    = var.helm_chart_version
 
   set {
     name  = "rbac.allowAccessToSecrets"
