@@ -29,7 +29,7 @@ variable "resource_group_name"{
 }
 
 variable "location" {
-  description = "Azure kegion"
+  description = "Azure region"
   type        = string
 }
 
