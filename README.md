@@ -27,7 +27,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | enable\_aad\_pod\_identity | enable Azure AD pod identity enable kubernetes dashboard | `bool` | `true` | no |
 | enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `true` | no |
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
-| location | Azure kegion | `string` | n/a | yes |
+| location | Azure region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
 | service\_principal\_id | Azure Service Principal ID | `string` | `""` | no |
