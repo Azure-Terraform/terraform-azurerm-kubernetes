@@ -1,9 +1,9 @@
 azureIdentity:
   name: "azure-identity"
   type: 0
-  resourceID: ""
-  clientID: ""
+  resourceID:
+  clientID:
 
 azureIdentityBinding:
   name: "azure-identity-binding"
-  selector: ""
+  selector:

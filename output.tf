@@ -53,7 +53,7 @@ output "cluster_ca_certificate" {
   value        = azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate
 }
 
-output "service_principal_client_id" {
-  description  = "client id of the service principal used by this managed kubernetes cluster"
-  value        = azurerm_kubernetes_cluster.aks.service_principal.0.client_id
+output "principal_id" {
+  description  = "id of the principal used by this managed kubernetes cluster"
+  value        = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id)
 }

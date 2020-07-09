@@ -1,10 +1,4 @@
-data "azurerm_client_config" "current" {
-}
-
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
 data "azuread_service_principal" "aks" {
+  count        = (var.use_service_principal ? 1 : 0)
   display_name = var.service_principal_name
 }
