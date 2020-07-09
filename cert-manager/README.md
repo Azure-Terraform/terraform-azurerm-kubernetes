@@ -21,7 +21,7 @@ This module will use install cert-manager into a Kubernetes cluster and configur
 | additional\_yaml\_config | yaml config for helm chart to be processed last | `string` | `""` | no |
 | cert\_manager\_version | cert-manager helm chart version | `string` | `"v0.15.0"` | no |
 | create\_kubernetes\_namespace | create kubernetes namespace if not present | `bool` | `true` | no |
-| domains | domains certificates will be generated for | `set(string)` | n/a | yes |
+| domains | map of domains to domain ids which certificates will be generated for | `map(string)` | n/a | yes |
 | helm\_release\_name | helm release name | `string` | `"cert-manager"` | no |
 | install\_crds | install cert-manager crds | `bool` | `true` | no |
 | issuers | n/a | <pre>map(object({<br>    namespace             = string # kubernetes namespace<br>    cluster_issuer        = bool   # setting 'true' will create a ClusterIssuer, setting 'false' will create a namespace isolated Issuer<br>    email_address         = string # email address used for expiration notification<br>    domain                = string # azuredns hosted domain (must be listed in var.domains)<br>    letsencrypt_endpoint  = string # letsencrypt endpoint (https://letsencrypt.org/docs/acme-protocol-updates).  Allowable inputs are 'staging', 'production' or a full URL<br>  }))</pre> | `{}` | no |

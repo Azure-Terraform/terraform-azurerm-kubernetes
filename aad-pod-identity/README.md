@@ -10,7 +10,6 @@ This module will enable aad pod identity within a managed Kubernetes cluster hos
 
 | Name | Version |
 |------|---------|
-| azuread | n/a |
 | azurerm | n/a |
 | helm | n/a |
 
@@ -18,9 +17,10 @@ This module will enable aad pod identity within a managed Kubernetes cluster hos
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| aad\_pod\_identity\_version | Azure AD pod identity helm chart version | `string` | `"1.6.0"` | no |
-| resource\_group\_name | Resource group name | `string` | n/a | yes |
-| service\_principal\_name | Azure Service Principal Name | `string` | n/a | yes |
+| additional\_scopes | identity scopes residing outside of AKS MC\_resource\_group (resource group id or identity id would be a common input) | `list(string)` | `[]` | no |
+| helm\_chart\_version | Azure AD pod identity helm chart version | `string` | `"2.0.0"` | no |
+| node\_resource\_group\_name | AKS node resource group name | `string` | n/a | yes |
+| principal\_id | AKS principal id | `string` | n/a | yes |
 
 ## Outputs
 

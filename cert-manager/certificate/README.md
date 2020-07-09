@@ -18,6 +18,7 @@ This module will use cert-manager to create Let's Encrypt certificate and Kubern
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
 | certificate\_name | name of certificate | `string` | n/a | yes |
+| create\_namespace | create kubernetes namespace | `bool` | `true` | no |
 | dns\_names | dns name(s) for certificate | `list(string)` | n/a | yes |
 | helm\_release\_name | name for helm release (defauls to le-cert-<certificate\_name>) | `string` | `""` | no |
 | issuer\_ref\_name | name of kubernetes cluster issuer | `string` | n/a | yes |
