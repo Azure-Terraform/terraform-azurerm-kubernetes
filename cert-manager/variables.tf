@@ -60,8 +60,8 @@ variable "install_crds" {
 }
 
 variable "domains" {
-  description = "domains certificates will be generated for"
-  type        = set(string)
+  description = "map of domains to domain ids which certificates will be generated for"
+  type        = map(string)
 }
 
 variable "additional_yaml_config" {

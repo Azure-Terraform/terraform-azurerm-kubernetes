@@ -1,17 +1,26 @@
 # Basics
+variable "use_service_principal" {
+  description = "use service principal (false will use SystemAssigned identity)"
+  type        = bool
+  default     = false
+}
+
 variable "service_principal_id" {
   description = "Azure Service Principal ID"
   type        = string
+  default     = ""
 }
 
 variable "service_principal_secret" {
   description = "Azure Service Principal Secret"
   type        = string
+  default     = ""
 }
 
 variable "service_principal_name" {
   description = "Azure Service Principal Name"
   type        = string
+  default     = ""
 }
 
 variable "resource_group_name"{
@@ -20,7 +29,7 @@ variable "resource_group_name"{
 }
 
 variable "location" {
-  description = "Azure Region"
+  description = "Azure region"
   type        = string
 }
 
