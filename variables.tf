@@ -102,3 +102,22 @@ variable "enable_kube_dashboard" {
   type        = bool
   default     = true
 }
+
+# kured variables
+variable "enable_kured" {
+  description = "enable kured"
+  type        = bool
+  default     = false
+}
+
+variable "kured_namespace" {
+  description = "namespace to use for kured. It will be created if namespace does not already exist"
+  type        = string
+  default     = null
+}
+
+variable "kured_version" {
+  description = "the version to add for kured"
+  type        = string
+  default     = null
+}

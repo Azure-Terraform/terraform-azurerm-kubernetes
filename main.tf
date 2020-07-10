@@ -48,3 +48,27 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 }
+
+resource "null_resource" "run_kured" {
+  count = var.enable_kured ? 1 : 0
+  depends_on = [azurerm_kubernetes_cluster.aks]
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<HERE
+    # Authenticate to cluster
+    az aks get-credentials --resource-group ${var.resource_group_name} --name ${local.cluster_name}
+    echo "az aks installed. Output of kubectl get nodes :"
+    kubectl get nodes
+    # Get Namespace
+    GREPPED_NAMESPACE=`kubectl get namespaces | grep ${var.kured_namespace}`
+    if [[ -z $GREPPED_NAMESPACE ]]; then
+      # If namespace does not exist, create it
+      kubectl create namespace ${var.kured_namespace}
+      echo "Created namespace"
+    fi
+    helm repo add kured https://weaveworks.github.io/kured
+    helm repo update
+    helm install rebooter kured/kured --version ${var.kured_version} --namespace ${var.kured_namespace} --set nodeSelector."beta\.kubernetes\.io/os"=linux
+HERE
+  }
+}
