@@ -27,13 +27,14 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | enable\_aad\_pod\_identity | enable Azure AD pod identity enable kubernetes dashboard | `bool` | `true` | no |
 | enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `true` | no |
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
-| location | Azure Region | `string` | n/a | yes |
+| location | Azure region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
-| service\_principal\_id | Azure Service Principal ID | `string` | n/a | yes |
-| service\_principal\_name | Azure Service Principal Name | `string` | n/a | yes |
-| service\_principal\_secret | Azure Service Principal Secret | `string` | n/a | yes |
+| service\_principal\_id | Azure Service Principal ID | `string` | `""` | no |
+| service\_principal\_name | Azure Service Principal Name | `string` | `""` | no |
+| service\_principal\_secret | Azure Service Principal Secret | `string` | `""` | no |
 | tags | tags to be applied to resources | `map(string)` | n/a | yes |
+| use\_service\_principal | use service principal (false will use SystemAssigned identity) | `bool` | `false` | no |
 
 ## Outputs
 
@@ -49,7 +50,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | name | kubernetes managed cluster name |
 | node\_resource\_group | auto-generated resource group which contains the resources for this managed kubernetes cluster |
 | password | kubernetes password |
-| service\_principal\_client\_id | client id of the service principal used by this managed kubernetes cluster |
+| principal\_id | id of the principal used by this managed kubernetes cluster |
 | username | kubernetes username |
 <!--- END_TF_DOCS --->
 

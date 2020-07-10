@@ -33,9 +33,18 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  service_principal {
-    client_id     = var.service_principal_id
-    client_secret = var.service_principal_secret
+  dynamic "identity" {
+    for_each = var.use_service_principal ? [] : [1]
+    content {
+      type = "SystemAssigned"
+    }
   }
 
+  dynamic "service_principal" {
+    for_each = var.use_service_principal ? [1] : []
+    content {
+      client_id     = var.service_principal_id
+      client_secret = var.service_principal_secret
+    }
+  }
 }
