@@ -107,7 +107,7 @@ module "aks" {
 
   service_principal_id     = var.service_principal_id
   service_principal_secret = var.service_principal_secret
-  service_principal_name   = "ris-azr-app-infrastructure-aks-test"
+  service_principal_name   = "service-principal-name"
 
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
