@@ -1,0 +1,13 @@
+image:
+%{ if flux_version != "" ~}
+  version: ${flux_version}
+%{ endif ~}
+git:
+  url: ${config_repo_url}
+  path: ${config_repo_path}
+  secretName: flux-ssh
+ssh:
+  known_hosts: ${ssh_key}
+manifestGeneration: true
+syncGarbageCollection:
+  enabled: true

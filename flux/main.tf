@@ -9,10 +9,18 @@ resource "kubernetes_secret" "ssh_key" {
 
   metadata {
     namespace = "fluxcd"
-    name      = "ssh-key"
+    name      = "flux-ssh"
   }
   data = {
     ssh_key = var.ssh_key
+  }
+}
+
+data "external" "ssh_key" {
+  program = ["sh", "${path.module}/ssh_key.sh"]
+
+  query = {
+    host = "git@github.com:dutsmiller/fluxtest.git"
   }
 }
 
@@ -27,25 +35,14 @@ resource "helm_release" "flux" {
   chart      = "flux"
   version    = var.flux_helm_chart_version
 
-  #var.ssh_key
-
-  set {
-    name  = "image.version"
-    value = var.flux_version
-  }
-
-  set {
-    name  = "git.url"
-    value = var.git_url
-  }
-
-  set {
-    name  = "git.branch"
-    value = var.git_branch
-  }
-
-  set {
-    name  = "git.secretName"
-    value = "ssh-key"
-  }
+  values = [
+    templatefile("${path.module}/config.yaml.tmpl", {
+      flux_version       = var.flux_version
+      config_repo_url    = var.config_repo_url
+      config_repo_branch = var.config_repo_branch
+      config_repo_path   = var.config_repo_path
+      ssh_key            = data.external.ssh_key.result["key"]
+    }),
+    var.additional_yaml_config
+  ]
 }
