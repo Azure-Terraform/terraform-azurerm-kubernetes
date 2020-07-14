@@ -7,5 +7,21 @@ variable "flux_helm_chart_version" {
 variable "flux_version" {
   description = "version of flux to install"
   type        = string
-  default     = "1.19.0"
+  default     = ""
+}
+
+variable "ssh_key" {
+  description = "key used to access the git repo"
+  type        = string
+}
+
+variable "git_url" {
+  description = "git repo containing flux configuration"
+  type        = string
+}
+
+variable "git_branch" {
+  description = "git branch containing kubernetes manifests"
+  type        = string
+  default     = "master"
 }
