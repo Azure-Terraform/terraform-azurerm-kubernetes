@@ -2,6 +2,9 @@ resource "kubernetes_namespace" "fluxcd" {
   metadata {
     name = "fluxcd"
   }
+  lifecycle {
+    ignore_changes = [metadata[0].annotations,metadata[0].labels]
+  }
 }
 
 resource "kubernetes_secret" "config_repo_ssh_key" {
