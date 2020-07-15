@@ -10,7 +10,7 @@ variable "flux_version" {
   default     = ""
 }
 
-variable "ssh_key" {
+variable "config_repo_ssh_key" {
   description = "key used to access the git repo"
   type        = string
 }
@@ -23,12 +23,18 @@ variable "config_repo_url" {
 variable "config_repo_path" {
   description = "path in repo containing flux configuration"
   type        = string
+  default     = ""
 }
 
 variable "config_repo_branch" {
   description = "git branch containing kubernetes manifests"
   type        = string
   default     = "master"
+}
+
+variable "reference_repo_ssh_key" {
+  description = "key used to access the git repo"
+  type        = string
 }
 
 variable "additional_yaml_config" {

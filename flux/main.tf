@@ -4,7 +4,7 @@ resource "kubernetes_namespace" "fluxcd" {
   }
 }
 
-resource "kubernetes_secret" "ssh_key" {
+resource "kubernetes_secret" "config_repo_ssh_key" {
   depends_on = [kubernetes_namespace.fluxcd]
 
   metadata {
@@ -12,15 +12,27 @@ resource "kubernetes_secret" "ssh_key" {
     name      = "flux-ssh"
   }
   data = {
-    ssh_key = var.ssh_key
+    identity = var.config_repo_ssh_key
   }
 }
 
-data "external" "ssh_key" {
-  program = ["sh", "${path.module}/ssh_key.sh"]
+resource "kubernetes_secret" "reference_repo_ssh_key" {
+  depends_on = [kubernetes_namespace.fluxcd]
+
+  metadata {
+    namespace = "fluxcd"
+    name      = "flux-ssh-reference"
+  }
+  data = {
+    identity = var.reference_repo_ssh_key
+  }
+}
+
+data "external" "ssh_host_key" {
+  program = ["sh", "${path.module}/ssh_host_key.sh"]
 
   query = {
-    host = "git@github.com:dutsmiller/fluxtest.git"
+    host = var.config_repo_url
   }
 }
 
@@ -41,7 +53,7 @@ resource "helm_release" "flux" {
       config_repo_url    = var.config_repo_url
       config_repo_branch = var.config_repo_branch
       config_repo_path   = var.config_repo_path
-      ssh_key            = data.external.ssh_key.result["key"]
+      ssh_host_key       = data.external.ssh_host_key.result["key"]
     }),
     var.additional_yaml_config
   ]

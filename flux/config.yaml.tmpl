@@ -1,13 +1,31 @@
-image:
 %{ if flux_version != "" ~}
+image:
   version: ${flux_version}
 %{ endif ~}
 git:
   url: ${config_repo_url}
-  path: ${config_repo_path}
+  path: "${config_repo_path}"
+  branch: ${config_repo_branch}
   secretName: flux-ssh
 ssh:
   known_hosts: ${ssh_key}
+  config: |
+    Host github.com
+     User git
+     Hostname github.com
+     IdentityFile /etc/fluxd/ssh/identity-reference
+    Host *
+     StrictHostKeyChecking yes
+     IdentityFile /etc/fluxd/ssh/identity
+     LogLevel error
+extraVolumes:
+ - name: ssh-reference
+   secret:
+     secretName: flux-ssh-reference
+     defaultMode: 0400
+extraVolumeMounts:
+ - name: ssh-reference
+   mountPath: /etc/fluxd/ssh/identity-reference
 manifestGeneration: true
 syncGarbageCollection:
   enabled: true
