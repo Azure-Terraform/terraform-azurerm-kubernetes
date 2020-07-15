@@ -25,7 +25,7 @@ extraVolumes:
      secretName: flux-ssh-default
      defaultMode: 0400
 extraVolumeMounts:
- - name: ssh-reference
+ - name: ssh-default
    mountPath: /etc/fluxd/ssh/identity-default
 manifestGeneration: true
 syncGarbageCollection:
