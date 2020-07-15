@@ -8,24 +8,25 @@ git:
   branch: ${config_repo_branch}
   secretName: flux-ssh
 ssh:
-  known_hosts: ${ssh_key}
+  known_hosts: ${ssh_host_key}
   config: |
-    Host github.com
+    Host ${config_repo_host}
+     StrictHostKeyChecking yes
      User git
      Hostname github.com
-     IdentityFile /etc/fluxd/ssh/identity-reference
+     IdentityFile /etc/fluxd/ssh/identity
     Host *
      StrictHostKeyChecking yes
-     IdentityFile /etc/fluxd/ssh/identity
+     IdentityFile /etc/fluxd/ssh/identity-default
      LogLevel error
 extraVolumes:
- - name: ssh-reference
+ - name: ssh-default
    secret:
-     secretName: flux-ssh-reference
+     secretName: flux-ssh-default
      defaultMode: 0400
 extraVolumeMounts:
  - name: ssh-reference
-   mountPath: /etc/fluxd/ssh/identity-reference
+   mountPath: /etc/fluxd/ssh/identity-default
 manifestGeneration: true
 syncGarbageCollection:
   enabled: true

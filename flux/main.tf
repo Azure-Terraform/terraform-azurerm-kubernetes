@@ -16,15 +16,15 @@ resource "kubernetes_secret" "config_repo_ssh_key" {
   }
 }
 
-resource "kubernetes_secret" "reference_repo_ssh_key" {
+resource "kubernetes_secret" "default_repo_ssh_key" {
   depends_on = [kubernetes_namespace.fluxcd]
 
   metadata {
     namespace = "fluxcd"
-    name      = "flux-ssh-reference"
+    name      = "flux-ssh-default"
   }
   data = {
-    identity = var.reference_repo_ssh_key
+    identity = var.default_ssh_key
   }
 }
 
@@ -32,12 +32,12 @@ data "external" "ssh_host_key" {
   program = ["sh", "${path.module}/ssh_host_key.sh"]
 
   query = {
-    host = var.config_repo_url
+    url = var.config_repo_url
   }
 }
 
 resource "helm_release" "flux" {
-  depends_on = [kubernetes_secret.ssh_key]
+  depends_on = [kubernetes_secret.config_repo_ssh_key]
 
   name             = "flux"
   namespace        = "fluxcd"
@@ -50,9 +50,11 @@ resource "helm_release" "flux" {
   values = [
     templatefile("${path.module}/config.yaml.tmpl", {
       flux_version       = var.flux_version
-      config_repo_url    = var.config_repo_url
+      config_repo_url    = replace(var.config_repo_url, "github.com", "config.github.com")
+      config_repo_host   = replace(data.external.ssh_host_key.result["host"], "github.com", "config.github.com")
       config_repo_branch = var.config_repo_branch
       config_repo_path   = var.config_repo_path
+      #github_support     = (length(regexall("github.com", var.config_repo_url)) > 0)
       ssh_host_key       = data.external.ssh_host_key.result["key"]
     }),
     var.additional_yaml_config

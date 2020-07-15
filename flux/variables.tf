@@ -1,7 +1,7 @@
 variable "flux_helm_chart_version" {
   description = "version of flux helm chart to use"
   type        = string
-  default     = "1.3.0"
+  default     = "1.4.0"
 }
 
 variable "flux_version" {
@@ -11,7 +11,7 @@ variable "flux_version" {
 }
 
 variable "config_repo_ssh_key" {
-  description = "key used to access the git repo"
+  description = "key used to access the config git repo"
   type        = string
 }
 
@@ -32,8 +32,8 @@ variable "config_repo_branch" {
   default     = "master"
 }
 
-variable "reference_repo_ssh_key" {
-  description = "key used to access the git repo"
+variable "default_ssh_key" {
+  description = "default key used to access git repos"
   type        = string
 }
 
