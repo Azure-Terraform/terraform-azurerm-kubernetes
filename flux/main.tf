@@ -41,7 +41,6 @@ resource "helm_release" "flux" {
 
   name             = "flux"
   namespace        = "fluxcd"
-  #create_namespace = true
 
   repository = "https://charts.fluxcd.io"
   chart      = "flux"
@@ -54,7 +53,6 @@ resource "helm_release" "flux" {
       config_repo_host   = replace(data.external.ssh_host_key.result["host"], "github.com", "config.github.com")
       config_repo_branch = var.config_repo_branch
       config_repo_path   = var.config_repo_path
-      #github_support     = (length(regexall("github.com", var.config_repo_url)) > 0)
       ssh_host_key       = data.external.ssh_host_key.result["key"]
     }),
     var.additional_yaml_config
