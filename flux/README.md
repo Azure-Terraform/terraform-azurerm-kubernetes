@@ -10,17 +10,22 @@ This module will enable flux within a managed Kubernetes cluster hosted on Azure
 
 | Name | Version |
 |------|---------|
-| azuread | n/a |
-| azurerm | n/a |
+| external | n/a |
 | helm | n/a |
+| kubernetes | n/a |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| aad\_pod\_identity\_version | Azure AD pod identity helm chart version | `string` | `"1.6.0"` | no |
-| resource\_group\_name | Resource group name | `string` | n/a | yes |
-| service\_principal\_name | Azure Service Principal Name | `string` | n/a | yes |
+| additional\_yaml\_config | yaml config for helm chart to be processed last | `string` | `""` | no |
+| config\_repo\_branch | git branch containing kubernetes manifests | `string` | `"master"` | no |
+| config\_repo\_path | path in repo containing flux configuration | `string` | `""` | no |
+| config\_repo\_ssh\_key | key used to access the config git repo | `string` | n/a | yes |
+| config\_repo\_url | git repo containing flux configuration | `string` | n/a | yes |
+| default\_ssh\_key | default key used to access git repos | `string` | n/a | yes |
+| flux\_helm\_chart\_version | version of flux helm chart to use | `string` | `"1.4.0"` | no |
+| flux\_version | version of flux to install | `string` | `""` | no |
 
 ## Outputs
 
