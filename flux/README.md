@@ -29,98 +29,17 @@ No output.
 ## Example
 
 ~~~~
-provider "azurerm" {
-  version = ">=2.0.0"
-  features {}
-  subscription_id = "00000-0000-0000-0000-0000000"
-}
+module "flux" {
+  source = "github.com/Azure-Terraform/terraform-azurerm-kubernetes.git//flux"
 
-# Subscription
-module "subscription" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
-}
+  providers = {helm = helm.aks, kubernetes = kubernetes.aks}
 
-# Metadata
-module "metadata" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-metadata.git?ref=v1.0.0"
+  flux_helm_chart_version = "1.4.0"
 
-  subscription_id     = module.subscription.output.subscription_id
-  # These values should be taken from https://github.com/openrba/python-azure-naming
-  business_unit       = "rba.businessUnit"
-  cost_center         = "rba.costCenter"
-  environment         = "rba.environment"
-  location            = "rba.azureRegion"
-  market              = "rba.market"
-  product_name        = "rba.productName"
-  product_group       = "rba.productGroup"
-  project             = "project-url"
-  sre_team            = "team-name"
-  subscription_type   = "rba.subscriptionType"
-  resource_group_type = "rba.resourceGroupType"
+  config_repo_ssh_key = tls_private_key.config.private_key_pem
+  config_repo_url     = "git@github.com:org/flux.git"
+  config_repo_path    = "aks"
 
-  additional_tags = {
-    "example" = "an additional tag"
-  }
-}
-
-# Resource group
-module "resource_group" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-resource-group.git?ref=v1.0.0"
-
-  location = module.metadata.location
-  tags     = module.metadata.tags
-  name     = module.metadata.names
-}
-
-# AKS
-## This will create a managed kubernetes cluster
-module "aks" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git"
-
-  service_principal_id     = var.service_principal_id
-  service_principal_secret = var.service_principal_secret
-  service_principal_name   = "ris-azr-app-infrastructure-aks-test"
-
-  resource_group_name = module.resource_group.name
-  location            = module.resource_group.location
-
-  names = module.metadata.names
-  tags  = module.metadata.tags
-
-  kubernetes_version = "1.16.7"
-
-  default_node_pool_name                = "default"
-  default_node_pool_vm_size             = "Standard_D2s_v3"
-  default_node_pool_enable_auto_scaling = true
-  default_node_pool_node_min_count      = 1
-  default_node_pool_node_max_count      = 5
-  default_node_pool_availability_zones  = [1,2,3]
-
-  enable_kube_dashboard = true
-  
-}
-
-# Helm
-provider "helm" {
-  alias = "aks"
-  kubernetes {
-    host                   = module.aks.host
-    client_certificate     = base64decode(module.aks.client_certificate)
-    client_key             = base64decode(module.aks.client_key)
-    cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-  }
-}
-
-module "aad-pod-identity" {
-  source = "git@github.com:LexisNexis-Terraform/terraform-azurerm-kubernetes.git/aad-pod-identity"
-  
-  providers = {
-    helm = helm.aks
-  }
-
-  resource_group_name    = module.resource_group.name
-  service_principal_name = "ris-azr-app-infrastructure-aks-test"
-
-  aad_pod_identity_version = "1.6.0"
+  default_ssh_key = tls_private_key.default.private_key_pem
 }
 ~~~~
