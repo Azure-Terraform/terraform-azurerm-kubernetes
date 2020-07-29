@@ -7,6 +7,19 @@ resource "kubernetes_namespace" "fluxcd" {
   }
 }
 
+#data "http" "helm_operator_crds" {
+#  url = "https://raw.githubusercontent.com/fluxcd/helm-operator/v${var.helm_operator_crd_version}/deploy/crds.yaml"
+#}
+#
+#resource "kubernetes_manifest" "helm_operator_crds" {
+#  provider = "kubernetes-alpha"
+#  manifest = yamldecode(data.http.helm_operator_crds.body)
+#
+#  lifecycle {
+#    ignore_changes = [manifest]
+#  }
+#}
+
 resource "kubernetes_secret" "config_repo_ssh_key" {
   depends_on = [kubernetes_namespace.fluxcd]
 
@@ -60,4 +73,9 @@ resource "helm_release" "flux" {
     }),
     var.additional_yaml_config
   ]
+
+  lifecycle {
+    ignore_changes = [values,version]
+  }
+
 }

@@ -1,3 +1,9 @@
+variable "helm_operator_crd_version" {
+  description = "version of helm-operator CRDs to install"
+  type        = string
+  default     = "1.1.0"
+}
+
 variable "flux_helm_chart_version" {
   description = "version of flux helm chart to use"
   type        = string
