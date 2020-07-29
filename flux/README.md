@@ -26,6 +26,7 @@ This module will enable flux within a managed Kubernetes cluster hosted on Azure
 | default\_ssh\_key | default key used to access git repos | `string` | n/a | yes |
 | flux\_helm\_chart\_version | version of flux helm chart to use | `string` | `"1.4.0"` | no |
 | flux\_version | version of flux to install | `string` | `""` | no |
+| helm\_operator\_crd\_version | version of helm-operator CRDs to install | `string` | `"1.1.0"` | no |
 
 ## Outputs
 
