@@ -1,7 +1,7 @@
 data "azurerm_dns_zone" "zone" {
   for_each = var.domains
   name                = each.key
-  resource_group_name = each.value["resource_group"]
+  resource_group_name = each.value.resource_group
 }
 
 data "azurerm_subscription" "subscription" {
@@ -33,7 +33,7 @@ resource "azurerm_role_definition" "cert_manager" {
 
 resource "azurerm_role_assignment" "cert_manager" {
   for_each           = var.domains
-  scope              = each.value["id"]
+  scope              = each.value.id
   role_definition_id = azurerm_role_definition.cert_manager[each.key].id
   principal_id       = azurerm_user_assigned_identity.cert_manager.principal_id
 }
