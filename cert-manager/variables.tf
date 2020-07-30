@@ -60,8 +60,12 @@ variable "install_crds" {
 }
 
 variable "domains" {
-  description = "map of domains to domain ids which certificates will be generated for"
-  type        = map(string)
+  description = "map of domains to domain ids and resource groups which certificates will be generated for"
+  type        = map(object({
+                  id             = string # id of dns zone 
+                  resource_group = string # name of resource group containing the dns zone
+                }))
+  default     = {}
 }
 
 variable "additional_yaml_config" {
