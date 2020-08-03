@@ -7,18 +7,27 @@ resource "kubernetes_namespace" "fluxcd" {
   }
 }
 
-#data "http" "helm_operator_crds" {
-#  url = "https://raw.githubusercontent.com/fluxcd/helm-operator/v${var.helm_operator_crd_version}/deploy/crds.yaml"
-#}
-#
-#resource "kubernetes_manifest" "helm_operator_crds" {
-#  provider = "kubernetes-alpha"
-#  manifest = yamldecode(data.http.helm_operator_crds.body)
-#
-#  lifecycle {
-#    ignore_changes = [manifest]
-#  }
-#}
+###############################################################
+########## This would pre-install helm-operator crds ##########
+###############################################################
+### data "http" "flux_helm_operator_crds" {
+###   url = "https://raw.githubusercontent.com/fluxcd/helm-operator/v${var.helm_operator_crd_version}/deploy/crds.yaml"
+### }
+### 
+### resource  "helm_release" "init_flux_crds" {
+###   name  = "init-flux-helm-operator-crds"
+###   chart = "${path.module}/charts/init-flux-helm-operator-crds"
+### 
+###   set {
+###     name  = "manifest"
+###     value = replace(data.http.flux_helm_operator_crds.body, ",", "\\,")
+###   }
+### 
+###   lifecycle {
+###     ignore_changes = [chart]
+###   }
+### }
+###############################################################
 
 resource "kubernetes_secret" "config_repo_ssh_key" {
   depends_on = [kubernetes_namespace.fluxcd]
@@ -61,6 +70,7 @@ resource "helm_release" "flux" {
   repository = "https://charts.fluxcd.io"
   chart      = "flux"
   version    = var.flux_helm_chart_version
+  skip_crds  = true
 
   values = [
     templatefile("${path.module}/config.yaml.tmpl", {
@@ -77,5 +87,4 @@ resource "helm_release" "flux" {
   lifecycle {
     ignore_changes = [values,version]
   }
-
 }
