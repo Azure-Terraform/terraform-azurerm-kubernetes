@@ -49,6 +49,12 @@ variable "kubernetes_version" {
   type        = string
 }
 
+variable "network_plugin" {
+  description = "network plugin to use for networking (azure or kubenet)"
+  type        = string
+  default     = "kubenet"
+}
+
 variable "default_node_pool_name" {
   description = "default node pool name"
   type        = string
@@ -89,6 +95,12 @@ variable "default_node_pool_availability_zones" {
   description = "default node pool availability zones"
   type        = list(number)
   default     = [1,2,3]
+}
+
+variable "default_node_pool_vnet_subnet_id" {
+  description = "default node pool vnet subnet id"
+  type        = string
+  default     = ""
 }
 
 variable "enable_aad_pod_identity" {
