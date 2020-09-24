@@ -24,11 +24,13 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | default\_node\_pool\_node\_max\_count | enable default node pool auto scaling (only valid with auto scaling) | `number` | `5` | no |
 | default\_node\_pool\_node\_min\_count | enable default node pool auto scaling (only valid for auto scaling) | `number` | `1` | no |
 | default\_node\_pool\_vm\_size | default node pool VM size | `string` | `"Standard_D2s_v3"` | no |
+| default\_node\_pool\_vnet\_subnet\_id | default node pool vnet subnet id | `string` | `""` | no |
 | enable\_aad\_pod\_identity | enable Azure AD pod identity enable kubernetes dashboard | `bool` | `true` | no |
 | enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `true` | no |
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
 | location | Azure region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
+| network\_plugin | network plugin to use for networking (azure or kubenet) | `string` | `"kubenet"` | no |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
 | service\_principal\_id | Azure Service Principal ID | `string` | `""` | no |
 | service\_principal\_name | Azure Service Principal Name | `string` | `""` | no |
@@ -43,6 +45,8 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | client\_certificate | kubernetes client certificate |
 | client\_key | kubernetes client key |
 | cluster\_ca\_certificate | kubernetes cluster ca certificate |
+| effective\_outbound\_ips | The outcome IPs of the specified arguments. |
+| effective\_outbound\_ips\_ids | The outcome (resource IDs) of the specified arguments. |
 | fqdn | kubernetes managed cluster fqdn |
 | host | kubernetes host |
 | id | kubernetes managed cluster id |
