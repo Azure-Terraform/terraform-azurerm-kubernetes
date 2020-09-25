@@ -12,17 +12,18 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version = var.kubernetes_version
   
   network_profile {
-    network_plugin       = "kubenet"
+    network_plugin       = var.network_plugin
   }
 
   default_node_pool {
     name                = var.default_node_pool_name
     vm_size             = var.default_node_pool_vm_size
     enable_auto_scaling = var.default_node_pool_enable_auto_scaling
-    node_count          = (var.default_node_pool_enable_auto_scaling ? null :var.default_node_pool_node_count)
+    node_count          = (var.default_node_pool_enable_auto_scaling ? null : var.default_node_pool_node_count)
     min_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_min_count : null)
     max_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_max_count : null)
     availability_zones  = var.default_node_pool_availability_zones
+    vnet_subnet_id      = (var.default_node_pool_vnet_subnet_id != "" ? var.default_node_pool_vnet_subnet_id : null)	
     # disabled due to AKS bug	
     #tags                = var.tags
   }
