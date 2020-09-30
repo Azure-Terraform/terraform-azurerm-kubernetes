@@ -2,7 +2,56 @@ locals {
   cluster_name = "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}"
 }
 
+resource "azurerm_network_security_rule" "allow_azure_cloud_udp_1194" {
+  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  name                        = "AKS_Control_Plane_UDP_1194"
+  priority                    = var.nsg_rule_priority_start
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "UDP"
+  source_port_range           = "*"
+  destination_port_range      = "1194"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "AzureCloud"
+  resource_group_name         = var.default_node_pool_subnet.resource_group_name
+  network_security_group_name = var.default_node_pool_subnet.security_group_name
+}
+
+resource "azurerm_network_security_rule" "allow_azure_cloud_tcp_9000" {
+  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  name                        = "AKS_Control_Plane_TCP_9000"
+  priority                    = (var.nsg_rule_priority_start + 1)
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "TCP"
+  source_port_range           = "*"
+  destination_port_range      = "9000"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "AzureCloud"
+  resource_group_name         = var.default_node_pool_subnet.resource_group_name
+  network_security_group_name = var.default_node_pool_subnet.security_group_name
+}
+
+resource "azurerm_network_security_rule" "allow_ntp" {
+  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  name                        = "AKS_NTP"
+  priority                    = (var.nsg_rule_priority_start + 2)
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "UDP"
+  source_port_range           = "*"
+  destination_port_range      = "123"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = var.default_node_pool_subnet.resource_group_name
+  network_security_group_name = var.default_node_pool_subnet.security_group_name
+}
+
 resource "azurerm_kubernetes_cluster" "aks" {
+  depends_on = [ azurerm_network_security_rule.allow_azure_cloud_udp_1194,
+                 azurerm_network_security_rule.allow_azure_cloud_tcp_9000,
+                 azurerm_network_security_rule.allow_ntp ]
+
   name                 = local.cluster_name
   location             = var.location
   resource_group_name  = var.resource_group_name
@@ -23,7 +72,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     min_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_min_count : null)
     max_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_max_count : null)
     availability_zones  = var.default_node_pool_availability_zones
-    vnet_subnet_id      = (var.default_node_pool_vnet_subnet_id != "" ? var.default_node_pool_vnet_subnet_id : null)	
+    vnet_subnet_id      = (var.create_default_node_pool_subnet ? null : var.default_node_pool_subnet.id)
     # disabled due to AKS bug	
     #tags                = var.tags
   }

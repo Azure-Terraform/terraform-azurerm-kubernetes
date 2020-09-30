@@ -97,10 +97,30 @@ variable "default_node_pool_availability_zones" {
   default     = [1,2,3]
 }
 
-variable "default_node_pool_vnet_subnet_id" {
-  description = "default node pool vnet subnet id"
-  type        = string
-  default     = ""
+variable "create_default_node_pool_subnet" {
+  description = "use AKS created subnet for default node pool (false requires default_node_pool_vnet_subnet_id is specified)"
+  type        = bool
+  default     = true
+}
+
+variable "default_node_pool_subnet" {
+  description = "default node pool vnet subnet info"
+  type        = object({
+                  id                  = string
+                  resource_group_name = string
+                  security_group_name = string 
+                })  
+  default     = {
+                  id                  = ""
+                  resource_group_name = ""
+                  security_group_name = ""
+                }
+}
+
+variable "nsg_rule_priority_start" {
+  description = "starting number for nsg rule priority"
+  type        = number
+  default     = 1585
 }
 
 variable "enable_aad_pod_identity" {
