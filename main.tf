@@ -2,7 +2,14 @@ locals {
   cluster_name = "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}"
 }
 
-resource "azurerm_network_security_rule" "allow_azure_cloud_udp_1194" {
+resource "azurerm_role_assignment" "subnet_network_contributor" {
+  count                = (var.use_service_principal ? (var.create_default_node_pool_subnet ? 1 : 0) : 0)
+  scope                = var.default_node_pool_subnet.id
+  role_definition_name = "Network Contributor"
+  principal_id         = data.azuread_service_principal.aks[0].object_id
+}
+
+resource "azurerm_network_security_rule" "outbound_allow_azure_cloud_udp_1194" {
   count                       = (var.create_default_node_pool_subnet ? 0 : 1)
   name                        = "AKS_Control_Plane_UDP_1194"
   priority                    = var.nsg_rule_priority_start
@@ -17,7 +24,7 @@ resource "azurerm_network_security_rule" "allow_azure_cloud_udp_1194" {
   network_security_group_name = var.default_node_pool_subnet.security_group_name
 }
 
-resource "azurerm_network_security_rule" "allow_azure_cloud_tcp_9000" {
+resource "azurerm_network_security_rule" "outbound_allow_azure_cloud_tcp_9000" {
   count                       = (var.create_default_node_pool_subnet ? 0 : 1)
   name                        = "AKS_Control_Plane_TCP_9000"
   priority                    = (var.nsg_rule_priority_start + 1)
@@ -32,7 +39,7 @@ resource "azurerm_network_security_rule" "allow_azure_cloud_tcp_9000" {
   network_security_group_name = var.default_node_pool_subnet.security_group_name
 }
 
-resource "azurerm_network_security_rule" "allow_ntp" {
+resource "azurerm_network_security_rule" "outbound_allow_ntp" {
   count                       = (var.create_default_node_pool_subnet ? 0 : 1)
   name                        = "AKS_NTP"
   priority                    = (var.nsg_rule_priority_start + 2)
@@ -47,9 +54,9 @@ resource "azurerm_network_security_rule" "allow_ntp" {
   network_security_group_name = var.default_node_pool_subnet.security_group_name
 }
 
-resource "azurerm_network_security_rule" "allow_azure_cloud_tcp_443" {
+resource "azurerm_network_security_rule" "outbound_allow_all_tcp_443" {
   count                       = (var.create_default_node_pool_subnet ? 0 : 1)
-  name                        = "AKS_AzureCloud_SSL"
+  name                        = "AKS_SSL"
   priority                    = (var.nsg_rule_priority_start + 3)
   direction                   = "Outbound"
   access                      = "Allow"
@@ -57,16 +64,16 @@ resource "azurerm_network_security_rule" "allow_azure_cloud_tcp_443" {
   source_port_range           = "*"
   destination_port_range      = "443"
   source_address_prefix       = "*"
-  destination_address_prefix  = "AzureCloud"
+  destination_address_prefix  = "*"
   resource_group_name         = var.default_node_pool_subnet.resource_group_name
   network_security_group_name = var.default_node_pool_subnet.security_group_name
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
-  depends_on = [ azurerm_network_security_rule.allow_azure_cloud_udp_1194,
-                 azurerm_network_security_rule.allow_azure_cloud_tcp_9000,
-                 azurerm_network_security_rule.allow_ntp,
-                 azurerm_network_security_rule.allow_azure_cloud_tcp_443 ]
+  depends_on = [ azurerm_network_security_rule.outbound_allow_azure_cloud_udp_1194,
+                 azurerm_network_security_rule.outbound_allow_azure_cloud_tcp_9000,
+                 azurerm_network_security_rule.outbound_allow_ntp,
+                 azurerm_network_security_rule.outbound_allow_all_tcp_443 ]
 
   name                 = local.cluster_name
   location             = var.location
