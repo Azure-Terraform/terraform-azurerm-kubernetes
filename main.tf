@@ -3,7 +3,7 @@ locals {
 }
 
 resource "azurerm_role_assignment" "subnet_network_contributor" {
-  count                = (var.use_service_principal ? (var.create_default_node_pool_subnet ? 1 : 0) : 0)
+  count                = (var.use_service_principal ? (var.create_default_node_pool_subnet ? 0 : 1) : 0)
   scope                = var.default_node_pool_subnet.id
   role_definition_name = "Network Contributor"
   principal_id         = data.azuread_service_principal.aks[0].object_id
