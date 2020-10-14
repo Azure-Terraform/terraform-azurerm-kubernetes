@@ -117,10 +117,14 @@ variable "default_node_pool_subnet" {
                 }
 }
 
-variable "nsg_rule_priority_start" {
-  description = "starting number for nsg rule priority"
-  type        = number
-  default     = 1585
+variable "nsg_rule_priority_range" {
+  description = "range for nsg rule priorities (<num>-<num>)"
+  type        = string
+  default     = "0-0"
+  validation {
+    condition     = ((tonumber(split("-", var.nsg_rule_priority_range)[1])-tonumber(split("-", var.nsg_rule_priority_range)[0]))>=10)
+    error_message = "The rage must be a string '<num1>-<num2>' such that num2-num1 is greater than or equal to 10."
+  }
 }
 
 variable "enable_aad_pod_identity" {
