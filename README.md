@@ -26,14 +26,13 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | default\_node\_pool\_node\_min\_count | enable default node pool auto scaling (only valid for auto scaling) | `number` | `1` | no |
 | default\_node\_pool\_subnet | default node pool vnet subnet info | <pre>object({<br>                  id                  = string<br>                  resource_group_name = string<br>                  security_group_name = string<br>                })</pre> | <pre>{<br>  "id": "",<br>  "resource_group_name": "",<br>  "security_group_name": ""<br>}</pre> | no |
 | default\_node\_pool\_vm\_size | default node pool VM size | `string` | `"Standard_D2s_v3"` | no |
-| enable\_aad\_pod\_identity | enable Azure AD pod identity enable kubernetes dashboard | `bool` | `true` | no |
 | enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `true` | no |
 | enable\_windows\_node\_pools | configure profile for windows node pools (requires windows\_profile\_admin\_username/password) | `bool` | `false` | no |
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
 | location | Azure region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
 | network\_plugin | network plugin to use for networking (azure or kubenet) | `string` | `"kubenet"` | no |
-| nsg\_rule\_priority\_start | starting number for nsg rule priority | `number` | `1585` | no |
+| nsg\_rule\_priority\_range | range for nsg rule priorities (<num>-<num>) | `string` | `"0-10"` | no |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
 | service\_principal\_id | Azure Service Principal ID | `string` | `""` | no |
 | service\_principal\_name | Azure Service Principal Name | `string` | `""` | no |
