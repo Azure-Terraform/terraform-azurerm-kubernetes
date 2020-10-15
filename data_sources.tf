@@ -11,4 +11,6 @@ locals {
   validate_nsg_rule_priority_end = (var.aks_managed_vnet ? null : (tonumber(split("-", var.nsg_rule_priority_range)[1]) <= 4096 ? null : file("ERROR: nsg_rule_priority_range must be between 100-4096")))
 
   nsg_rule_priority_start = tonumber(split("-", var.nsg_rule_priority_range)[0])
+
+  validate_windows_profile_admin_password = (var.enable_windows_node_pools ? (var.windows_profile_admin_password == "" ? file("ERROR: windows_profile_admin_password cannot be empty") : null) : null)
 }
