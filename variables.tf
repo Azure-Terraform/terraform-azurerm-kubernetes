@@ -97,8 +97,8 @@ variable "default_node_pool_availability_zones" {
   default     = [1,2,3]
 }
 
-variable "create_default_node_pool_subnet" {
-  description = "use AKS created subnet for default node pool (false requires default_node_pool_vnet_subnet_id is specified)"
+variable "aks_managed_vnet" {
+  description = "use AKS managed vnet/subnets (false requires default_node_pool_vnet_subnet_id is specified)"
   type        = bool
   default     = true
 }
@@ -108,8 +108,8 @@ variable "default_node_pool_subnet" {
   type        = object({
                   id                  = string
                   resource_group_name = string
-                  security_group_name = string 
-                })  
+                  security_group_name = string
+                })
   default     = {
                   id                  = ""
                   resource_group_name = ""
@@ -127,10 +127,22 @@ variable "nsg_rule_priority_range" {
   }
 }
 
-variable "enable_aad_pod_identity" {
-  description = "enable Azure AD pod identity enable kubernetes dashboard"
+variable "enable_windows_node_pools" {
+  description = "configure profile for windows node pools (requires windows_profile_admin_username/password)"
   type        = bool
-  default     = true
+  default     = false
+}
+
+variable "windows_profile_admin_username" {
+  description = "windows profile admin username"
+  type        = string
+  default     = "aks-windows-admin"
+}
+
+variable "windows_profile_admin_password" {
+  description = "windows profile admin password"
+  type        = string
+  default     = ""
 }
 
 variable "enable_kube_dashboard" {

@@ -3,7 +3,7 @@ locals {
 }
 
 resource "azurerm_role_assignment" "subnet_network_contributor" {
-  count                = (var.use_service_principal ? (var.create_default_node_pool_subnet ? 0 : 1) : 0)
+  count                = (var.use_service_principal ? (var.aks_managed_vnet ? 0 : 1) : 0)
   scope                = var.default_node_pool_subnet.id
   role_definition_name = "Network Contributor"
   principal_id         = data.azuread_service_principal.aks[0].object_id
@@ -146,6 +146,8 @@ resource "azurerm_network_security_rule" "outbound_allow_all_vnet" {
   network_security_group_name = var.default_node_pool_subnet.security_group_name
 }
 
+=======
+>>>>>>> master
 resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [ azurerm_role_assignment.subnet_network_contributor,
                  #azurerm_network_security_rule.outbound_allow_azure_cloud_udp_1194,
@@ -175,7 +177,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     min_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_min_count : null)
     max_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_max_count : null)
     availability_zones  = var.default_node_pool_availability_zones
-    vnet_subnet_id      = (var.create_default_node_pool_subnet ? null : var.default_node_pool_subnet.id)
+    vnet_subnet_id      = (var.aks_managed_vnet ? null : var.default_node_pool_subnet.id)
+
     # disabled due to AKS bug	
     #tags                = var.tags
   }
@@ -183,6 +186,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
   addon_profile {
     kube_dashboard {
       enabled = var.enable_kube_dashboard
+    }
+  }
+
+  dynamic "windows_profile" {
+    for_each = var.enable_windows_node_pools ? [] : [1]
+    content {
+      admin_username = var.windows_profile_admin_username
+      admin_password = var.windows_profile_admin_password
     }
   }
 
