@@ -120,7 +120,7 @@ variable "default_node_pool_subnet" {
 variable "nsg_rule_priority_range" {
   description = "range for nsg rule priorities (<num>-<num>)"
   type        = string
-  default     = "0-0"
+  default     = "0-10"
   validation {
     condition     = ((tonumber(split("-", var.nsg_rule_priority_range)[1])-tonumber(split("-", var.nsg_rule_priority_range)[0]))>=10)
     error_message = "The rage must be a string '<num1>-<num2>' such that num2-num1 is greater than or equal to 10."

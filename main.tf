@@ -11,7 +11,7 @@ resource "azurerm_role_assignment" "subnet_network_contributor" {
 
 # Inbound Rules
 resource "azurerm_network_security_rule" "inbound_allow_all_vnet" {
-  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  count                       = (var.aks_managed_vnet ? 0 : 1)
   name                        = "AKS_virtual_network"
   priority                    = (local.nsg_rule_priority_start)
   direction                   = "Inbound"
@@ -26,7 +26,7 @@ resource "azurerm_network_security_rule" "inbound_allow_all_vnet" {
 }
 
 resource "azurerm_network_security_rule" "inbound_allow_all_azure_load_balancer" {
-  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  count                       = (var.aks_managed_vnet ? 0 : 1)
   name                        = "AKS_Azure_LoadBalancer"
   priority                    = (local.nsg_rule_priority_start + 1)
   direction                   = "Inbound"
@@ -42,7 +42,7 @@ resource "azurerm_network_security_rule" "inbound_allow_all_azure_load_balancer"
 
 # Outbound Rules
 resource "azurerm_network_security_rule" "outbound_allow_azure_cloud" {
-  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  count                       = (var.aks_managed_vnet ? 0 : 1)
   name                        = "AKS_AzureCLoud"
   priority                    = local.nsg_rule_priority_start
   direction                   = "Outbound"
@@ -57,7 +57,7 @@ resource "azurerm_network_security_rule" "outbound_allow_azure_cloud" {
 }
 
 #resource "azurerm_network_security_rule" "outbound_allow_azure_cloud_udp_1194" {
-#  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+#  count                       = (var.aks_managed_vnet ? 0 : 1)
 #  name                        = "AKS_control_plane_udp_1194"
 #  priority                    = local.nsg_rule_priority_start
 #  direction                   = "Outbound"
@@ -72,7 +72,7 @@ resource "azurerm_network_security_rule" "outbound_allow_azure_cloud" {
 #}
 #
 #resource "azurerm_network_security_rule" "outbound_allow_azure_cloud_tcp_9000" {
-#  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+#  count                       = (var.aks_managed_vnet ? 0 : 1)
 #  name                        = "AKS_control_plane_tcp_9000"
 #  priority                    = (local.nsg_rule_priority_start + 1)
 #  direction                   = "Outbound"
@@ -87,7 +87,7 @@ resource "azurerm_network_security_rule" "outbound_allow_azure_cloud" {
 #}
 
 resource "azurerm_network_security_rule" "outbound_allow_ntp" {
-  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  count                       = (var.aks_managed_vnet ? 0 : 1)
   name                        = "AKS_udp_ntp"
   priority                    = (local.nsg_rule_priority_start + 2)
   direction                   = "Outbound"
@@ -102,7 +102,7 @@ resource "azurerm_network_security_rule" "outbound_allow_ntp" {
 }
 
 #resource "azurerm_network_security_rule" "outbound_allow_all_tcp_443" {
-#  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+#  count                       = (var.aks_managed_vnet ? 0 : 1)
 #  name                        = "AKS_tcp_ssl"
 #  priority                    = (local.nsg_rule_priority_start + 3)
 #  direction                   = "Outbound"
@@ -117,7 +117,7 @@ resource "azurerm_network_security_rule" "outbound_allow_ntp" {
 #}
 #
 #resource "azurerm_network_security_rule" "outbound_allow_azurefiles" {
-#  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+#  count                       = (var.aks_managed_vnet ? 0 : 1)
 #  name                        = "AKS_azure_files"
 #  priority                    = (local.nsg_rule_priority_start + 4)
 #  direction                   = "Outbound"
@@ -132,7 +132,7 @@ resource "azurerm_network_security_rule" "outbound_allow_ntp" {
 #}
 
 resource "azurerm_network_security_rule" "outbound_allow_all_vnet" {
-  count                       = (var.create_default_node_pool_subnet ? 0 : 1)
+  count                       = (var.aks_managed_vnet ? 0 : 1)
   name                        = "AKS_virtual_network"
   priority                    = (local.nsg_rule_priority_start + 5)
   direction                   = "Outbound"
@@ -146,8 +146,6 @@ resource "azurerm_network_security_rule" "outbound_allow_all_vnet" {
   network_security_group_name = var.default_node_pool_subnet.security_group_name
 }
 
-=======
->>>>>>> master
 resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [ azurerm_role_assignment.subnet_network_contributor,
                  #azurerm_network_security_rule.outbound_allow_azure_cloud_udp_1194,
@@ -190,7 +188,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "windows_profile" {
-    for_each = var.enable_windows_node_pools ? [] : [1]
+    for_each = var.enable_windows_node_pools ? [1] : []
     content {
       admin_username = var.windows_profile_admin_username
       admin_password = var.windows_profile_admin_password
