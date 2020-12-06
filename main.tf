@@ -7,10 +7,14 @@ module "subnet_config" {
 
   for_each = var.node_pool_subnets
 
-  principal_id        = (var.use_service_principal ? data.azuread_service_principal.aks[0].object_id : azurerm_kubernetes_cluster.aks.identity[0].principal_id)
-  resource_group_name = var.resource_group_name 
-  subnet_id           = each.value.id
-  security_group_name = each.value.security_group_name
+  configure_network_role = var.configure_sp_subnet_role
+  principal_id           = (var.use_service_principal ? data.azuread_service_principal.aks[0].object_id : azurerm_kubernetes_cluster.aks.identity[0].principal_id)
+
+  configure_nsg_rules     = var.configure_subnet_nsg_rules
+  nsg_rule_priority_start = var.subnet_nsg_rule_priority_start
+  resource_group_name     = var.resource_group_name 
+  subnet_id               = each.value.id
+  security_group_name     = each.value.security_group_name
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {

@@ -119,6 +119,24 @@ variable "node_pool_subnets" {
   default     = {}
 }
 
+variable "configure_sp_subnet_role" {
+  description = "Add Network Contributor role for service principal on input subnets."
+  type        = bool
+  default     = true
+}
+
+variable "configure_subnet_nsg_rules" {
+  description = "Configure required AKS NSG rules on input subnets."
+  type        = bool
+  default     = true
+}
+
+variable "subnet_nsg_rule_priority_start" {
+  description = "Starting point for NSG rulee priorities."
+  type        = number
+  default     = 1000
+}
+
 variable "enable_aad_pod_identity" {
   description = "enable Azure AD pod identity enable kubernetes dashboard"
   type        = bool
