@@ -98,23 +98,25 @@ variable "default_node_pool_availability_zones" {
 }
 
 variable "aks_managed_vnet" {
-  description = "use AKS managed vnet/subnets (false requires default_node_pool_vnet_subnet_id is specified)"
+  description = "use AKS managed vnet/subnet (false requires default_node_pool_subnet and node_pool_subnets is specified)"
   type        = bool
   default     = true
 }
 
 variable "default_node_pool_subnet" {
+  description = "name of key from node_pool_subnets map to use for default node pool"
+  type        = string
+  default     = ""
+}
+
+variable "node_pool_subnets" {
   description = "default node pool vnet subnet info"
-  type        = object({
+  type        = map(object({
                   id                  = string
                   resource_group_name = string
                   security_group_name = string
-                })
-  default     = {
-                  id                  = ""
-                  resource_group_name = ""
-                  security_group_name = ""
-                }
+                }))
+  default     = {}
 }
 
 variable "enable_aad_pod_identity" {
