@@ -18,9 +18,12 @@ output "node_resource_group" {
   value        = azurerm_kubernetes_cluster.aks.node_resource_group
 }
 
-output "effective_outbound_ips_ids" {
+output "effective_outbound_ips" {
   description = "The outcome (resource IDs) of the specified arguments."
-  value       = azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
+  value       = [
+    for ip in data.azurerm_public_ip.effective_outbound_ips:
+    ip.ip_address
+  ]
 }
   
 output "kube_config_raw" {
