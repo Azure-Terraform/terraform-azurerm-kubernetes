@@ -135,7 +135,7 @@ module "kubernetes" {
   use_service_principal = false
 
   default_node_pool_name                = "default"
-  default_node_pool_vm_size             = "Standard_B1s"
+  default_node_pool_vm_size             = "Standard_B2s"
   default_node_pool_enable_auto_scaling = true
   default_node_pool_node_min_count      = 1
   default_node_pool_node_max_count      = 3
@@ -272,6 +272,7 @@ resource "helm_release" "iis" {
   depends_on = [azurerm_kubernetes_cluster_node_pool.windows]
   name       = "iis"
   chart      = "./helm_chart"
+  timeout    = 600
 
   set {
     name  = "name"
