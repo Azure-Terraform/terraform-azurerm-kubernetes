@@ -8,7 +8,7 @@ module "subnet_config" {
   for_each = var.node_pool_subnets
 
   configure_network_role = var.configure_sp_subnet_role
-  principal_id           = (var.use_service_principal ? data.azuread_service_principal.aks[0].object_id : azurerm_kubernetes_cluster.aks.identity[0].principal_id)
+  principal_id           = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id)
 
   configure_nsg_rules     = var.configure_subnet_nsg_rules
   nsg_rule_priority_start = var.subnet_nsg_rule_priority_start
