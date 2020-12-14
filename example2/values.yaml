@@ -1,0 +1,11 @@
+master:
+  replicas: 3
+  nodeSelector:
+    agentpool: es
+data:
+  nodeSelector:
+    agentpool: es
+  replicas: 3
+coordinating:
+  nodeSelector:
+    agentpool: es
