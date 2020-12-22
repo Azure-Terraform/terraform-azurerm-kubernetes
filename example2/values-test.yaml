@@ -1,4 +1,0 @@
-master:
-  replicas: 3
-data:
-  replicas: 3
