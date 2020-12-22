@@ -16,10 +16,6 @@ terraform {
       source  = "hashicorp/helm"
       version = "=1.3.2"
     }
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "=2.8.0"
-    }
   }
    required_version = "=0.13.5"
 }
@@ -101,7 +97,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.2.0"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.3.1"
 
   naming_rules = module.rules.yaml
 
@@ -113,12 +109,11 @@ module "virtual_network" {
   address_space = ["10.1.0.0/22"]
 
   subnets = {
-    "iaas-outbound" = { cidrs = ["10.1.0.0/24"]
-                        deny_all_ingress = true
-                        deny_all_egress  = true }
-    "iaas-public"   = { cidrs = ["10.1.1.0/24"]
-                        deny_all_ingress = true 
-                        deny_all_egress  = true }
+    "iaas-private" = { cidrs = ["10.1.0.0/24"] }
+
+    "iaas-public"  = { cidrs                   = ["10.1.1.0/24"]
+                       allow_lb_inbound        = true    # Allow traffic from Azure Load Balancer to pods
+                       allow_internet_outbound = true }  # Allow traffic to Internet for image download
   }
 }
 
@@ -140,7 +135,7 @@ module "kubernetes" {
   default_node_pool_node_min_count      = 1
   default_node_pool_node_max_count      = 3
   default_node_pool_availability_zones  = [1,2,3]
-  default_node_pool_subnet              = "outbound"
+  default_node_pool_subnet              = "private"
 
   enable_windows_node_pools      = true
   windows_profile_admin_username = "testadmin"
@@ -151,21 +146,21 @@ module "kubernetes" {
   configure_subnet_nsg_rules = true
 
   node_pool_subnets = {
+    private = {
+      id                  = module.virtual_network.subnet["iaas-private"].id
+      resource_group_name = module.virtual_network.vnet.resource_group_name
+      security_group_name = module.virtual_network.subnet_nsg_names["iaas-private"]
+    }
     public = {
       id                  = module.virtual_network.subnet["iaas-public"].id
       resource_group_name = module.virtual_network.vnet.resource_group_name
       security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
     }
-    outbound = {
-      id                  = module.virtual_network.subnet["iaas-outbound"].id
-      resource_group_name = module.virtual_network.vnet.resource_group_name
-      security_group_name = module.virtual_network.subnet_nsg_names["iaas-outbound"]
-    }
   }
 }
 
-resource "azurerm_kubernetes_cluster_node_pool" "b2s" {
-  name                  = "b2s"
+resource "azurerm_kubernetes_cluster_node_pool" "linux_webservers" {
+  name                  = "linuxweb"
   kubernetes_cluster_id = module.kubernetes.id
   vm_size               = "Standard_B2s"
   availability_zones    = [1,2,3]
@@ -178,8 +173,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "b2s" {
   tags = module.metadata.tags
 }
 
-resource "azurerm_kubernetes_cluster_node_pool" "windows" {
-  name                  = "win"
+resource "azurerm_kubernetes_cluster_node_pool" "windows_webservers" {
+  name                  = "winweb"
   kubernetes_cluster_id = module.kubernetes.id
   vm_size               = "Standard_D2_v3"
   availability_zones    = [1,2,3]
@@ -188,21 +183,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "windows" {
   vnet_subnet_id        = module.virtual_network.subnet["iaas-public"].id
 
   tags = module.metadata.tags
-}
-
-resource "azurerm_network_security_rule" "outbound_ssl" {
-  for_each                    = module.virtual_network.subnet_nsg_names
-  name                        = "Allow_SSL"
-  priority                    = 3000
-  direction                   = "Outbound"
-  access                      = "Allow"
-  protocol                    = "tcp"
-  source_port_range           = "*"
-  destination_port_range      = "443"
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = each.value
 }
 
 resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
@@ -233,22 +213,8 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
   network_security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
 }
 
-resource "azurerm_network_security_rule" "ingress_public_allow_azure_lb" {
-  name                        = "AllowLB"
-  priority                    = 200
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "*"
-  source_port_range           = "*"
-  destination_port_range      = "*"
-  source_address_prefix       = "AzureLoadBalancer"
-  destination_address_prefix  = "*"
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
-}
-
 resource "helm_release" "nginx" {
-  depends_on = [azurerm_kubernetes_cluster_node_pool.b2s]
+  depends_on = [azurerm_kubernetes_cluster_node_pool.linux_webservers]
   name       = "nginx"
   chart      = "./helm_chart"
 
@@ -264,12 +230,12 @@ resource "helm_release" "nginx" {
 
   set {
     name  = "nodeSelector"
-    value = yamlencode({agentpool = "b2s"})
+    value = yamlencode({agentpool = "linuxweb"})
   }
 }
 
 resource "helm_release" "iis" {
-  depends_on = [azurerm_kubernetes_cluster_node_pool.windows]
+  depends_on = [azurerm_kubernetes_cluster_node_pool.windows_webservers]
   name       = "iis"
   chart      = "./helm_chart"
   timeout    = 600
@@ -286,7 +252,7 @@ resource "helm_release" "iis" {
 
   set {
     name  = "nodeSelector"
-    value = yamlencode({agentpool = "win"})
+    value = yamlencode({agentpool = "winweb"})
   }
 }
 
@@ -304,12 +270,12 @@ data "kubernetes_service" "iis" {
   }
 }
 
-output "nginx_ip" {
-  value = data.kubernetes_service.nginx.load_balancer_ingress.0.ip
+output "nginx_url" {
+  value = "http://${data.kubernetes_service.nginx.load_balancer_ingress.0.ip}"
 }
 
-output "iis_ip" {
-  value = data.kubernetes_service.iis.load_balancer_ingress.0.ip
+output "iis_url" {
+  value = "http://${data.kubernetes_service.iis.load_balancer_ingress.0.ip}"
 }
 
 output "aks_login" {

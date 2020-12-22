@@ -5,7 +5,7 @@ locals {
 module "subnet_config" {
   source = "./subnet_config"
 
-  for_each = var.node_pool_subnets
+  for_each = (var.aks_managed_vnet ? {} : var.node_pool_subnets)
 
   configure_network_role = var.configure_sp_subnet_role
   principal_id           = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id)
