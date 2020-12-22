@@ -118,7 +118,7 @@ module "virtual_network" {
 }
 
 module "kubernetes" {
-  source = "../"
+  source = "../../"
 
   kubernetes_version = "1.18.10"
 
