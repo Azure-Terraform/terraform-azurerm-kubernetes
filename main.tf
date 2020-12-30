@@ -2,24 +2,32 @@ locals {
   cluster_name = "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}"
 }
 
-resource "azurerm_role_assignment" "subnet_network_contributor" {
-  count                = (var.use_service_principal ? (var.aks_managed_vnet ? 0 : 1) : 0)
-  scope                = var.default_node_pool_subnet.id
-  role_definition_name = "Network Contributor"
-  principal_id         = data.azuread_service_principal.aks[0].object_id
+module "subnet_config" {
+  source = "./subnet_config"
+
+  for_each = (var.aks_managed_vnet ? {} : var.node_pool_subnets)
+
+  configure_network_role = var.configure_sp_subnet_role
+  principal_id           = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id)
+
+  configure_nsg_rules     = var.configure_subnet_nsg_rules
+  nsg_rule_priority_start = var.subnet_nsg_rule_priority_start
+  resource_group_name     = var.resource_group_name 
+  subnet_id               = each.value.id
+  security_group_name     = each.value.security_group_name
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                 = local.cluster_name
-  location             = var.location
-  resource_group_name  = var.resource_group_name
-  dns_prefix           = "${var.names.product_name}-${var.names.environment}-${var.names.location}"
-  tags                 = var.tags
+  name                = local.cluster_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  dns_prefix          = "${var.names.product_name}-${var.names.environment}-${var.names.location}"
+  tags                = var.tags
 
   kubernetes_version = var.kubernetes_version
   
   network_profile {
-    network_plugin       = var.network_plugin
+    network_plugin = var.network_plugin
   }
 
   default_node_pool {
@@ -30,10 +38,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     min_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_min_count : null)
     max_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_max_count : null)
     availability_zones  = var.default_node_pool_availability_zones
-    vnet_subnet_id      = (var.aks_managed_vnet ? null : var.default_node_pool_subnet.id)
-
-    # disabled due to AKS bug	
-    #tags                = var.tags
+    vnet_subnet_id      = (var.aks_managed_vnet ? null : var.node_pool_subnets[var.default_node_pool_subnet].id)
+    tags                = var.tags
   }
 
   addon_profile {
