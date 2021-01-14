@@ -144,5 +144,5 @@ variable "windows_profile_admin_password" {
 variable "enable_kube_dashboard" {
   description = "enable kubernetes dashboard"
   type        = bool
-  default     = true
+  default     = false
 }
