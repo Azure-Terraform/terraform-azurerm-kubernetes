@@ -65,3 +65,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 }
+
+resource "azurerm_role_assignment" "acrpull_role" {
+  for_each                         = var.acr_pull_access
+  scope                            = each.value
+  role_definition_name             = "AcrPull"
+  principal_id                     = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id)
+  skip_service_principal_aad_check = true
+}

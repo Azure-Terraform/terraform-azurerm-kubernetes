@@ -146,3 +146,9 @@ variable "enable_kube_dashboard" {
   type        = bool
   default     = false
 }
+
+variable "acr_pull_access" {
+  description = "map of ACR ids to allow AcrPull"
+  type        = map
+  default     = {}
+}
