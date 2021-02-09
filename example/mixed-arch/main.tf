@@ -48,6 +48,12 @@ data "http" "my_ip" {
 data "azurerm_subscription" "current" {
 }
 
+resource "random_string" "random" {
+  length  = 12
+  upper   = false
+  special = false
+}
+
 resource "random_password" "admin" {
   length      = 14
   special     = true
@@ -71,7 +77,7 @@ module "metadata" {
   project             = "https://github.com/Azure-Terraform/terraform-azurerm-kubernetes/tree/master/example/mixed-arch"
   location            = "eastus2"
   environment         = "sandbox"
-  product_name        = "contosoweb"
+  product_name        = random_string.random.result
   business_unit       = "infra"
   product_group       = "contoso"
   subscription_id     = module.subscription.output.subscription_id
