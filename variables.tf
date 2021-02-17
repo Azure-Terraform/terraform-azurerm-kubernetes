@@ -1,6 +1,6 @@
 # Basics
 variable "use_service_principal" {
-  description = "use service principal (false will use SystemAssigned identity)"
+  description = "use service principal (false will use identity)"
   type        = bool
   default     = false
 }
@@ -15,6 +15,12 @@ variable "service_principal_secret" {
   description = "Azure Service Principal Secret"
   type        = string
   default     = ""
+}
+
+variable "user_assigned_identity_id" {
+  description = "Identity used for the manged cluster (leave empty for SystemAssigned)."
+  type        = string
+  default     = null
 }
 
 variable "service_principal_name" {
@@ -135,12 +141,6 @@ variable "subnet_nsg_rule_priority_start" {
   description = "Starting point for NSG rulee priorities."
   type        = number
   default     = 1000
-}
-
-variable "enable_aad_pod_identity" {
-  description = "enable Azure AD pod identity enable kubernetes dashboard"
-  type        = bool
-  default     = true
 }
 
 variable "enable_windows_node_pools" {
