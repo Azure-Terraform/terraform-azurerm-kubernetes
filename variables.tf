@@ -55,34 +55,59 @@ variable "network_plugin" {
   default     = "kubenet"
 }
 
-variable "default_node_pool_name" {
-  description = "default node pool name"
-  type        = string
-  default     = "default"
-}
+node_pool_defaults = {
+  description = "node pool defaults"
+  type        = object({
+                  name                         = string
+                  vm_size                      = string
+                  availability_zones           = list(number)
+                  node_count                   = number
+                  enable_auto_scaling          = bool
+                  min_count                    = number
+                  max_count                    = number
+                  enable_host_encryption       = bool
+                  enable_node_public_ip        = bool
+                  max_pods                     = number
+                  node_labels                  = map(string)
+                  only_critical_addons_enabled = bool
+                  orchestrator_version         = string
+                  os_disk_size_gb              = number
+                  os_disk_type                 = string
+                  type                         = string
+                  tags                         = map(string)
+                  vnet_subnet_id               = string
 
-variable "default_node_pool_vm_size" {
-  description = "default node pool VM size"
-  type        = string
-  default     = "Standard_D2s_v3"
-}
+                  eviction_policy              = string
+                  os_type                      = string
+                  priority                     = string
+                  proximity_placement_group_id = string
+                  spot_max_price               = string 
+  })
+  default     = { name                         = "default"
+                  vm_size                      = "Standard_B2s"
+                  availability_zones           = [1,2,3]
+                  node_count                   = 1
+                  enable_auto_scaling          = false
+                  min_count                    = 1
+                  max_count                    = 2
+                  enable_host_encryption       = true
+                  enable_node_public_ip        = false
+                  max_pods                     = 30
+                  node_labels                  = {}
+                  only_critical_addons_enabled = false
+                  orchestrator_version         = null
+                  os_disk_size_gb              = 128
+                  os_disk_type                 = "Managed"
+                  type                         = "VirtualMachineScaleSets"
+                  tags                         = {}
+                  vnet_subnet_id               = null
 
-variable "default_node_pool_node_count" {
-  description  = "default node pool node count"
-  type         = number
-  default      = 1
-}
-
-variable "default_node_pool_enable_auto_scaling" {
-  description = "enable default node pool auto scaling"
-  type        = bool
-  default     = true
-}
-
-variable "default_node_pool_node_min_count" {
-  description = "enable default node pool auto scaling (only valid for auto scaling)"
-  type        = number
-  default     = 1
+                  eviction_policy              = null
+                  os_type                      = "Linux"
+                  priority                     = "Regular"
+                  proximity_placement_group_id = null
+                  spot_max_price               = null
+  }
 }
 
 variable "default_node_pool_node_max_count" {

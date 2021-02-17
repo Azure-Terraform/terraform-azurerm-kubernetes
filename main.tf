@@ -25,6 +25,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   tags                = var.tags
 
   kubernetes_version = var.kubernetes_version
+
+  enable_host_encryption = var.enable_host_encryption
   
   network_profile {
     network_plugin = var.network_plugin
