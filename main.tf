@@ -59,7 +59,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "identity" {
     for_each = var.use_service_principal ? [] : [1]
     content {
-      type                      = (var.user_assigned_identity_id == null ? "SystemAssigned" : var.user_assigned_identity_id)
+      type                      = (var.user_assigned_identity_id == null ? "SystemAssigned" : "UserAssigned")
       user_assigned_identity_id = var.user_assigned_identity_id
     }
   }
