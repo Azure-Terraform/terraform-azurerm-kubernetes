@@ -118,15 +118,17 @@ variable "default_node_pool_subnet" {
 variable "node_pool_subnets" {
   description = "default node pool vnet subnet info"
   type        = map(object({
-                  id                  = string
-                  resource_group_name = string
-                  security_group_name = string
+                  name                 = string
+                  id                   = string
+                  resource_group_name  = string
+                  security_group_name  = string
+                  virtual_network_name = string
                 }))
   default     = {}
 }
 
-variable "configure_sp_subnet_role" {
-  description = "Add Network Contributor role for service principal on input subnets."
+variable "configure_network_role" {
+  description = "Add Network Contributor role for service principal or identity on input subnets."
   type        = bool
   default     = true
 }
