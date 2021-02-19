@@ -5,6 +5,22 @@ variable "use_service_principal" {
   default     = false
 }
 
+variable "identity_type" {
+  description = "ServicePrincipal, SystemAssigned or UserAssigned."
+  type        = string
+  default     = "UserAssigned"
+
+  validation {
+    condition = (
+      var.identity_type == "ServicePrincipal" ||
+      var.identity_type == "UserAssigned" ||
+      var.identity_type == "SystemAssigned"
+    )
+    error_message = "Identity must be one of 'ServicePrincipal', 'SystemAssigned' or 'UserAssigned'."
+  }
+
+}
+
 variable "service_principal_id" {
   description = "Azure Service Principal ID"
   type        = string
@@ -17,16 +33,20 @@ variable "service_principal_secret" {
   default     = ""
 }
 
-variable "user_assigned_identity_id" {
-  description = "Identity used for the manged cluster (leave empty for SystemAssigned)."
-  type        = string
-  default     = null
-}
-
 variable "service_principal_name" {
   description = "Azure Service Principal Name"
   type        = string
   default     = ""
+}
+
+variable "user_assigned_identity" {
+  description = "User assigned identity for the manged cluster (leave and the module will create one)."
+  type        = object({
+                  id             = string
+                  name           = string
+                  resource_group = string
+                })
+  default     = null
 }
 
 variable "resource_group_name"{

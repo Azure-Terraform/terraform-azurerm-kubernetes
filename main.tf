@@ -1,11 +1,23 @@
 locals {
   cluster_name = "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}"
 
-  aks_identity_id = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : var.user_assigned_identity_id == null ? azurerm_kubernetes_cluster.aks.identity.0.principal_id : var.user_assigned_identity_id)
+  aks_identity_id = (var.identity_type == "ServicePrincipal" ? data.azuread_service_principal.aks.0.id :
+                     (var.identity_type == "UserAssigned" ? 
+                      (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
+                       azurerm_user_assigned_identity.aks.0.principal_id) : azurerm_kubernetes_cluster.aks.identity.0.principal_id))
+}
+
+resource "azurerm_user_assigned_identity" "aks" {
+  count = (var.identity_type == "UserAssigned" && var.user_assigned_identity != null ? 1 : 0)
+
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  name                = "uai-${local.cluster_name}"
 }
 
 resource "azurerm_role_assignment" "route_table_network_contributor" {
-  for_each             = (var.configure_network_role ? var.custom_route_table_ids : {})
+  for_each             = (var.identity_type == "UserAssigned" && var.configure_network_role ? var.custom_route_table_ids : {})
+
   scope                = each.value
   role_definition_name = "Network Contributor"
   principal_id         = local.aks_identity_id
@@ -65,15 +77,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "identity" {
-    for_each = var.use_service_principal ? [] : [1]
+    for_each = (var.identity_type == "ServicePrincipal" ? [] : [1])
     content {
-      type                      = (var.user_assigned_identity_id == null ? "SystemAssigned" : "UserAssigned")
-      user_assigned_identity_id = var.user_assigned_identity_id
+      type                      = var.identity_type
+      user_assigned_identity_id = lookup(var.user_assigned_identity, "id", null)
     }
   }
 
   dynamic "service_principal" {
-    for_each = var.use_service_principal ? [1] : []
+    for_each = (var.identity_type == "ServicePrincipal" ? [1] : [])
     content {
       client_id     = var.service_principal_id
       client_secret = var.service_principal_secret
