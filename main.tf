@@ -8,7 +8,7 @@ resource "azurerm_role_assignment" "route_table_network_contributor" {
   for_each             = (var.configure_network_role ? var.custom_route_table_ids : {})
   scope                = each.value
   role_definition_name = "Network Contributor"
-  principal_id         = var.principal_id
+  principal_id         = local.aks_identity_id
 }
 
 module "subnet_config" {

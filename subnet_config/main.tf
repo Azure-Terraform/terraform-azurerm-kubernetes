@@ -5,7 +5,7 @@ data "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_role_assignment" "subnet_network_contributor" {
-  count                = (var.configure_subnet_role ? 1 : 0)
+  count                = (var.configure_network_role ? 1 : 0)
   scope                = var.subnet_info.id
   role_definition_name = "Network Contributor"
   principal_id         = var.principal_id
