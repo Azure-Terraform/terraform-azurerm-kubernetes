@@ -3,8 +3,8 @@ locals {
 
   aks_identity_id = (var.identity_type == "ServicePrincipal" ? data.azuread_service_principal.aks.0.id :
                      (var.identity_type == "UserAssigned" ? 
-                      (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
-                       azurerm_user_assigned_identity.aks.0.principal_id) : azurerm_kubernetes_cluster.aks.identity.0.principal_id))
+                      lookup(var.user_assigned_identity, "principal_id", azurerm_user_assigned_identity.aks.0.principal_id) :
+                       azurerm_kubernetes_cluster.aks.identity.0.principal_id))
 }
 
 resource "azurerm_user_assigned_identity" "aks" {

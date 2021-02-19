@@ -42,9 +42,9 @@ variable "service_principal_name" {
 variable "user_assigned_identity" {
   description = "User assigned identity for the manged cluster (leave and the module will create one)."
   type        = object({
-                  id             = string
-                  name           = string
-                  resource_group = string
+                  id           = string
+                  principal_id = string
+                  client_id    = string
                 })
   default     = null
 }

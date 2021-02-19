@@ -6,7 +6,7 @@ data "azuread_service_principal" "aks" {
 data "azurerm_user_assigned_identity" "aks" {
   count               = (var.identity_type == "UserAssigned" ? (var.user_assigned_identity == null ? 0 : 1) : 0)
   name                = var.user_assigned_identity.name
-  resource_group_name = var.user_assigned_identity.resource_group
+  resource_group_name = var.user_assigned_identity.resource_group_name
 }
 
 locals {
