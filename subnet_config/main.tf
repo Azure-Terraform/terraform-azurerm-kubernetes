@@ -5,17 +5,8 @@ data "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_role_assignment" "subnet_network_contributor" {
-  count                = (var.configure_network_role ? 1 : 0)
+  count                = (var.configure_subnet_role ? 1 : 0)
   scope                = var.subnet_info.id
-  role_definition_name = "Network Contributor"
-  principal_id         = var.principal_id
-}
-
-resource "azurerm_role_assignment" "route_table_network_contributor" {
-  count                = (var.configure_network_role ? (data.azurerm_subnet.subnet.route_table_id != "" ? 1 : 0) : 0)
-  #count                = (var.configure_network_role ? (lookup(data.azurerm_subnet.subnet, "route_table_id", "false") != "false" ? 1 : 0) : 0)
-  scope                = data.azurerm_subnet.subnet.route_table_id
-  #scope                = lookup(data.azurerm_subnet.subnet, "route_table_id", "false")
   role_definition_name = "Network Contributor"
   principal_id         = var.principal_id
 }

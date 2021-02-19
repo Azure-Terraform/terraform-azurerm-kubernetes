@@ -4,6 +4,13 @@ locals {
   aks_identity_id = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : var.user_assigned_identity_id == null ? azurerm_kubernetes_cluster.aks.identity.0.principal_id : var.user_assigned_identity_id)
 }
 
+resource "azurerm_role_assignment" "route_table_network_contributor" {
+  for_each             = (var.configure_network_role ? var.custom_route_table_ids : {})
+  scope                = each.value
+  role_definition_name = "Network Contributor"
+  principal_id         = var.principal_id
+}
+
 module "subnet_config" {
   source = "./subnet_config"
 

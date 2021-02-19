@@ -116,7 +116,7 @@ variable "default_node_pool_subnet" {
 }
 
 variable "node_pool_subnets" {
-  description = "default node pool vnet subnet info"
+  description = "Node pool subnet info."
   type        = map(object({
                   name                 = string
                   id                   = string
@@ -124,6 +124,12 @@ variable "node_pool_subnets" {
                   security_group_name  = string
                   virtual_network_name = string
                 }))
+  default     = {}
+}
+
+variable "custom_route_table_ids" {
+  description = "Custom route tables used by node pool subnets."
+  type        = map(string)
   default     = {}
 }
 
