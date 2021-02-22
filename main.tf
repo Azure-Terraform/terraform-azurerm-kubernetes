@@ -2,13 +2,13 @@ locals {
   cluster_name = "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}"
 
   aks_identity_id = (var.identity_type == "ServicePrincipal" ? data.azuread_service_principal.aks.0.id :
-                     (var.identity_type == "UserAssigned" ? 
-                      lookup(var.user_assigned_identity, "principal_id", azurerm_user_assigned_identity.aks.0.principal_id) :
-                       azurerm_kubernetes_cluster.aks.identity.0.principal_id))
+                     (var.identity_type == "SystemAssigned" ? azurerm_kubernetes_cluster.aks.identity.0.principal_id :
+                      (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
+                       var.user_assigned_identity.id)))
 }
 
 resource "azurerm_user_assigned_identity" "aks" {
-  count = (var.identity_type == "UserAssigned" && var.user_assigned_identity != null ? 1 : 0)
+  count = (var.identity_type == "UserAssigned" && var.user_assigned_identity == null ? 1 : 0)
 
   resource_group_name = var.resource_group_name
   location            = var.location
@@ -16,11 +16,13 @@ resource "azurerm_user_assigned_identity" "aks" {
 }
 
 resource "azurerm_role_assignment" "route_table_network_contributor" {
-  for_each             = (var.identity_type == "UserAssigned" && var.configure_network_role ? var.custom_route_table_ids : {})
+  for_each             = (var.identity_type != "SystemAssigned" && var.configure_network_role ? var.custom_route_table_ids : {})
 
   scope                = each.value
   role_definition_name = "Network Contributor"
-  principal_id         = local.aks_identity_id
+  principal_id         = (var.identity_type == "ServicePrincipal" ? data.azuread_service_principal.aks.0.id :
+                           (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
+                            var.user_assigned_identity.id))
 }
 
 module "subnet_config" {
@@ -29,8 +31,8 @@ module "subnet_config" {
   for_each = (var.aks_managed_vnet ? {} : var.node_pool_subnets)
 
   resource_group_name = var.resource_group_name 
-  principal_id        = local.aks_identity_id
   subnet_info         = each.value
+  principal_id        = local.aks_identity_id
 
   configure_network_role  = var.configure_network_role
   configure_nsg_rules     = var.configure_subnet_nsg_rules
@@ -38,6 +40,7 @@ module "subnet_config" {
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
+  depends_on          = [azurerm_role_assignment.route_table_network_contributor]
   name                = local.cluster_name
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -80,15 +83,17 @@ resource "azurerm_kubernetes_cluster" "aks" {
     for_each = (var.identity_type == "ServicePrincipal" ? [] : [1])
     content {
       type                      = var.identity_type
-      user_assigned_identity_id = lookup(var.user_assigned_identity, "id", null)
+      user_assigned_identity_id = (var.user_assigned_identity != null ? 
+                                   var.user_assigned_identity.id : 
+                                   azurerm_user_assigned_identity.aks.0.id)
     }
   }
 
   dynamic "service_principal" {
     for_each = (var.identity_type == "ServicePrincipal" ? [1] : [])
     content {
-      client_id     = var.service_principal_id
-      client_secret = var.service_principal_secret
+      client_id     = var.service_principal.client_id
+      client_secret = var.service_principal.client_secret
     }
   }
 }

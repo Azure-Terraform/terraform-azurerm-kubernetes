@@ -21,22 +21,14 @@ variable "identity_type" {
 
 }
 
-variable "service_principal_id" {
-  description = "Azure Service Principal ID"
-  type        = string
-  default     = ""
-}
-
-variable "service_principal_secret" {
-  description = "Azure Service Principal Secret"
-  type        = string
-  default     = ""
-}
-
-variable "service_principal_name" {
-  description = "Azure Service Principal Name"
-  type        = string
-  default     = ""
+variable "service_principal" {
+  description = "Service principal information (for use with ServicePrincipal identity_type)."
+  type        = object({
+                  id     = string
+                  secret = string
+                  name   = string
+                })
+  default     = null
 }
 
 variable "user_assigned_identity" {
