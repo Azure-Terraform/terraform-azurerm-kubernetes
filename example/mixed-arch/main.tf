@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.32.0"
+      version = "=2.44.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -17,7 +17,7 @@ terraform {
       version = "=1.3.2"
     }
   }
-   required_version = "=0.13.5"
+#   required_version = "=0.13.5"
 }
 
 provider "azurerm" {
@@ -51,6 +51,7 @@ data "azurerm_subscription" "current" {
 resource "random_string" "random" {
   length  = 12
   upper   = false
+  number  = false
   special = false
 }
 
@@ -94,7 +95,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.3.1"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.5.1"
 
   naming_rules = module.naming.yaml
 
@@ -106,8 +107,8 @@ module "virtual_network" {
   address_space = ["10.1.0.0/22"]
 
   subnets = {
-    "iaas-private" = { cidrs = ["10.1.0.0/24"] }
-
+    "iaas-private" = { cidrs = ["10.1.0.0/24"] 
+                       allow_internet_outbound = true }
     "iaas-public"  = { cidrs                   = ["10.1.1.0/24"]
                        allow_lb_inbound        = true    # Allow traffic from Azure Load Balancer to pods
                        allow_internet_outbound = true }  # Allow traffic to Internet for image download
@@ -124,7 +125,7 @@ module "kubernetes" {
   tags                     = module.metadata.tags
   resource_group_name      = module.resource_group.name
 
-  use_service_principal = false
+  identity_type = "UserAssigned"
 
   default_node_pool_name                = "default"
   default_node_pool_vm_size             = "Standard_B2s"
@@ -144,14 +145,18 @@ module "kubernetes" {
 
   node_pool_subnets = {
     private = {
-      id                  = module.virtual_network.subnet["iaas-private"].id
-      resource_group_name = module.virtual_network.vnet.resource_group_name
-      security_group_name = module.virtual_network.subnet_nsg_names["iaas-private"]
+      name                 = module.virtual_network.subnets["iaas-private"].name
+      id                   = module.virtual_network.subnets["iaas-private"].id
+      resource_group_name  = module.virtual_network.subnets["iaas-private"].resource_group_name
+      security_group_name  = module.virtual_network.subnets["iaas-private"].network_security_group_name
+      virtual_network_name = module.virtual_network.subnets["iaas-private"].virtual_network_name
     }
     public = {
-      id                  = module.virtual_network.subnet["iaas-public"].id
-      resource_group_name = module.virtual_network.vnet.resource_group_name
-      security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
+      name                 = module.virtual_network.subnets["iaas-public"].name
+      id                   = module.virtual_network.subnets["iaas-public"].id
+      resource_group_name  = module.virtual_network.subnets["iaas-public"].resource_group_name
+      security_group_name  = module.virtual_network.subnets["iaas-public"].network_security_group_name
+      virtual_network_name = module.virtual_network.subnets["iaas-public"].virtual_network_name
     }
   }
 }
