@@ -60,5 +60,5 @@ output "cluster_ca_certificate" {
 
 output "principal_id" {
   description  = "id of the principal used by this managed kubernetes cluster"
-  value        = (var.use_service_principal ? data.azuread_service_principal.aks.0.id : azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id)
+  value        = local.aks_identity_id
 }

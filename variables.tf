@@ -1,26 +1,44 @@
 # Basics
 variable "use_service_principal" {
-  description = "use service principal (false will use SystemAssigned identity)"
+  description = "use service principal (false will use identity)"
   type        = bool
   default     = false
 }
 
-variable "service_principal_id" {
-  description = "Azure Service Principal ID"
+variable "identity_type" {
+  description = "ServicePrincipal, SystemAssigned or UserAssigned."
   type        = string
-  default     = ""
+  default     = "UserAssigned"
+
+  validation {
+    condition = (
+      var.identity_type == "ServicePrincipal" ||
+      var.identity_type == "UserAssigned" ||
+      var.identity_type == "SystemAssigned"
+    )
+    error_message = "Identity must be one of 'ServicePrincipal', 'SystemAssigned' or 'UserAssigned'."
+  }
+
 }
 
-variable "service_principal_secret" {
-  description = "Azure Service Principal Secret"
-  type        = string
-  default     = ""
+variable "service_principal" {
+  description = "Service principal information (for use with ServicePrincipal identity_type)."
+  type        = object({
+                  id     = string
+                  secret = string
+                  name   = string
+                })
+  default     = null
 }
 
-variable "service_principal_name" {
-  description = "Azure Service Principal Name"
-  type        = string
-  default     = ""
+variable "user_assigned_identity" {
+  description = "User assigned identity for the manged cluster (leave and the module will create one)."
+  type        = object({
+                  id           = string
+                  principal_id = string
+                  client_id    = string
+                })
+  default     = null
 }
 
 variable "resource_group_name"{
@@ -135,17 +153,25 @@ variable "default_node_pool_subnet" {
 }
 
 variable "node_pool_subnets" {
-  description = "default node pool vnet subnet info"
+  description = "Node pool subnet info."
   type        = map(object({
-                  id                  = string
-                  resource_group_name = string
-                  security_group_name = string
+                  name                 = string
+                  id                   = string
+                  resource_group_name  = string
+                  security_group_name  = string
+                  virtual_network_name = string
                 }))
   default     = {}
 }
 
-variable "configure_sp_subnet_role" {
-  description = "Add Network Contributor role for service principal on input subnets."
+variable "custom_route_table_ids" {
+  description = "Custom route tables used by node pool subnets."
+  type        = map(string)
+  default     = {}
+}
+
+variable "configure_network_role" {
+  description = "Add Network Contributor role for service principal or identity on input subnets."
   type        = bool
   default     = true
 }
@@ -160,12 +186,6 @@ variable "subnet_nsg_rule_priority_start" {
   description = "Starting point for NSG rulee priorities."
   type        = number
   default     = 1000
-}
-
-variable "enable_aad_pod_identity" {
-  description = "enable Azure AD pod identity enable kubernetes dashboard"
-  type        = bool
-  default     = true
 }
 
 variable "enable_windows_node_pools" {
