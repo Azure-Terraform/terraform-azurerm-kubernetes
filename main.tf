@@ -30,9 +30,8 @@ module "subnet_config" {
 
   for_each = (var.aks_managed_vnet ? {} : var.node_pool_subnets)
 
-  resource_group_name = var.resource_group_name 
-  subnet_info         = each.value
-  principal_id        = local.aks_identity_id
+  subnet_info  = each.value
+  principal_id = local.aks_identity_id
 
   configure_network_role  = var.configure_network_role
   configure_nsg_rules     = var.configure_subnet_nsg_rules

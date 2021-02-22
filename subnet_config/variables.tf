@@ -1,8 +1,3 @@
-variable "resource_group_name" {
-  description = "Resource group in which to creat the network security group rules."
-  type        = string
-}
-
 variable "principal_id" {
   description = "Id of principal which manages AKS"
   type        = string
