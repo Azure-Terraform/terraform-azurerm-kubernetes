@@ -145,18 +145,14 @@ module "kubernetes" {
 
   node_pool_subnets = {
     private = {
-      name                        = module.virtual_network.subnets["iaas-private"].name
       id                          = module.virtual_network.subnets["iaas-private"].id
       resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
       network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
-      virtual_network_name        = module.virtual_network.subnets["iaas-private"].virtual_network_name
     }
     public = {
-      name                        = module.virtual_network.subnets["iaas-public"].name
       id                          = module.virtual_network.subnets["iaas-public"].id
       resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
       network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
-      virtual_network_name        = module.virtual_network.subnets["iaas-public"].virtual_network_name
     }
   }
 }
