@@ -130,11 +130,11 @@ variable "default_node_pool_subnet" {
 variable "node_pool_subnets" {
   description = "Node pool subnet info."
   type        = map(object({
-                  name                 = string
-                  id                   = string
-                  resource_group_name  = string
-                  security_group_name  = string
-                  virtual_network_name = string
+                  name                        = string
+                  id                          = string
+                  resource_group_name         = string
+                  network_security_group_name = string
+                  virtual_network_name        = string
                 }))
   default     = {}
 }
