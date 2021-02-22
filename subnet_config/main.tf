@@ -1,9 +1,3 @@
-data "azurerm_subnet" "subnet" {
-  name                 = var.subnet_info.name
-  virtual_network_name = var.subnet_info.virtual_network_name
-  resource_group_name  = var.subnet_info.resource_group_name
-}
-
 resource "azurerm_role_assignment" "subnet_network_contributor" {
   count                = (var.configure_network_role ? 1 : 0)
   scope                = var.subnet_info.id
