@@ -1,6 +1,6 @@
 resource "azurerm_role_assignment" "subnet_network_contributor" {
   count                = (var.configure_network_role ? 1 : 0)
-  scope                = var.subnet_id
+  scope                = var.subnet_info.id
   role_definition_name = "Network Contributor"
   principal_id         = var.principal_id
 }
@@ -16,8 +16,8 @@ resource "azurerm_network_security_rule" "aks_control_plane_udp" {
   destination_port_range      = "1194"
   source_address_prefix       = "*"
   destination_address_prefix  = "AzureCloud"
-  resource_group_name         = var.resource_group_name
-  network_security_group_name = var.security_group_name
+  resource_group_name         = var.subnet_info.resource_group_name
+  network_security_group_name = var.subnet_info.network_security_group_name
 }
 
 resource "azurerm_network_security_rule" "aks_control_plane_tcp" {
@@ -31,8 +31,8 @@ resource "azurerm_network_security_rule" "aks_control_plane_tcp" {
   destination_port_range      = "9000"
   source_address_prefix       = "*"
   destination_address_prefix  = "AzureCloud"
-  resource_group_name         = var.resource_group_name
-  network_security_group_name = var.security_group_name
+  resource_group_name         = var.subnet_info.resource_group_name
+  network_security_group_name = var.subnet_info.network_security_group_name
 }
 
 resource "azurerm_network_security_rule" "aks_ntp" {
@@ -46,8 +46,8 @@ resource "azurerm_network_security_rule" "aks_ntp" {
   destination_port_range      = "123"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = var.resource_group_name
-  network_security_group_name = var.security_group_name
+  resource_group_name         = var.subnet_info.resource_group_name
+  network_security_group_name = var.subnet_info.network_security_group_name
 }
 
 resource "azurerm_network_security_rule" "aks_ssl" {
@@ -61,6 +61,6 @@ resource "azurerm_network_security_rule" "aks_ssl" {
   destination_port_range      = "443"
   source_address_prefix       = "*"
   destination_address_prefix  = "AzureCloud"
-  resource_group_name         = var.resource_group_name
-  network_security_group_name = var.security_group_name
+  resource_group_name         = var.subnet_info.resource_group_name
+  network_security_group_name = var.subnet_info.network_security_group_name
 }

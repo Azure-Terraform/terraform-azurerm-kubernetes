@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.32.0"
+      version = "=2.44.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -17,7 +17,7 @@ terraform {
       version = "=1.3.2"
     }
   }
-   required_version = "=0.13.5"
+   required_version = "=0.14.7"
 }
 
 provider "azurerm" {
@@ -51,6 +51,7 @@ data "azurerm_subscription" "current" {
 resource "random_string" "random" {
   length  = 12
   upper   = false
+  number  = false
   special = false
 }
 
@@ -94,7 +95,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.3.1"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.5.1"
 
   naming_rules = module.naming.yaml
 
@@ -107,7 +108,6 @@ module "virtual_network" {
 
   subnets = {
     "iaas-private" = { cidrs = ["10.1.0.0/24"] }
-
     "iaas-public"  = { cidrs                   = ["10.1.1.0/24"]
                        allow_lb_inbound        = true    # Allow traffic from Azure Load Balancer to pods
                        allow_internet_outbound = true }  # Allow traffic to Internet for image download
@@ -124,7 +124,7 @@ module "kubernetes" {
   tags                     = module.metadata.tags
   resource_group_name      = module.resource_group.name
 
-  use_service_principal = false
+  identity_type = "UserAssigned"
 
   default_node_pool_name                = "default"
   default_node_pool_vm_size             = "Standard_B2s"
@@ -144,14 +144,14 @@ module "kubernetes" {
 
   node_pool_subnets = {
     private = {
-      id                  = module.virtual_network.subnet["iaas-private"].id
-      resource_group_name = module.virtual_network.vnet.resource_group_name
-      security_group_name = module.virtual_network.subnet_nsg_names["iaas-private"]
+      id                          = module.virtual_network.subnets["iaas-private"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
     }
     public = {
-      id                  = module.virtual_network.subnet["iaas-public"].id
-      resource_group_name = module.virtual_network.vnet.resource_group_name
-      security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
+      id                          = module.virtual_network.subnets["iaas-public"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
     }
   }
 }
@@ -192,8 +192,8 @@ resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
   destination_address_prefix  = data.kubernetes_service.nginx.load_balancer_ingress.0.ip
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
+  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
 
 resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
@@ -206,8 +206,8 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
   destination_address_prefix  = data.kubernetes_service.iis.load_balancer_ingress.0.ip
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
+  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
 
 resource "helm_release" "nginx" {
