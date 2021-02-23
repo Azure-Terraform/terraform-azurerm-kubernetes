@@ -107,8 +107,7 @@ module "virtual_network" {
   address_space = ["10.1.0.0/22"]
 
   subnets = {
-    "iaas-private" = { cidrs = ["10.1.0.0/24"] 
-                       allow_internet_outbound = true }
+    "iaas-private" = { cidrs = ["10.1.0.0/24"] }
     "iaas-public"  = { cidrs                   = ["10.1.1.0/24"]
                        allow_lb_inbound        = true    # Allow traffic from Azure Load Balancer to pods
                        allow_internet_outbound = true }  # Allow traffic to Internet for image download
