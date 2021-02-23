@@ -107,8 +107,7 @@ module "virtual_network" {
   address_space = ["10.1.0.0/22"]
 
   subnets = {
-    "iaas-private" = { cidrs = ["10.1.0.0/24"] 
-                       allow_internet_outbound = true }
+    "iaas-private" = { cidrs = ["10.1.0.0/24"] }
     "iaas-public"  = { cidrs                   = ["10.1.1.0/24"]
                        allow_lb_inbound        = true    # Allow traffic from Azure Load Balancer to pods
                        allow_internet_outbound = true }  # Allow traffic to Internet for image download
@@ -145,18 +144,14 @@ module "kubernetes" {
 
   node_pool_subnets = {
     private = {
-      name                 = module.virtual_network.subnets["iaas-private"].name
-      id                   = module.virtual_network.subnets["iaas-private"].id
-      resource_group_name  = module.virtual_network.subnets["iaas-private"].resource_group_name
-      security_group_name  = module.virtual_network.subnets["iaas-private"].network_security_group_name
-      virtual_network_name = module.virtual_network.subnets["iaas-private"].virtual_network_name
+      id                          = module.virtual_network.subnets["iaas-private"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
     }
     public = {
-      name                 = module.virtual_network.subnets["iaas-public"].name
-      id                   = module.virtual_network.subnets["iaas-public"].id
-      resource_group_name  = module.virtual_network.subnets["iaas-public"].resource_group_name
-      security_group_name  = module.virtual_network.subnets["iaas-public"].network_security_group_name
-      virtual_network_name = module.virtual_network.subnets["iaas-public"].virtual_network_name
+      id                          = module.virtual_network.subnets["iaas-public"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
     }
   }
 }
@@ -197,8 +192,8 @@ resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
   destination_address_prefix  = data.kubernetes_service.nginx.load_balancer_ingress.0.ip
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
+  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
 
 resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
@@ -211,8 +206,8 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
   destination_address_prefix  = data.kubernetes_service.iis.load_balancer_ingress.0.ip
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
+  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
 
 resource "helm_release" "nginx" {
