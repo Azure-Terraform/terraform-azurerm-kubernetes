@@ -117,7 +117,7 @@ variable "node_pool_defaults"  {
                   enable_auto_scaling                = false
                   min_count                          = null
                   max_count                          = null
-                  enable_host_encryption             = true
+                  enable_host_encryption             = false
                   enable_node_public_ip              = false
                   max_pods                           = 30
                   node_labels                        = {}
