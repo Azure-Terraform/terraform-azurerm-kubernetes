@@ -16,7 +16,7 @@ resource "azurerm_user_assigned_identity" "aks" {
 }
 
 resource "azurerm_role_assignment" "route_table_network_contributor" {
-  for_each             = (var.identity_type != "SystemAssigned" && var.configure_network_role ? var.custom_route_table_ids : {})
+  for_each             = (var.identity_type != "SystemAssigned" ? local.custom_route_table_ids : [])
 
   scope                = each.value
   role_definition_name = "Network Contributor"
@@ -28,16 +28,10 @@ resource "azurerm_role_assignment" "route_table_network_contributor" {
 module "subnet_config" {
   source = "./subnet_config"
 
-  for_each = (var.aks_managed_vnet ? {} : var.node_pool_subnets)
+  for_each = local.subnet_info
 
-<<<<<<< HEAD
-  resource_group_name = var.resource_group_name 
-  subnet_info         = each.value
-  principal_id        = local.aks_identity_id
-=======
   subnet_info  = each.value
   principal_id = local.aks_identity_id
->>>>>>> master
 
   configure_network_role  = var.configure_network_role
   configure_nsg_rules     = var.configure_subnet_nsg_rules
@@ -54,22 +48,21 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   kubernetes_version = var.kubernetes_version
 
-  enable_host_encryption = var.enable_host_encryption
-  
   network_profile {
     network_plugin = var.network_plugin
   }
 
   default_node_pool {
-    name                = var.default_node_pool_name
-    vm_size             = var.default_node_pool_vm_size
-    enable_auto_scaling = var.default_node_pool_enable_auto_scaling
-    node_count          = (var.default_node_pool_enable_auto_scaling ? null : var.default_node_pool_node_count)
-    min_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_min_count : null)
-    max_count           = (var.default_node_pool_enable_auto_scaling ? var.default_node_pool_node_max_count : null)
-    availability_zones  = var.default_node_pool_availability_zones
-    vnet_subnet_id      = (var.aks_managed_vnet ? null : var.node_pool_subnets[var.default_node_pool_subnet].id)
-    tags                = var.tags
+    name                   = local.node_pools[var.default_node_pool].name
+    vm_size                = local.node_pools[var.default_node_pool].vm_size
+    availability_zones     = local.node_pools[var.default_node_pool].availability_zones
+    node_count             = local.node_pools[var.default_node_pool].node_count
+    enable_auto_scaling    = local.node_pools[var.default_node_pool].enable_auto_scaling
+    min_count              = local.node_pools[var.default_node_pool].min_count
+    max_count              = local.node_pools[var.default_node_pool].max_count
+    enable_host_encryption = local.node_pools[var.default_node_pool].enable_host_encryption
+    vnet_subnet_id         = local.node_pools[var.default_node_pool].subnet_id
+    tags                   = local.node_pools[var.default_node_pool].tags
   }
 
   addon_profile {
