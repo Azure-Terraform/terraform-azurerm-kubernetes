@@ -1,6 +1,5 @@
 locals {
   node_pools            = zipmap(keys(var.node_pools), [ for node_pool in values(var.node_pools) : merge(var.node_pool_defaults, node_pool) ])
-  #default_node_pool     = local.node_pools[var.default_node_pool]
   additional_node_pools = { for k,v in local.node_pools : k => v if k != var.default_node_pool}
 
   distinct_subnet_ids = compact(distinct([ for node_pool in local.node_pools : node_pool.subnet_id ]))
