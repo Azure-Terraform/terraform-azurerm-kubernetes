@@ -62,7 +62,7 @@ resource "random_password" "admin" {
 
 module "subscription" {
   source          = "github.com/Azure-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
-  subscription_id = "b0837458-adf3-41b0-a8fb-c16f9719627d"
+  subscription_id = "00000000-0000-0000-0000-00000000"
 }
 
 module "naming" {
