@@ -80,7 +80,7 @@ module "metadata" {
   environment         = "sandbox"
   product_name        = random_string.random.result
   business_unit       = "infra"
-  product_group       = "bridgertest05"
+  product_group       = "testapplication"
   subscription_id     = module.subscription.output.subscription_id
   subscription_type   = "dev"
   resource_group_type = "app"
@@ -190,7 +190,7 @@ resource "azurerm_route" "internal_01" {
   route_table_name    = azurerm_route_table.route_table.name
   address_prefix      = "10.0.0.0/8"
   next_hop_type       = "VirtualAppliance"
-  next_hop_in_ip_address = "10.239.0.68"
+  next_hop_in_ip_address = [REDACTED]
 }
 
 resource "azurerm_route" "internal_02" {
@@ -199,7 +199,7 @@ resource "azurerm_route" "internal_02" {
   route_table_name    = azurerm_route_table.route_table.name
   address_prefix      = "172.16.0.0/12"
   next_hop_type       = "VirtualAppliance"
-  next_hop_in_ip_address = "10.239.0.68"
+  next_hop_in_ip_address = [REDACTED]
 }
 
 resource "azurerm_route" "internal_03" {
@@ -208,7 +208,7 @@ resource "azurerm_route" "internal_03" {
   route_table_name    = azurerm_route_table.route_table.name
   address_prefix      = "192.168.0.0/16"
   next_hop_type       = "VirtualAppliance"
-  next_hop_in_ip_address = "10.239.0.68"
+  next_hop_in_ip_address = [REDACTED]
 }
 
 resource "azurerm_route" "local_vnet" {
