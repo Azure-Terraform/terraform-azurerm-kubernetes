@@ -1,26 +1,44 @@
 # Basics
 variable "use_service_principal" {
-  description = "use service principal (false will use SystemAssigned identity)"
+  description = "use service principal (false will use identity)"
   type        = bool
   default     = false
 }
 
-variable "service_principal_id" {
-  description = "Azure Service Principal ID"
+variable "identity_type" {
+  description = "ServicePrincipal, SystemAssigned or UserAssigned."
   type        = string
-  default     = ""
+  default     = "UserAssigned"
+
+  validation {
+    condition = (
+      var.identity_type == "ServicePrincipal" ||
+      var.identity_type == "UserAssigned" ||
+      var.identity_type == "SystemAssigned"
+    )
+    error_message = "Identity must be one of 'ServicePrincipal', 'SystemAssigned' or 'UserAssigned'."
+  }
+
 }
 
-variable "service_principal_secret" {
-  description = "Azure Service Principal Secret"
-  type        = string
-  default     = ""
+variable "service_principal" {
+  description = "Service principal information (for use with ServicePrincipal identity_type)."
+  type        = object({
+                  id     = string
+                  secret = string
+                  name   = string
+                })
+  default     = null
 }
 
-variable "service_principal_name" {
-  description = "Azure Service Principal Name"
-  type        = string
-  default     = ""
+variable "user_assigned_identity" {
+  description = "User assigned identity for the manged cluster (leave and the module will create one)."
+  type        = object({
+                  id           = string
+                  principal_id = string
+                  client_id    = string
+                })
+  default     = null
 }
 
 variable "resource_group_name"{
@@ -98,29 +116,49 @@ variable "default_node_pool_availability_zones" {
 }
 
 variable "aks_managed_vnet" {
-  description = "use AKS managed vnet/subnets (false requires default_node_pool_vnet_subnet_id is specified)"
+  description = "use AKS managed vnet/subnet (false requires default_node_pool_subnet and node_pool_subnets is specified)"
   type        = bool
   default     = true
 }
 
 variable "default_node_pool_subnet" {
-  description = "default node pool vnet subnet info"
-  type        = object({
-                  id                  = string
-                  resource_group_name = string
-                  security_group_name = string
-                })
-  default     = {
-                  id                  = ""
-                  resource_group_name = ""
-                  security_group_name = ""
-                }
+  description = "name of key from node_pool_subnets map to use for default node pool"
+  type        = string
+  default     = ""
 }
 
-variable "enable_aad_pod_identity" {
-  description = "enable Azure AD pod identity enable kubernetes dashboard"
+variable "node_pool_subnets" {
+  description = "Node pool subnet info."
+  type        = map(object({
+                  id                          = string
+                  resource_group_name         = string
+                  network_security_group_name = string
+                }))
+  default     = {}
+}
+
+variable "custom_route_table_ids" {
+  description = "Custom route tables used by node pool subnets."
+  type        = map(string)
+  default     = {}
+}
+
+variable "configure_network_role" {
+  description = "Add Network Contributor role for service principal or identity on input subnets."
   type        = bool
   default     = true
+}
+
+variable "configure_subnet_nsg_rules" {
+  description = "Configure required AKS NSG rules on input subnets."
+  type        = bool
+  default     = true
+}
+
+variable "subnet_nsg_rule_priority_start" {
+  description = "Starting point for NSG rulee priorities."
+  type        = number
+  default     = 1000
 }
 
 variable "enable_windows_node_pools" {

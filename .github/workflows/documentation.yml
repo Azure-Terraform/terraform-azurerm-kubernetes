@@ -15,3 +15,11 @@ jobs:
         tf_docs_output_file: README.md
         tf_docs_output_method: inject
         tf_docs_git_push: 'true'
+
+    - name: AKS Module Docs - subnet_config
+      uses: Dirrk/terraform-docs@v1.0.7
+      with:
+        tf_docs_working_dir: ./subnet_config
+        tf_docs_output_file: README.md
+        tf_docs_output_method: inject
+        tf_docs_git_push: 'true'
