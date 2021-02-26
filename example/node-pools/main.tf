@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.32.0"
+      version = "=2.48.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -17,7 +17,7 @@ terraform {
       version = "=1.3.2"
     }
   }
-   required_version = "=0.13.5"
+  required_version = "=0.14.7"
 }
 
 provider "azurerm" {
@@ -94,7 +94,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.3.1"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.5.1"
 
   naming_rules = module.naming.yaml
 
@@ -106,7 +106,8 @@ module "virtual_network" {
   address_space = ["10.1.0.0/22"]
 
   subnets = {
-    "iaas-private" = { cidrs = ["10.1.0.0/24"] }
+    "iaas-private" = { cidrs                   = ["10.1.0.0/24"] 
+                       allow_internet_outbound = true}
 
     "iaas-public"  = { cidrs                   = ["10.1.1.0/24"]
                        allow_lb_inbound        = true    # Allow traffic from Azure Load Balancer to pods
@@ -115,8 +116,7 @@ module "virtual_network" {
 }
 
 module "kubernetes" {
-  #source = "../../"
-  source = "github.com/Azure-Terraform/terraform-azurerm-kubernetes.git?ref=v1.6.1"
+  source = "../../"
 
   kubernetes_version = "1.18.10"
 
@@ -125,32 +125,23 @@ module "kubernetes" {
   tags                     = module.metadata.tags
   resource_group_name      = module.resource_group.name
 
-  use_service_principal = false
-
-  default_node_pool_name                = "default"
-  default_node_pool_vm_size             = "Standard_B2s"
-  default_node_pool_enable_auto_scaling = true
-  default_node_pool_node_min_count      = 1
-  default_node_pool_node_max_count      = 3
-  default_node_pool_availability_zones  = [1,2,3]
-  default_node_pool_subnet              = "public"
-
   network_plugin             = "azure"
-  aks_managed_vnet           = false
-  configure_subnet_nsg_rules = true
 
-  node_pool_subnets = {
-    private = {
-      id                  = module.virtual_network.subnet["iaas-private"].id
-      resource_group_name = module.virtual_network.vnet.resource_group_name
-      security_group_name = module.virtual_network.subnet_nsg_names["iaas-private"]
+  node_pools = {
+    default = {
+      name                               = "system"
+      subnet_id                          = module.virtual_network.subnets["iaas-private"].id
+      subnet_resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
+      subnet_network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
     }
-    public = {
-      id                  = module.virtual_network.subnet["iaas-public"].id
-      resource_group_name = module.virtual_network.vnet.resource_group_name
-      security_group_name = module.virtual_network.subnet_nsg_names["iaas-public"]
+    web = {
+      name                               = "web"
+      subnet_id                          = module.virtual_network.subnets["iaas-public"].id
+      subnet_resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+      subnet_network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
     }
   }
+
 }
 
 output "aks_login" {
