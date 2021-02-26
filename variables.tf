@@ -182,5 +182,11 @@ variable "windows_profile_admin_password" {
 variable "enable_kube_dashboard" {
   description = "enable kubernetes dashboard"
   type        = bool
-  default     = true
+  default     = false
+}
+
+variable "acr_pull_access" {
+  description = "map of ACR ids to allow AcrPull"
+  type        = map(string)
+  default     = {}
 }
