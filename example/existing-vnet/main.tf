@@ -62,7 +62,7 @@ resource "random_password" "admin" {
 
 module "subscription" {
   source          = "github.com/Azure-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
-  subscription_id = data.azurerm_subscription.current.subscription_id
+  subscription_id = "b0837458-adf3-41b0-a8fb-c16f9719627d"
 }
 
 module "naming" {
@@ -86,6 +86,9 @@ module "metadata" {
   resource_group_type = "app"
 }
 
+##
+# Existing Resource group, vnet, subnet
+##
 data "azurerm_resource_group" "rg" {
   name = "test-aks-deployment-01"
 }
@@ -100,6 +103,24 @@ data "azurerm_subnet" "iaas_private" {
   virtual_network_name = data.azurerm_virtual_network.vnet.name
   resource_group_name  = data.azurerm_resource_group.rg.name
 }
+##
+# EOF - Existing Resource group, vnet, subnet
+##
+
+##
+# On-premise vnet for vnet peering data
+##
+data "azurerm_resource_group" "rg_express_route" {
+  name = "rg-testingpeering-sandbox-useast2"
+}
+
+data "azurerm_virtual_network" "vnet_express_route" {
+  name                = "vnet-testingpeering-sandbox-useast2"
+  resource_group_name = data.azurerm_resource_group.rg_express_route.name
+}
+##
+# EOF - On-premise vnet for vnet peering data
+##
 
 module "kubernetes" {
   source = "github.com/Azure-Terraform/terraform-azurerm-kubernetes.git?ref=v2.0.0"
@@ -147,8 +168,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "linux_webservers" {
   enable_auto_scaling   = true
   min_count             = 1
   max_count             = 3
-
-  vnet_subnet_id = data.azurerm_virtual_network.vnet.id
+  vnet_subnet_id        = data.azurerm_subnet.iaas_private.id
 
   tags = module.metadata.tags
 }
@@ -160,13 +180,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "windows_webservers" {
   availability_zones    = [1, 2, 3]
   node_count            = 1
   os_type               = "Windows"
-  vnet_subnet_id        = data.azurerm_virtual_network.vnet.id
+  vnet_subnet_id        = data.azurerm_subnet.iaas_private.id
 
   tags = module.metadata.tags
 }
 
 ##
-# Existing Vnet and Subnet 
+# Use existing vnet and subnet for routing table
 ##
 
 resource "azurerm_route_table" "route_table" {
@@ -177,7 +197,7 @@ resource "azurerm_route_table" "route_table" {
 }
 
 resource "azurerm_route" "internet" {
-  name                = "acceptanceTestRoute1"
+  name                = "to-firewall-1"
   resource_group_name = data.azurerm_resource_group.rg.name
   route_table_name    = azurerm_route_table.route_table.name
   address_prefix      = "0.0.0.0/0"
@@ -185,34 +205,34 @@ resource "azurerm_route" "internet" {
 }
 
 resource "azurerm_route" "internal_01" {
-  name                = "acceptanceTestRoute1"
-  resource_group_name = data.azurerm_resource_group.rg.name
-  route_table_name    = azurerm_route_table.route_table.name
-  address_prefix      = "10.0.0.0/8"
-  next_hop_type       = "VirtualAppliance"
-  next_hop_in_ip_address = [REDACTED]
+  name                   = "to-firewall-2"
+  resource_group_name    = data.azurerm_resource_group.rg.name
+  route_table_name       = azurerm_route_table.route_table.name
+  address_prefix         = "10.0.0.0/8"
+  next_hop_type          = "VirtualAppliance"
+  next_hop_in_ip_address = "10.0.0.0"  
 }
 
 resource "azurerm_route" "internal_02" {
-  name                = "acceptanceTestRoute1"
-  resource_group_name = data.azurerm_resource_group.rg.name
-  route_table_name    = azurerm_route_table.route_table.name
-  address_prefix      = "172.16.0.0/12"
-  next_hop_type       = "VirtualAppliance"
-  next_hop_in_ip_address = [REDACTED]
+  name                   = "to-firewall-3"
+  resource_group_name    = data.azurerm_resource_group.rg.name
+  route_table_name       = azurerm_route_table.route_table.name
+  address_prefix         = "172.16.0.0/12"
+  next_hop_type          = "VirtualAppliance"
+  next_hop_in_ip_address = "10.0.0.0"  
 }
 
 resource "azurerm_route" "internal_03" {
-  name                = "acceptanceTestRoute1"
-  resource_group_name = data.azurerm_resource_group.rg.name
-  route_table_name    = azurerm_route_table.route_table.name
-  address_prefix      = "192.168.0.0/16"
-  next_hop_type       = "VirtualAppliance"
-  next_hop_in_ip_address = [REDACTED]
+  name                   = "to-firewall-4"
+  resource_group_name    = data.azurerm_resource_group.rg.name
+  route_table_name       = azurerm_route_table.route_table.name
+  address_prefix         = "192.168.0.0/16"
+  next_hop_type          = "VirtualAppliance"
+  next_hop_in_ip_address = "10.0.0.0"
 }
 
 resource "azurerm_route" "local_vnet" {
-  name                = "acceptanceTestRoute1"
+  name                = "azure-subnet"
   resource_group_name = data.azurerm_resource_group.rg.name
   route_table_name    = azurerm_route_table.route_table.name
   address_prefix      = "10.1.1.0/24"
@@ -225,10 +245,10 @@ resource "azurerm_subnet_route_table_association" "association" {
 }
 
 resource "azurerm_virtual_network_peering" "peer" {
-  name                         = "vnet-peering-iaas-private"
-  resource_group_name          = data.azurerm_resource_group.rg.name
-  virtual_network_name         = data.azurerm_virtual_network.vnet.name
-  remote_virtual_network_id    = data.azurerm_virtual_network.vnet.id
+  name                         = "peering-to-expressroute"
+  resource_group_name          = data.azurerm_resource_group.rg_express_route.name
+  virtual_network_name         = data.azurerm_virtual_network.vnet_express_route.name
+  remote_virtual_network_id    = data.azurerm_virtual_network.vnet_express_route.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = false
   allow_gateway_transit        = false
