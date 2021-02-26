@@ -17,6 +17,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
+| acr\_pull\_access | map of ACR ids to allow AcrPull | `map(string)` | `{}` | no |
 | aks\_managed\_vnet | use AKS managed vnet/subnet (false requires default\_node\_pool\_subnet and node\_pool\_subnets is specified) | `bool` | `true` | no |
 | configure\_network\_role | Add Network Contributor role for service principal or identity on input subnets. | `bool` | `true` | no |
 | configure\_subnet\_nsg\_rules | Configure required AKS NSG rules on input subnets. | `bool` | `true` | no |
@@ -29,7 +30,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | default\_node\_pool\_node\_min\_count | enable default node pool auto scaling (only valid for auto scaling) | `number` | `1` | no |
 | default\_node\_pool\_subnet | name of key from node\_pool\_subnets map to use for default node pool | `string` | `""` | no |
 | default\_node\_pool\_vm\_size | default node pool VM size | `string` | `"Standard_D2s_v3"` | no |
-| enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `true` | no |
+| enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `false` | no |
 | enable\_windows\_node\_pools | configure profile for windows node pools (requires windows\_profile\_admin\_username/password) | `bool` | `false` | no |
 | identity\_type | ServicePrincipal, SystemAssigned or UserAssigned. | `string` | `"UserAssigned"` | no |
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
