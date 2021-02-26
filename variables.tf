@@ -104,6 +104,9 @@ variable "node_pool_defaults"  {
                   subnet_network_security_group_name = string
                   subnet_custom_route_table_id       = string
 
+                  mode                               = string
+                  node_taints                        = list(string)
+                  max_surge                          = number
                   eviction_policy                    = string
                   os_type                            = string
                   priority                           = string
@@ -119,19 +122,22 @@ variable "node_pool_defaults"  {
                   max_count                          = null
                   enable_host_encryption             = false
                   enable_node_public_ip              = false
-                  max_pods                           = 30
-                  node_labels                        = {}
+                  max_pods                           = null
+                  node_labels                        = null
                   only_critical_addons_enabled       = false
                   orchestrator_version               = null
-                  os_disk_size_gb                    = 128
+                  os_disk_size_gb                    = null
                   os_disk_type                       = "Managed"
                   type                               = "VirtualMachineScaleSets"
-                  tags                               = {}
+                  tags                               = null
                   subnet_id                          = null
                   subnet_resource_group_name         = null
                   subnet_network_security_group_name = null
                   subnet_custom_route_table_id       = null
 
+                  mode                         = "User"
+                  node_taints                  = null
+                  max_surge                    = null
                   eviction_policy              = null
                   os_type                      = "Linux"
                   priority                     = "Regular"
