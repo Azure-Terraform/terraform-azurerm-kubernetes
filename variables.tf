@@ -106,7 +106,7 @@ variable "node_pool_defaults"  {
 
                   mode                               = string
                   node_taints                        = list(string)
-                  max_surge                          = number
+                  max_surge                          = string
                   eviction_policy                    = string
                   os_type                            = string
                   priority                           = string
@@ -137,7 +137,7 @@ variable "node_pool_defaults"  {
 
                   mode                         = "User"
                   node_taints                  = null
-                  max_surge                    = null
+                  max_surge                    = "1"
                   eviction_policy              = null
                   os_type                      = "Linux"
                   priority                     = "Regular"

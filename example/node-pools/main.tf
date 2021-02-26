@@ -136,6 +136,9 @@ module "kubernetes" {
     }
     web = {
       name                               = "web"
+      enable_auto_scaling                = true
+      min_count                          = 1
+      max_count                          = 3
       subnet_id                          = module.virtual_network.subnets["iaas-public"].id
       subnet_resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
       subnet_network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name

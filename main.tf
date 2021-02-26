@@ -122,7 +122,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 resource "azurerm_kubernetes_cluster_node_pool" "example" {
   for_each = local.additional_node_pools
   #lifecycle {
-  #  ignore_changes = [(each.value.enable_auto_scaling ? "node_count" : "")] 
+  #  ignore_changes = each.value.ignore_changes
   #}
 
   name                         = each.value.name
@@ -145,7 +145,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "example" {
   tags                         = each.value.tags
   vnet_subnet_id               = each.value.subnet_id
 
-  node_count                   = each.value.node_count
+  node_count                   = null #each.value.node_count
 
   upgrade_settings {
     max_surge = each.value.max_surge
