@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.44.0"
+      version = "=2.48.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -126,60 +126,42 @@ module "kubernetes" {
 
   identity_type = "UserAssigned"
 
-  default_node_pool_name                = "default"
-  default_node_pool_vm_size             = "Standard_B2s"
-  default_node_pool_enable_auto_scaling = true
-  default_node_pool_node_min_count      = 1
-  default_node_pool_node_max_count      = 3
-  default_node_pool_availability_zones  = [1,2,3]
-  default_node_pool_subnet              = "private"
-
   enable_windows_node_pools      = true
   windows_profile_admin_username = "testadmin"
   windows_profile_admin_password = random_password.admin.result
 
   network_plugin             = "azure"
-  aks_managed_vnet           = false
+  configure_network_role     = true
   configure_subnet_nsg_rules = true
 
-  node_pool_subnets = {
-    private = {
-      id                          = module.virtual_network.subnets["iaas-private"].id
-      resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
-      network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
+  node_pools = {
+    default = {
+      name                               = "system"
+      subnet_id                          = module.virtual_network.subnets["iaas-private"].id
+      subnet_resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
+      subnet_network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
     }
-    public = {
-      id                          = module.virtual_network.subnets["iaas-public"].id
-      resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-      network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+    linux_web = {
+      name                               = "linuxweb"
+      enable_auto_scaling                = true
+      min_count                          = 1
+      max_count                          = 3
+      subnet_id                          = module.virtual_network.subnets["iaas-public"].id
+      subnet_resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+      subnet_network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+    }
+    windows_web = {
+      name                               = "winweb"
+      os_type                            = "Windows"
+      vm_size                            = "Standard_D2_v3"
+      enable_auto_scaling                = true
+      min_count                          = 1
+      max_count                          = 3
+      subnet_id                          = module.virtual_network.subnets["iaas-public"].id
+      subnet_resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+      subnet_network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
     }
   }
-}
-
-resource "azurerm_kubernetes_cluster_node_pool" "linux_webservers" {
-  name                  = "linuxweb"
-  kubernetes_cluster_id = module.kubernetes.id
-  vm_size               = "Standard_B2s"
-  availability_zones    = [1,2,3]
-  enable_auto_scaling   = true
-  min_count             = 1
-  max_count             = 3
-
-  vnet_subnet_id = module.virtual_network.subnet["iaas-public"].id
-
-  tags = module.metadata.tags
-}
-
-resource "azurerm_kubernetes_cluster_node_pool" "windows_webservers" {
-  name                  = "winweb"
-  kubernetes_cluster_id = module.kubernetes.id
-  vm_size               = "Standard_D2_v3"
-  availability_zones    = [1,2,3]
-  node_count            = 1
-  os_type               = "Windows"
-  vnet_subnet_id        = module.virtual_network.subnet["iaas-public"].id
-
-  tags = module.metadata.tags
 }
 
 resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
