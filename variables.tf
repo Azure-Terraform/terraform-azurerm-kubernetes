@@ -111,7 +111,7 @@ variable "node_pool_defaults"  {
                   os_type                            = string
                   priority                           = string
                   proximity_placement_group_id       = string
-                  spot_max_price                     = string 
+                  spot_max_price                     = number
   })
   default     = { name                               = null
                   vm_size                            = "Standard_B2s"
