@@ -13,5 +13,9 @@ locals {
   custom_route_table_ids = toset(compact([ for subnet in local.subnet_info : subnet.custom_route_table_id ]))
 
 
-  validate_windows_profile_admin_password = (var.enable_windows_node_pools ? (var.windows_profile_admin_password == "" ? file("ERROR: windows_profile_admin_password cannot be empty") : null) : null)
+  valid_node_pools = (((local.node_pools[var.default_node_pool].type != "VirtualMachineScaleSets") && (length(local.additional_node_pools) > 0)) ?
+                       file("ERROR: multiple node pools only allowed when default node pool type is VirtualMachineScaleSets") : null)
+
+  validate_windows_profile_admin_password = (var.enable_windows_node_pools ? (var.windows_profile_admin_password == "" ?
+                                              file("ERROR: windows_profile_admin_password cannot be empty") : null) : null)
 }
