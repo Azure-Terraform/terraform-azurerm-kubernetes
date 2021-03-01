@@ -59,32 +59,27 @@ resource "azurerm_kubernetes_cluster" "aks" {
   default_node_pool {
     name                         = local.node_pools[var.default_node_pool].name
     vm_size                      = local.node_pools[var.default_node_pool].vm_size
-    availability_zones           = local.node_pools[var.default_node_pool].availability_zones
-    node_count                   = local.node_pools[var.default_node_pool].node_count
-    enable_auto_scaling          = local.node_pools[var.default_node_pool].enable_auto_scaling
-    min_count                    = local.node_pools[var.default_node_pool].min_count
-    max_count                    = local.node_pools[var.default_node_pool].max_count
-    enable_host_encryption       = local.node_pools[var.default_node_pool].enable_host_encryption
-    vnet_subnet_id               = local.node_pools[var.default_node_pool].subnet_id
-    tags                         = local.node_pools[var.default_node_pool].tags
-    enable_node_public_ip        = local.node_pools[var.default_node_pool].enable_node_public_ip
-    max_pods                     = local.node_pools[var.default_node_pool].max_pods
-    node_labels                  = local.node_pools[var.default_node_pool].node_labels
-    only_critical_addons_enabled = local.node_pools[var.default_node_pool].only_critical_addons_enabled
-    orchestrator_version         = local.node_pools[var.default_node_pool].orchestrator_version
     os_disk_size_gb              = local.node_pools[var.default_node_pool].os_disk_size_gb
     os_disk_type                 = local.node_pools[var.default_node_pool].os_disk_type
+    availability_zones           = local.node_pools[var.default_node_pool].availability_zones
+    enable_auto_scaling          = local.node_pools[var.default_node_pool].enable_auto_scaling
+    node_count                   = (local.node_pools[var.default_node_pool].enable_auto_scaling ? null : local.node_pools[var.default_node_pool].node_count)
+    min_count                    = (local.node_pools[var.default_node_pool].enable_auto_scaling ? local.node_pools[var.default_node_pool].min_count : null)
+    max_count                    = (local.node_pools[var.default_node_pool].enable_auto_scaling ? local.node_pools[var.default_node_pool].max_count : null)
+    enable_host_encryption       = local.node_pools[var.default_node_pool].enable_host_encryption
+    enable_node_public_ip        = local.node_pools[var.default_node_pool].enable_node_public_ip
+    type                         = local.node_pools[var.default_node_pool].type
+    vnet_subnet_id               = local.node_pools[var.default_node_pool].subnet_id
+    only_critical_addons_enabled = local.node_pools[var.default_node_pool].only_critical_addons_enabled
+    orchestrator_version         = local.node_pools[var.default_node_pool].orchestrator_version
+    max_pods                     = local.node_pools[var.default_node_pool].max_pods
+    node_labels                  = local.node_pools[var.default_node_pool].node_labels
+    tags                         = local.node_pools[var.default_node_pool].tags
+
     upgrade_settings {
       max_surge = local.node_pools[var.default_node_pool].max_surge
     }
   }
-
-  #dynamic "upgrade_settings" {
-  #  for_each = (each.value.max_surge == null ? [] : [1])
-  #  content {
-  #    max_surge = each.value.max_surge
-  #  }
-  #}
 
   addon_profile {
     kube_dashboard {
@@ -121,43 +116,37 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 resource "azurerm_kubernetes_cluster_node_pool" "example" {
   for_each = local.additional_node_pools
-  #lifecycle {
-  #  ignore_changes = each.value.ignore_changes
-  #}
+
+  kubernetes_cluster_id        = azurerm_kubernetes_cluster.aks.id
 
   name                         = each.value.name
-  kubernetes_cluster_id        = azurerm_kubernetes_cluster.aks.id
   vm_size                      = each.value.vm_size
+  os_disk_size_gb              = each.value.os_disk_size_gb
+  os_disk_type                 = each.value.os_disk_type
   availability_zones           = each.value.availability_zones
   enable_auto_scaling          = each.value.enable_auto_scaling
+  node_count                   = (each.value.enable_auto_scaling ? null : each.value.node_count)
+  min_count                    = (each.value.enable_auto_scaling ? each.value.min_count : null)
+  max_count                    = (each.value.enable_auto_scaling ? each.value.max_count : null)
+  os_type                      = each.value.os_type
   enable_host_encryption       = each.value.enable_host_encryption
   enable_node_public_ip        = each.value.enable_node_public_ip
   max_pods                     = each.value.max_pods
-  mode                         = each.value.mode
   node_labels                  = each.value.node_labels
-  node_taints                  = each.value.node_taints
   orchestrator_version         = each.value.orchestrator_version
-  os_disk_size_gb              = each.value.os_disk_size_gb
-  os_type                      = each.value.os_type
-  priority                     = each.value.priority
-  proximity_placement_group_id = each.value.proximity_placement_group_id
-  spot_max_price               = each.value.spot_max_price
   tags                         = each.value.tags
   vnet_subnet_id               = each.value.subnet_id
 
-  node_count                   = null #each.value.node_count
+  node_taints                  = each.value.node_taints
+  eviction_policy              = each.value.eviction_policy
+  proximity_placement_group_id = each.value.proximity_placement_group_id
+  spot_max_price               = each.value.spot_max_price
+  priority                     = each.value.priority
+  mode                         = each.value.mode
 
   upgrade_settings {
     max_surge = each.value.max_surge
   }
-
-  #dynamic "upgrade_settings" {
-  #  for_each = (each.value.max_surge == null ? [] : [1])
-  #  content {
-  #    max_surge = each.value.max_surge
-  #  }
-  #}
-
 }
 
 resource "azurerm_role_assignment" "acr_pull" {
