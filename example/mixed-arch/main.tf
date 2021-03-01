@@ -193,7 +193,6 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
 }
 
 resource "helm_release" "nginx" {
-  depends_on = [azurerm_kubernetes_cluster_node_pool.linux_webservers]
   name       = "nginx"
   chart      = "./helm_chart"
 
@@ -214,7 +213,6 @@ resource "helm_release" "nginx" {
 }
 
 resource "helm_release" "iis" {
-  depends_on = [azurerm_kubernetes_cluster_node_pool.windows_webservers]
   name       = "iis"
   chart      = "./helm_chart"
   timeout    = 600
