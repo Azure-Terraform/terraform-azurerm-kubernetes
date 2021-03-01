@@ -101,6 +101,6 @@ resource "azurerm_role_assignment" "acr_pull" {
   for_each                         = var.acr_pull_access
   scope                            = each.value
   role_definition_name             = "AcrPull"
-  principal_id                     = local.aks_identity_id
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
   skip_service_principal_aad_check = true
 }

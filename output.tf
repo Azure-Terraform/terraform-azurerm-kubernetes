@@ -24,41 +24,49 @@ output "effective_outbound_ips_ids" {
 }
   
 output "kube_config_raw" {
-  description  = "raw kubernetes config to be used by kubectl and other compatible tools"
-  value        = azurerm_kubernetes_cluster.aks.kube_config_raw
+  description = "raw kubernetes config to be used by kubectl and other compatible tools"
+  value       = azurerm_kubernetes_cluster.aks.kube_config_raw
 }
 
 output "host" {
-  description  = "kubernetes host"
-  value        = azurerm_kubernetes_cluster.aks.kube_config.0.host
+  description = "kubernetes host"
+  value       = azurerm_kubernetes_cluster.aks.kube_config.0.host
 }
 
 output "username" {
-  description  = "kubernetes username"
-  value        = azurerm_kubernetes_cluster.aks.kube_config.0.username
+  description = "kubernetes username"
+  value       = azurerm_kubernetes_cluster.aks.kube_config.0.username
 }
 
 output "password" {
-  description  = "kubernetes password"
-  value        = azurerm_kubernetes_cluster.aks.kube_config.0.password
+  description = "kubernetes password"
+  value       = azurerm_kubernetes_cluster.aks.kube_config.0.password
 }
 
 output "client_certificate" {
-  description  = "kubernetes client certificate"
-  value        = azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate
+  description = "kubernetes client certificate"
+  value       = azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate
 }
 
 output "client_key" {
-  description  = "kubernetes client key"
-  value        = azurerm_kubernetes_cluster.aks.kube_config.0.client_key
+  description = "kubernetes client key"
+  value       = azurerm_kubernetes_cluster.aks.kube_config.0.client_key
 }
 
 output "cluster_ca_certificate" {
-  description  = "kubernetes cluster ca certificate"
-  value        = azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate
+  description = "kubernetes cluster ca certificate"
+  value       = azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate
 }
 
 output "principal_id" {
-  description  = "id of the principal used by this managed kubernetes cluster"
-  value        = local.aks_identity_id
+  description = "id of the principal used by this managed kubernetes cluster"
+  value       = local.aks_identity_id
+}
+
+output "kubelet_identity" {
+  description = "kubelet identity information" 
+
+  value       = { client_id                 = azurerm_kubernetes_cluster.aks.kubelet_identity.0.client_id
+                  object_id                 = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
+                  user_assigned_identity_id = azurerm_kubernetes_cluster.aks.kubelet_identity.0.user_assigned_identity_id }
 }
