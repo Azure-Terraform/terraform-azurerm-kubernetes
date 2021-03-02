@@ -28,7 +28,7 @@ resource "azurerm_role_assignment" "route_table_network_contributor" {
 module "subnet_config" {
   source = "./subnet_config"
 
-  for_each = local.subnet_info
+  for_each = var.node_pool_subnets
 
   subnet_info  = each.value
   principal_id = local.aks_identity_id
@@ -40,9 +40,9 @@ module "subnet_config" {
 
 resource "azurerm_kubernetes_cluster" "aks" {
   depends_on          = [azurerm_role_assignment.route_table_network_contributor]
-  #lifecycle {
-  #  ignore_changes = [(local.node_pools[var.default_node_pool].enable_auto_scaling ? "node_count" : "")] 
-  #}
+  lifecycle {
+    ignore_changes = [(local.node_pools[var.default_node_pool].enable_auto_scaling ? "node_count" : "")] 
+  }
 
   name                = local.cluster_name
   location            = var.location
@@ -69,12 +69,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enable_host_encryption       = local.node_pools[var.default_node_pool].enable_host_encryption
     enable_node_public_ip        = local.node_pools[var.default_node_pool].enable_node_public_ip
     type                         = local.node_pools[var.default_node_pool].type
-    vnet_subnet_id               = local.node_pools[var.default_node_pool].subnet_id
     only_critical_addons_enabled = local.node_pools[var.default_node_pool].only_critical_addons_enabled
     orchestrator_version         = local.node_pools[var.default_node_pool].orchestrator_version
     max_pods                     = local.node_pools[var.default_node_pool].max_pods
     node_labels                  = local.node_pools[var.default_node_pool].node_labels
     tags                         = local.node_pools[var.default_node_pool].tags
+    vnet_subnet_id               = (local.node_pools[var.default_node_pool].subnet != null ?
+                                    var.node_pool_subnets[local.node_pools[var.default_node_pool].subnet].id : null)
 
     upgrade_settings {
       max_surge = local.node_pools[var.default_node_pool].max_surge
@@ -135,7 +136,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "example" {
   node_labels                  = each.value.node_labels
   orchestrator_version         = each.value.orchestrator_version
   tags                         = each.value.tags
-  vnet_subnet_id               = each.value.subnet_id
+  vnet_subnet_id               = (each.value.subnet != null ?
+                                  var.node_pool_subnets[each.value.subnet].id : null)
 
   node_taints                  = each.value.node_taints
   eviction_policy              = each.value.eviction_policy

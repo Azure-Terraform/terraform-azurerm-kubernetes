@@ -94,7 +94,8 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.5.1"
+  #source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.5.1"
+  source = "/Users/tmiller/git-repos/tfe/terraform-azurerm-virtual-network"
 
   naming_rules = module.naming.yaml
 
@@ -129,19 +130,28 @@ module "kubernetes" {
 
   node_pools = {
     default = {
-      name                               = "system"
-      subnet_id                          = module.virtual_network.subnets["iaas-private"].id
-      subnet_resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
-      subnet_network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
+      name   = "system"
+      subnet = "private"
     }
     web = {
-      name                               = "web"
-      enable_auto_scaling                = true
-      min_count                          = 1
-      max_count                          = 3
-      subnet_id                          = module.virtual_network.subnets["iaas-public"].id
-      subnet_resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-      subnet_network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+      name                = "web"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
+    }
+  }
+
+  node_pool_subnets {
+    private = {
+      id                          = module.virtual_network.subnets["iaas-private"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
+    }
+    public = {
+      id                          = module.virtual_network.subnets["iaas-public"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
     }
   }
 

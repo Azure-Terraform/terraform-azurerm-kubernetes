@@ -99,10 +99,7 @@ variable "node_pool_defaults"  {
                   os_disk_type                       = string
                   type                               = string
                   tags                               = map(string)
-                  subnet_id                          = string
-                  subnet_resource_group_name         = string
-                  subnet_network_security_group_name = string
-                  subnet_custom_route_table_id       = string
+                  subnet                             = string
 
                   mode                               = string
                   node_taints                        = list(string)
@@ -130,10 +127,7 @@ variable "node_pool_defaults"  {
                   os_disk_type                       = "Managed"
                   type                               = "VirtualMachineScaleSets"
                   tags                               = null
-                  subnet_id                          = null
-                  subnet_resource_group_name         = null
-                  subnet_network_security_group_name = null
-                  subnet_custom_route_table_id       = null
+                  subnet                             = null
 
                   mode                         = "User"
                   node_taints                  = null
@@ -150,6 +144,22 @@ variable "default_node_pool" {
   description = "Default node pool.  Value refers to key within node_pools variable."
   type        = string
   default     = "default"
+}
+
+variable "node_pool_subnets" {
+  description = "Node pool subnet info."
+  type        = map(object({
+                  id                          = string
+                  resource_group_name         = string
+                  network_security_group_name = string
+                }))
+  default     = {}
+}
+
+variable "custom_route_table_ids" {
+  description = "Custom route tables used by node pool subnets."
+  type        = map(string)
+  default     = {}
 }
 
 variable "configure_network_role" {
