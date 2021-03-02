@@ -82,9 +82,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     for_each = (var.identity_type == "ServicePrincipal" ? [] : [1])
     content {
       type                      = var.identity_type
-      user_assigned_identity_id = (var.user_assigned_identity != null ? 
-                                   var.user_assigned_identity.id : 
-                                   azurerm_user_assigned_identity.aks.0.id)
+      user_assigned_identity_id = (var.identity_type == "SystemAssigned" ? null :
+                                    (var.user_assigned_identity != null ? 
+                                    var.user_assigned_identity.id : 
+                                    azurerm_user_assigned_identity.aks.0.id))
     }
   }
 
@@ -93,6 +94,29 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       client_id     = var.service_principal.client_id
       client_secret = var.service_principal.client_secret
+    }
+  }
+
+  role_based_access_control {
+    enabled = ((length(var.rbac_admin_object_ids) > 0) ||
+                (var.rbac_ad_app_info != null)) ?true : false
+
+    dynamic "azure_active_directory" {
+      for_each = (length(var.rbac_admin_object_ids) > 0 ? ["managed"] : [])
+      content {
+        managed                = true
+        admin_group_object_ids = values(var.rbac_admin_object_ids)
+      }
+    }
+
+    dynamic "azure_active_directory" {
+      for_each          = (var.rbac_ad_app_info != null ? ["unmanaged"] : [])
+      content {
+        managed           = false
+        client_app_id     = var.rbac_ad_app_info.client_app_id
+        server_app_id     = var.rbac_ad_app_info.server_app_id
+        server_app_secret = var.rbac_ad_app_info.server_app_secret
+      }
     }
   }
 }

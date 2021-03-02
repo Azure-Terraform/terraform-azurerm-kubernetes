@@ -179,6 +179,22 @@ variable "windows_profile_admin_password" {
   default     = ""
 }
 
+variable "rbac_admin_object_ids" {
+  description = "Admin object ids for use with managed rbac (conflicts with rbac_ad_app_info)."
+  type        = map(string)
+  default     = {}
+}
+
+variable "rbac_ad_app_info" {
+  description = "Azure Active Directory Application for unmanaged rbac (conflicts with rbac_admin_object_ids)."
+  type        = object({
+                  client_app_id     = string
+                  server_app_id     = string
+                  server_app_secret = string
+                })
+  default     = null
+}
+
 variable "enable_kube_dashboard" {
   description = "enable kubernetes dashboard"
   type        = bool
