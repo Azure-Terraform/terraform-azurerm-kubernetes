@@ -179,6 +179,12 @@ variable "windows_profile_admin_password" {
   default     = ""
 }
 
+variable "enable_role_based_access_control" {
+  description = "Enable role based access control"
+  type        = bool
+  default     = true
+}
+
 variable "rbac_admin_object_ids" {
   description = "Admin object ids for use with managed rbac (conflicts with rbac_ad_app_info)."
   type        = map(string)

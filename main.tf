@@ -98,31 +98,24 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   role_based_access_control {
-    enabled = ((length(var.rbac_admin_object_ids) > 0) ||
-                (var.rbac_ad_app_info != null)) ? true : false
-
+    enabled = var.enable_role_based_access_control
+                
     dynamic "azure_active_directory" {
-      for_each = (length(var.rbac_admin_object_ids) > 0 ? ["managed"] : [])
+      for_each = (length(var.rbac_admin_object_ids) > 0 ||
+                   var.rbac_ad_app_info != null ? [1] : [])
       content {
-        managed                = true
-        admin_group_object_ids = values(var.rbac_admin_object_ids)
-      }
-    }
-
-    dynamic "azure_active_directory" {
-      for_each          = (var.rbac_ad_app_info != null ? ["unmanaged"] : [])
-      content {
-        managed           = false
-        client_app_id     = var.rbac_ad_app_info.client_app_id
-        server_app_id     = var.rbac_ad_app_info.server_app_id
-        server_app_secret = var.rbac_ad_app_info.server_app_secret
+        managed                = (length(var.rbac_admin_object_ids) > 0 ?  true : false)
+        admin_group_object_ids = (length(var.rbac_admin_object_ids) > 0 ? values(var.rbac_admin_object_ids) : null)
+        client_app_id          = (var.rbac_ad_app_info != null ? var.rbac_ad_app_info.client_app_id : null)
+        server_app_id          = (var.rbac_ad_app_info != null ? var.rbac_ad_app_info.server_app_id : null)
+        server_app_secret      = (var.rbac_ad_app_info != null ? var.rbac_ad_app_info.server_app_secret : null)
       }
     }
   }
 }
 
 resource "azurerm_role_assignment" "rbac_admin" {
-  for_each             = var.rbac_admin_object_ids 
+  for_each             = (var.enable_role_based_access_control ? var.rbac_admin_object_ids : [])
   scope                = azurerm_kubernetes_cluster.aks.id
   role_definition_name = "Azure Kubernetes Service Cluster User Role"
   principal_id         = each.value
