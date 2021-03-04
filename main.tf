@@ -99,7 +99,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   role_based_access_control {
     enabled = ((length(var.rbac_admin_object_ids) > 0) ||
-                (var.rbac_ad_app_info != null)) ?true : false
+                (var.rbac_ad_app_info != null)) ? true : false
 
     dynamic "azure_active_directory" {
       for_each = (length(var.rbac_admin_object_ids) > 0 ? ["managed"] : [])
@@ -119,6 +119,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
       }
     }
   }
+}
+
+resource "azurerm_role_assignment" "rbac_admin" {
+  for_each             = var.rbac_admin_object_ids 
+  scope                = azurerm_kubernetes_cluster.aks.id
+  role_definition_name = "Azure Kubernetes Service Cluster User Role"
+  principal_id         = each.value
 }
 
 resource "azurerm_role_assignment" "acr_pull" {
