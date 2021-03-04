@@ -101,6 +101,7 @@ variable "node_pool_defaults"  {
                   tags                               = map(string)
                   subnet                             = string
 
+                  # settings below not available in default node pools
                   mode                               = string
                   node_taints                        = list(string)
                   max_surge                          = string
@@ -129,14 +130,15 @@ variable "node_pool_defaults"  {
                   tags                               = null
                   subnet                             = null
 
-                  mode                         = "User"
-                  node_taints                  = null
-                  max_surge                    = "1"
-                  eviction_policy              = null
-                  os_type                      = "Linux"
-                  priority                     = "Regular"
-                  proximity_placement_group_id = null
-                  spot_max_price               = null
+                  # settings below not available in default node pools
+                  mode                               = "User"
+                  node_taints                        = null
+                  max_surge                          = "1"
+                  eviction_policy                    = null
+                  os_type                            = "Linux"
+                  priority                           = "Regular"
+                  proximity_placement_group_id       = null
+                  spot_max_price                     = null
   }
 }
 
