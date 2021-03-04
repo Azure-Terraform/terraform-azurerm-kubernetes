@@ -101,9 +101,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       type                      = var.identity_type
       user_assigned_identity_id = (var.identity_type == "SystemAssigned" ? null : 
-                                   (var.user_assigned_identity != null ? 
-                                    var.user_assigned_identity.id : 
-                                    azurerm_user_assigned_identity.aks.0.id))
+                                  (var.user_assigned_identity != null ? 
+                                   var.user_assigned_identity.id : 
+                                   azurerm_user_assigned_identity.aks.0.id))
     }
   }
 
