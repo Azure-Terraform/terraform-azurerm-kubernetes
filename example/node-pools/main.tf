@@ -133,8 +133,16 @@ module "kubernetes" {
       name   = "system"
       subnet = "private"
     }
-    web = {
-      name                = "web"
+    llinux_web = {
+      name                = "linuxweb"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
+    }
+    windows_web = {
+      name                = "winweb"
+      os_type             = "Windows"
       enable_auto_scaling = true
       min_count           = 1
       max_count           = 3
@@ -142,7 +150,7 @@ module "kubernetes" {
     }
   }
 
-  node_pool_subnets {
+  node_pool_subnets = { 
     private = {
       id                          = module.virtual_network.subnets["iaas-private"].id
       resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
