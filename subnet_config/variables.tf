@@ -1,15 +1,15 @@
 variable "principal_id" {
-  description = "Id of principal which manages AKS"
+  description = "Principal ID which manages AKS."
   type        = string
 }
 
 variable "subnet_info" {
-  description = "Azure virtual network subnet id."
-  type        = map(object({
+  description = "Azure subnet info."
+  type        = object({
                   id                          = string
                   resource_group_name         = string
                   network_security_group_name = string
-                }))
+                })
 }
 
 variable "configure_network_role" {
