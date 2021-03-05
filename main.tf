@@ -104,7 +104,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       for_each = (length(var.rbac_admin_object_ids) > 0 ||
                    var.rbac_ad_app_info != null ? [1] : [])
       content {
-        managed                = (length(var.rbac_admin_object_ids) > 0 ?  true : false)
+        managed                = (length(var.rbac_admin_object_ids) > 0 ? true : false)
         admin_group_object_ids = (length(var.rbac_admin_object_ids) > 0 ? values(var.rbac_admin_object_ids) : null)
         client_app_id          = (var.rbac_ad_app_info != null ? var.rbac_ad_app_info.client_app_id : null)
         server_app_id          = (var.rbac_ad_app_info != null ? var.rbac_ad_app_info.server_app_id : null)
