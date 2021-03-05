@@ -16,7 +16,7 @@ resource "azurerm_user_assigned_identity" "aks" {
 }
 
 resource "azurerm_role_assignment" "route_table_network_contributor" {
-  for_each             = (var.identity_type != "SystemAssigned" ? local.custom_route_table_ids : [])
+  for_each             = (var.identity_type != "SystemAssigned" ? var.custom_route_table_ids : {})
 
   scope                = each.value
   role_definition_name = "Network Contributor"
@@ -40,9 +40,6 @@ module "subnet_config" {
 
 resource "azurerm_kubernetes_cluster" "aks" {
   depends_on          = [azurerm_role_assignment.route_table_network_contributor]
-  lifecycle {
-    ignore_changes = [(local.node_pools[var.default_node_pool].enable_auto_scaling ? "node_count" : "")] 
-  }
 
   name                = local.cluster_name
   location            = var.location
