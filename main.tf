@@ -115,7 +115,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 
 resource "azurerm_role_assignment" "rbac_admin" {
-  for_each             = (var.enable_role_based_access_control ? var.rbac_admin_object_ids : [])
+  for_each             = (var.enable_role_based_access_control ? var.rbac_admin_object_ids : {}) 
   scope                = azurerm_kubernetes_cluster.aks.id
   role_definition_name = "Azure Kubernetes Service Cluster User Role"
   principal_id         = each.value
