@@ -49,7 +49,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version = var.kubernetes_version
   
   network_profile {
-    network_plugin = var.network_plugin
+    network_plugin     = var.network_plugin
+    network_mode       = (var.network_plugin == "azure" ? var.network_mode : null)
+    dns_service_ip     = var.dns_service_ip
+    docker_bridge_cidr = var.docker_bridge_cidr
+    outbound_type      = var.outbound_type
+    pod_cidr           = (var.network_plugin == "kubenet" ? var.pod_cidr : null)
+    service_cidr       = var.service_cidr
+
   }
 
   default_node_pool {

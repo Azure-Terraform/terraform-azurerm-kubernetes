@@ -71,6 +71,54 @@ variable "network_plugin" {
   description = "network plugin to use for networking (azure or kubenet)"
   type        = string
   default     = "kubenet"
+
+  validation {
+    condition = (
+      var.network_plugin == "kubenet" ||
+      var.network_plugin == "azure"
+    )
+    error_message = "Network Plugin must set to kubenet or azure"
+
+  }
+
+}
+
+variable "network_mode" {
+  description = "network mode to br used with Azure CNI"
+  type        = string
+  default     = "transparent"
+}
+
+variable "dns_service_ip" {
+  description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)"
+  type        = string
+  default     = "172.20.0.10"
+}
+
+variable "docker_bridge_cidr" {
+  description = "used as the Docker bridge IP address on nodes"
+  type        = string
+  default     = "172.17.0.1/16"
+}
+
+variable "outbound_type" {
+  description = "outbound (egress) routing method which should be used for this Kubernetes Cluster"
+  type        = string
+  default     = "loadBalancer"
+
+}
+
+variable "pod_cidr" {
+  description = "used for pod IP addresses"
+  type        = string
+  default     = "100.65.0.0/16"
+  
+}
+
+variable "service_cidr" {
+  description = "CIDR range used by the Kubernetes service"
+  type        = string
+  default     = "172.20.0.0/16"
 }
 
 variable "default_node_pool_name" {
