@@ -182,22 +182,13 @@ variable "subnet_nsg_rule_priority_start" {
   default     = 1000
 }
 
-variable "enable_windows_node_pools" {
-  description = "configure profile for windows node pools (requires windows_profile_admin_username/password)"
-  type        = bool
-  default     = false
-}
-
-variable "windows_profile_admin_username" {
-  description = "windows profile admin username"
-  type        = string
-  default     = "aks-windows-admin"
-}
-
-variable "windows_profile_admin_password" {
-  description = "windows profile admin password"
-  type        = string
-  default     = ""
+variable "windows_profile" {
+  description = "windows profile admin user/pass"
+  type        = object({ 
+                  admin_username = string
+                  admin_password = string
+                })
+  default     = null
 }
 
 variable "enable_kube_dashboard" {
