@@ -1,10 +1,3 @@
-# Basics
-variable "use_service_principal" {
-  description = "use service principal (false will use identity)"
-  type        = bool
-  default     = false
-}
-
 variable "identity_type" {
   description = "ServicePrincipal, SystemAssigned or UserAssigned."
   type        = string
@@ -61,10 +54,10 @@ variable "tags" {
   type        = map(string)
 }
 
-# AKS
 variable "kubernetes_version" {
   description = "kubernetes version"
   type        = string
+  default     = null # defaults to latest recommended version
 }
 
 variable "network_plugin" {
@@ -179,15 +172,30 @@ variable "windows_profile_admin_password" {
   default     = ""
 }
 
-variable "enable_role_based_access_control" {
-  description = "Enable role based access control"
-  type        = bool
-  default     = true
+variable "rbac" {
+  description = "role based access control settings"
+  type        = object({
+                  enabled        = bool
+                  ad_integration = bool
+                })
+  default     = {
+                  enabled        = true
+                  ad_integration = true # defaults to managed
+                }
+
+  validation {
+    condition = (
+      (var.rbac.enabled && var.rbac.ad_integration) ||
+      (var.rbac.enabled && var.rbac.ad_integration == false) ||
+      (var.rbac.enabled == false && var.rbac.ad_integration == false)
+    )
+    error_message = "Role based access control must be enabled to use Active Directory integration."
+  }
 }
 
 variable "rbac_admin_object_ids" {
   description = "Admin object ids for use with managed rbac (conflicts with rbac_ad_app_info)."
-  type        = map(string)
+  type        = map(string) # keys are only for documentation purposes
   default     = {}
 }
 
