@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.44.0"
+      version = "=2.48.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -141,6 +141,11 @@ module "kubernetes" {
   network_plugin             = "azure"
   aks_managed_vnet           = false
   configure_subnet_nsg_rules = true
+
+  rbac = {
+    enabled        = true
+    ad_integration = false
+  }
 
   node_pool_subnets = {
     private = {
