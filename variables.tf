@@ -1,3 +1,23 @@
+variable "resource_group_name"{
+  description = "Resource group name"
+  type        = string
+}
+
+variable "location" {
+  description = "Azure region"
+  type        = string
+}
+
+variable "names" {
+  description = "names to be applied to resources"
+  type        = map(string)
+}
+
+variable "tags" {
+  description = "tags to be applied to resources"
+  type        = map(string)
+}
+
 variable "identity_type" {
   description = "ServicePrincipal, SystemAssigned or UserAssigned."
   type        = string
@@ -32,26 +52,6 @@ variable "user_assigned_identity" {
                   client_id    = string
                 })
   default     = null
-}
-
-variable "resource_group_name"{
-  description = "Resource group name"
-  type        = string
-}
-
-variable "location" {
-  description = "Azure region"
-  type        = string
-}
-
-variable "names" {
-  description = "names to be applied to resources"
-  type        = map(string)
-}
-
-variable "tags" {
-  description = "tags to be applied to resources"
-  type        = map(string)
 }
 
 variable "kubernetes_version" {

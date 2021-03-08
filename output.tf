@@ -26,7 +26,7 @@ output "effective_outbound_ips_ids" {
 output "kube_config" {
   description = "kubernetes config to be used by kubectl and other compatible tools"
   value       = (var.rbac.ad_integration ? 
-                 azurerm_kubernetes_cluster.aks.kube_admin_config : azurerm_kubernetes_cluster.aks.kube_config)
+                 azurerm_kubernetes_cluster.aks.kube_admin_config.0 : azurerm_kubernetes_cluster.aks.kube_config.0)
 }
 
 output "kube_config_raw" {
