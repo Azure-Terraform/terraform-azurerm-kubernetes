@@ -141,11 +141,6 @@ module "kubernetes" {
   aks_managed_vnet           = false
   configure_subnet_nsg_rules = true
 
-  rbac = {
-    enabled        = true
-    ad_integration = false
-  }
-
   node_pool_subnets = {
     private = {
       id                          = module.virtual_network.subnets["iaas-private"].id
