@@ -19,29 +19,18 @@ variable "tags" {
 }
 
 variable "identity_type" {
-  description = "ServicePrincipal, SystemAssigned or UserAssigned."
+  description = "SystemAssigned or UserAssigned."
   type        = string
   default     = "UserAssigned"
 
   validation {
     condition = (
-      var.identity_type == "ServicePrincipal" ||
       var.identity_type == "UserAssigned" ||
       var.identity_type == "SystemAssigned"
     )
-    error_message = "Identity must be one of 'ServicePrincipal', 'SystemAssigned' or 'UserAssigned'."
+    error_message = "Identity must be one of 'SystemAssigned' or 'UserAssigned'."
   }
 
-}
-
-variable "service_principal" {
-  description = "Service principal information (for use with ServicePrincipal identity_type)."
-  type        = object({
-                  id     = string
-                  secret = string
-                  name   = string
-                })
-  default     = null
 }
 
 variable "user_assigned_identity" {
@@ -158,7 +147,7 @@ variable "custom_route_table_ids" {
 }
 
 variable "configure_network_role" {
-  description = "Add Network Contributor role for service principal or identity on input subnets."
+  description = "Add Network Contributor role for identity on input subnets."
   type        = bool
   default     = true
 }
