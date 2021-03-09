@@ -38,11 +38,12 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | names | names to be applied to resources | `map(string)` | n/a | yes |
 | network\_plugin | network plugin to use for networking (azure or kubenet) | `string` | `"kubenet"` | no |
 | node\_pool\_subnets | Node pool subnet info. | <pre>map(object({<br>                  id                          = string<br>                  resource_group_name         = string<br>                  network_security_group_name = string<br>                }))</pre> | `{}` | no |
+| rbac | role based access control settings | <pre>object({<br>                  enabled        = bool<br>                  ad_integration = bool<br>                })</pre> | <pre>{<br>  "ad_integration": false,<br>  "enabled": true<br>}</pre> | no |
+| rbac\_admin\_object\_ids | Admin group object ids for use with rbac active directory integration | `map(string)` | `{}` | no |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
 | service\_principal | Service principal information (for use with ServicePrincipal identity\_type). | <pre>object({<br>                  id     = string<br>                  secret = string<br>                  name   = string<br>                })</pre> | n/a | yes |
 | subnet\_nsg\_rule\_priority\_start | Starting point for NSG rulee priorities. | `number` | `1000` | no |
 | tags | tags to be applied to resources | `map(string)` | n/a | yes |
-| use\_service\_principal | use service principal (false will use identity) | `bool` | `false` | no |
 | user\_assigned\_identity | User assigned identity for the manged cluster (leave and the module will create one). | <pre>object({<br>                  id           = string<br>                  principal_id = string<br>                  client_id    = string<br>                })</pre> | n/a | yes |
 | windows\_profile\_admin\_password | windows profile admin password | `string` | `""` | no |
 | windows\_profile\_admin\_username | windows profile admin username | `string` | `"aks-windows-admin"` | no |
@@ -58,6 +59,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | fqdn | kubernetes managed cluster fqdn |
 | host | kubernetes host |
 | id | kubernetes managed cluster id |
+| kube\_config | kubernetes config to be used by kubectl and other compatible tools |
 | kube\_config\_raw | raw kubernetes config to be used by kubectl and other compatible tools |
 | kubelet\_identity | kubelet identity information |
 | name | kubernetes managed cluster name |
