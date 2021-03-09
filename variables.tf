@@ -180,7 +180,7 @@ variable "rbac" {
                 })
   default     = {
                   enabled        = true
-                  ad_integration = true # defaults to managed
+                  ad_integration = false
                 }
 
   validation {
@@ -194,19 +194,9 @@ variable "rbac" {
 }
 
 variable "rbac_admin_object_ids" {
-  description = "Admin object ids for use with managed rbac (conflicts with rbac_ad_app_info)."
+  description = "Admin group object ids for use with rbac active directory integration"
   type        = map(string) # keys are only for documentation purposes
   default     = {}
-}
-
-variable "rbac_ad_app_info" {
-  description = "Azure Active Directory Application for unmanaged rbac (conflicts with rbac_admin_object_ids)."
-  type        = object({
-                  client_app_id     = string
-                  server_app_id     = string
-                  server_app_secret = string
-                })
-  default     = null
 }
 
 variable "enable_kube_dashboard" {
