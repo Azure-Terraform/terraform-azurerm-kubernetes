@@ -125,9 +125,10 @@ module "kubernetes" {
 
   identity_type = "UserAssigned"
 
-  enable_windows_node_pools      = true
-  windows_profile_admin_username = "testadmin"
-  windows_profile_admin_password = random_password.admin.result
+  windows_profile = {
+    admin_username = "testadmin"
+    admin_password = random_password.admin.result
+  }
 
   network_plugin             = "azure"
   configure_network_role     = true

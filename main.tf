@@ -76,7 +76,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "windows_profile" {
-    for_each = var.windows_nodes ? [1] : []
+    for_each = local.windows_nodes ? [1] : []
     content {
       admin_username = var.windows_profile.admin_username
       admin_password = var.windows_profile.admin_password

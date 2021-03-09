@@ -171,6 +171,17 @@ variable "windows_profile" {
                   admin_password = string
                 })
   default     = null
+
+  validation {
+    condition = (
+      (var.windows_profile == null) ||
+      ((var.windows_profile.admin_username != null) &&
+       (var.windows_profile.admin_username != "") &&
+       (var.windows_profile.admin_password != null) &&
+       (var.windows_profile.admin_password != ""))
+    )
+    error_message = "Windows profile requires both admin_username and admin_password."
+  }
 }
 
 variable "rbac" {
