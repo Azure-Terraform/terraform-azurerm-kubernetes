@@ -89,17 +89,17 @@ variable "network_mode" {
   default     = "transparent"
 }
 
-variable "dns_service_ip" {
-  description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)"
-  type        = string
-  default     = "172.20.0.10"
-}
+#variable "dns_service_ip" {
+#  description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)"
+#  type        = string
+#  default     = null
+#}
 
-variable "docker_bridge_cidr" {
-  description = "used as the Docker bridge IP address on nodes"
-  type        = string
-  default     = "172.17.0.1/16"
-}
+#variable "docker_bridge_cidr" {
+#  description = "used as the Docker bridge IP address on nodes"
+#  type        = string
+#  default     = null
+#}
 
 variable "outbound_type" {
   description = "outbound (egress) routing method which should be used for this Kubernetes Cluster"
@@ -111,14 +111,34 @@ variable "outbound_type" {
 variable "pod_cidr" {
   description = "used for pod IP addresses"
   type        = string
-  default     = "100.65.0.0/16"
+  default     = null
   
 }
 
-variable "service_cidr" {
-  description = "CIDR range used by the Kubernetes service"
-  type        = string
-  default     = "172.20.0.0/16"
+#variable "service_cidr" {
+#  description = "CIDR range used by the Kubernetes service"
+#  type        = string
+#  default     = null
+#}
+
+variable "network_profile_options" {
+  description = "docker_bridge_cidr, dns_service_ip and service_cidr should all be empty or all should be set"
+  type        = object({
+                  docker_bridge_cidr = string
+                  dns_service_ip     = string
+                  service_cidr       = string
+                })
+  default     = null
+
+validation {
+    condition = (
+      var.network_profile_options.docker_bridge_cidr != null ||
+      var.network_profile_options.dns_service_ip != null ||
+      var.network_profile_options.service_cidr != null
+    )
+    error_message = "Network Plugin must set to kubenet or azure"
+
+  }
 }
 
 variable "default_node_pool_name" {
