@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.44.0"
+      version = "=2.48.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -25,19 +25,18 @@ provider "azurerm" {
 }
 
 provider "kubernetes" {
-  host                   = module.kubernetes.host
-  client_certificate     = base64decode(module.kubernetes.client_certificate)
-  client_key             = base64decode(module.kubernetes.client_key)
-  cluster_ca_certificate = base64decode(module.kubernetes.cluster_ca_certificate)
-  load_config_file       = false
+  host                   = module.kubernetes.kube_config.host
+  client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
+  client_key             = base64decode(module.kubernetes.kube_config.client_key)
+  cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.kubernetes.host
-    client_certificate     = base64decode(module.kubernetes.client_certificate)
-    client_key             = base64decode(module.kubernetes.client_key)
-    cluster_ca_certificate = base64decode(module.kubernetes.cluster_ca_certificate)
+    host                   = module.kubernetes.kube_config.host
+    client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
+    client_key             = base64decode(module.kubernetes.kube_config.client_key)
+    cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
   }
 }
 

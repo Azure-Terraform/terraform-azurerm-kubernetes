@@ -1,8 +1,21 @@
-# Basics
-variable "use_service_principal" {
-  description = "use service principal (false will use identity)"
-  type        = bool
-  default     = false
+variable "resource_group_name"{
+  description = "Resource group name"
+  type        = string
+}
+
+variable "location" {
+  description = "Azure region"
+  type        = string
+}
+
+variable "names" {
+  description = "names to be applied to resources"
+  type        = map(string)
+}
+
+variable "tags" {
+  description = "tags to be applied to resources"
+  type        = map(string)
 }
 
 variable "identity_type" {
@@ -41,30 +54,10 @@ variable "user_assigned_identity" {
   default     = null
 }
 
-variable "resource_group_name"{
-  description = "Resource group name"
-  type        = string
-}
-
-variable "location" {
-  description = "Azure region"
-  type        = string
-}
-
-variable "names" {
-  description = "names to be applied to resources"
-  type        = map(string)
-}
-
-variable "tags" {
-  description = "tags to be applied to resources"
-  type        = map(string)
-}
-
-# AKS
 variable "kubernetes_version" {
   description = "kubernetes version"
   type        = string
+  default     = null # defaults to latest recommended version
 }
 
 variable "network_plugin" {
@@ -177,6 +170,33 @@ variable "windows_profile_admin_password" {
   description = "windows profile admin password"
   type        = string
   default     = ""
+}
+
+variable "rbac" {
+  description = "role based access control settings"
+  type        = object({
+                  enabled        = bool
+                  ad_integration = bool
+                })
+  default     = {
+                  enabled        = true
+                  ad_integration = false
+                }
+
+  validation {
+    condition = (
+      (var.rbac.enabled && var.rbac.ad_integration) ||
+      (var.rbac.enabled && var.rbac.ad_integration == false) ||
+      (var.rbac.enabled == false && var.rbac.ad_integration == false)
+    )
+    error_message = "Role based access control must be enabled to use Active Directory integration."
+  }
+}
+
+variable "rbac_admin_object_ids" {
+  description = "Admin group object ids for use with rbac active directory integration"
+  type        = map(string) # keys are only for documentation purposes
+  default     = {}
 }
 
 variable "enable_kube_dashboard" {
