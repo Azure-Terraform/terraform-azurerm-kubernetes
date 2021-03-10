@@ -132,11 +132,12 @@ variable "network_profile_options" {
 
 validation {
     condition = (
-      var.network_profile_options.docker_bridge_cidr != null ||
-      var.network_profile_options.dns_service_ip != null ||
-      var.network_profile_options.service_cidr != null
+      ((var.network_profile_options == null) ? true :
+      ((var.network_profile_options.docker_bridge_cidr != null) &&
+      (var.network_profile_options.dns_service_ip != null) &&
+      (var.network_profile_options.service_cidr != null)))
     )
-    error_message = "Network Plugin must set to kubenet or azure"
+    error_message = "Incorrect values set. docker_bridge_cidr, dns_service_ip and service_cidr should all be empty or all should be set"
 
   }
 }
