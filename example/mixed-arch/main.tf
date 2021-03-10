@@ -128,25 +128,23 @@ module "kubernetes" {
     admin_password = random_password.admin.result
   }
 
+  default_node_pool = "system"
+
   network_plugin             = "azure"
   configure_network_role     = true
   configure_subnet_nsg_rules = true
 
-
   node_pools = {
-    default = {
-      name   = "system"
+    system = {
       subnet = "private"
     }
-    llinux_web = {
-      name                = "linuxweb"
+    linuxweb = {
       enable_auto_scaling = true
       min_count           = 1
       max_count           = 3
       subnet              = "public"
     }
-    windows_web = {
-      name                = "winweb"
+    winweb = {
       os_type             = "Windows"
       enable_auto_scaling = true
       min_count           = 1
