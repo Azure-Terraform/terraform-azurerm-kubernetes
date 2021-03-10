@@ -77,7 +77,7 @@ variable "network_plugin" {
       var.network_plugin == "kubenet" ||
       var.network_plugin == "azure"
     )
-    error_message = "Network Plugin must set to kubenet or azure"
+    error_message = "Network Plugin must set to kubenet or azure."
 
   }
 

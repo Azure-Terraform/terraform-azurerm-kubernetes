@@ -115,8 +115,8 @@ module "virtual_network" {
 }
 
 module "kubernetes" {
-  source = "../../"
-
+  #source = "../../"
+  source = "github.com/llanse01/terraform-azurerm-kubernetes.git?ref=network_profile"
   kubernetes_version = "1.18.10"
 
   location                 = module.metadata.location
@@ -209,7 +209,7 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
   resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
   network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
-
+/*
 resource "helm_release" "nginx" {
   depends_on = [azurerm_kubernetes_cluster_node_pool.linux_webservers]
   name       = "nginx"
@@ -274,7 +274,7 @@ output "nginx_url" {
 output "iis_url" {
   value = "http://${data.kubernetes_service.iis.load_balancer_ingress.0.ip}"
 }
-
+*/
 output "aks_login" {
   value = "az aks get-credentials --name ${module.kubernetes.name} --resource-group ${module.resource_group.name}"
 }
