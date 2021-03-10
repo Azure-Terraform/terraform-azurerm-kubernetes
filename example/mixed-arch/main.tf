@@ -116,8 +116,6 @@ module "virtual_network" {
 module "kubernetes" {
   source = "../../"
 
-  kubernetes_version = "1.18.10"
-
   location                 = module.metadata.location
   names                    = module.metadata.names
   tags                     = module.metadata.tags
@@ -134,32 +132,39 @@ module "kubernetes" {
   configure_network_role     = true
   configure_subnet_nsg_rules = true
 
+
   node_pools = {
     default = {
-      name                               = "system"
-      subnet_id                          = module.virtual_network.subnets["iaas-private"].id
-      subnet_resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
-      subnet_network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
+      name   = "system"
+      subnet = "private"
     }
-    linux_web = {
-      name                               = "linuxweb"
-      enable_auto_scaling                = true
-      min_count                          = 1
-      max_count                          = 3
-      subnet_id                          = module.virtual_network.subnets["iaas-public"].id
-      subnet_resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-      subnet_network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+    llinux_web = {
+      name                = "linuxweb"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
     }
     windows_web = {
-      name                               = "winweb"
-      os_type                            = "Windows"
-      vm_size                            = "Standard_D2_v3"
-      enable_auto_scaling                = true
-      min_count                          = 1
-      max_count                          = 3
-      subnet_id                          = module.virtual_network.subnets["iaas-public"].id
-      subnet_resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-      subnet_network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+      name                = "winweb"
+      os_type             = "Windows"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
+    }
+  }
+
+  node_pool_subnets = { 
+    private = {
+      id                          = module.virtual_network.subnets["iaas-private"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
+    }
+    public = {
+      id                          = module.virtual_network.subnets["iaas-public"].id
+      resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+      network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
     }
   }
 }
