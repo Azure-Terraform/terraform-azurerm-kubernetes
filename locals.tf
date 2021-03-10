@@ -10,6 +10,10 @@ locals {
 
   windows_nodes = (length([ for v in local.node_pools : v if lower(v.os_type) == "windows" ]) > 0 ? true : false)
 
+  invalid_node_pool_attributes = join(",", flatten([ for np in values(var.node_pools) : [for k,v in np : k if !(contains(keys(var.node_pool_defaults), k))]]))
+  validate_node_pool_attributes = (length(local.invalid_node_pool_attributes) > 0 ?
+                                   file("ERROR: invalid node pool attribute:  ${local.invalid_node_pool_attributes}") : null)
+
   validate_windows_config = (local.windows_nodes && var.windows_profile == null ?
                              file("ERROR: windows node pools require a windows_profile") : null)
 
