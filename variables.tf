@@ -57,14 +57,13 @@ variable "network_plugin" {
 
 variable "node_pools" {
   description = "node pools"
-  type        = any
-  default     = { default = { name = "default" } }
+  type        = map(map(any))
+  default     = { default = {} }
 }
 
 variable "node_pool_defaults"  {
   description = "node pool defaults"
   type        = object({
-                  name                               = string
                   vm_size                            = string
                   availability_zones                 = list(number)
                   node_count                         = number
@@ -174,7 +173,7 @@ variable "windows_profile" {
 
   validation {
     condition = (
-      (var.windows_profile == null) ||
+      var.windows_profile == null ? true :
       ((var.windows_profile.admin_username != null) &&
        (var.windows_profile.admin_username != "") &&
        (var.windows_profile.admin_password != null) &&

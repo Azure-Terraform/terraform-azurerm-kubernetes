@@ -44,7 +44,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   default_node_pool {
-    name                         = local.node_pools[var.default_node_pool].name
+    name                         = var.default_node_pool
     vm_size                      = local.node_pools[var.default_node_pool].vm_size
     os_disk_size_gb              = local.node_pools[var.default_node_pool].os_disk_size_gb
     os_disk_type                 = local.node_pools[var.default_node_pool].os_disk_type
@@ -117,7 +117,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "example" {
 
   kubernetes_cluster_id        = azurerm_kubernetes_cluster.aks.id
 
-  name                         = each.value.name
+  name                         = each.key
   vm_size                      = each.value.vm_size
   os_disk_size_gb              = each.value.os_disk_size_gb
   os_disk_type                 = each.value.os_disk_type
