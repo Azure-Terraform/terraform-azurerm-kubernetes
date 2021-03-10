@@ -89,18 +89,6 @@ variable "network_mode" {
   default     = "transparent"
 }
 
-#variable "dns_service_ip" {
-#  description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)"
-#  type        = string
-#  default     = null
-#}
-
-#variable "docker_bridge_cidr" {
-#  description = "used as the Docker bridge IP address on nodes"
-#  type        = string
-#  default     = null
-#}
-
 variable "outbound_type" {
   description = "outbound (egress) routing method which should be used for this Kubernetes Cluster"
   type        = string
@@ -114,12 +102,6 @@ variable "pod_cidr" {
   default     = null
   
 }
-
-#variable "service_cidr" {
-#  description = "CIDR range used by the Kubernetes service"
-#  type        = string
-#  default     = null
-#}
 
 variable "network_profile_options" {
   description = "docker_bridge_cidr, dns_service_ip and service_cidr should all be empty or all should be set"
