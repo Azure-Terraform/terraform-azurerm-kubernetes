@@ -137,7 +137,7 @@ validation {
       (var.network_profile_options.dns_service_ip != null) &&
       (var.network_profile_options.service_cidr != null)))
     )
-    error_message = "Incorrect values set. docker_bridge_cidr, dns_service_ip and service_cidr should all be empty or all should be set"
+    error_message = "Incorrect values set. docker_bridge_cidr, dns_service_ip and service_cidr should all be empty or all should be set."
 
   }
 }
