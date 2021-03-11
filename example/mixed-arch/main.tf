@@ -138,9 +138,17 @@ module "kubernetes" {
   windows_profile_admin_username = "testadmin"
   windows_profile_admin_password = random_password.admin.result
 
-  network_plugin             = "kubenet"
+  network_plugin             = "azure"
+
   aks_managed_vnet           = false
   configure_subnet_nsg_rules = true
+  
+
+  network_profile_options     = ({
+                  docker_bridge_cidr = "172.17.0.1/16"
+                  dns_service_ip     = "172.20.0.10"
+                  service_cidr       = "172.20.0.0/16"
+                })
 
   node_pool_subnets = {
     private = {
