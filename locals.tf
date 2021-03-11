@@ -1,5 +1,11 @@
 locals {
-  cluster_name = "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}"
+  cluster_name = (var.cluster_name != null ? var.cluster_name :
+                  "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}")
+  
+  node_resource_group = (var.node_resource_group != null ? var.node_resource_group : "MC_${local.cluster_name}")
+
+  dns_prefix   = (var.dns_prefix != null ? var.dns_prefix :
+                  "${var.names.product_name}-${var.names.environment}-${var.names.location}")
 
   aks_identity_id = (var.identity_type == "SystemAssigned" ? azurerm_kubernetes_cluster.aks.identity.0.principal_id :
                     (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
@@ -10,7 +16,7 @@ locals {
 
   windows_nodes = (length([ for v in local.node_pools : v if lower(v.os_type) == "windows" ]) > 0 ? true : false)
 
-  invalid_node_pool_attributes = join(",", flatten([ for np in values(var.node_pools) : [for k,v in np : k if !(contains(keys(var.node_pool_defaults), k))]]))
+  invalid_node_pool_attributes  = join(",", flatten([ for np in values(var.node_pools) : [for k,v in np : k if !(contains(keys(var.node_pool_defaults), k))]]))
   validate_node_pool_attributes = (length(local.invalid_node_pool_attributes) > 0 ?
                                    file("ERROR: invalid node pool attribute:  ${local.invalid_node_pool_attributes}") : null)
 
@@ -25,4 +31,10 @@ locals {
 
   validate_default_node_pool = (lower(local.node_pools[var.default_node_pool].os_type) != "linux" ?
                                 file("ERROR: default node pool type must be Linux") : null)
+
+  validate_cluster_name = ((var.cluster_name == null && var.names == null) ?
+                           file("ERROR: cluster_name or names variable must be specified.") : null)
+
+  validate_dns_prefix = ((var.dns_prefix == null && var.names == null) ?
+                          file("ERROR: dns_prefix or names variable must be specified.") : null)
 }
