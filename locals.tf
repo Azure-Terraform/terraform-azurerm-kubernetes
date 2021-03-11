@@ -20,6 +20,9 @@ locals {
   validate_node_pool_attributes = (length(local.invalid_node_pool_attributes) > 0 ?
                                    file("ERROR: invalid node pool attribute:  ${local.invalid_node_pool_attributes}") : null)
 
+  validate_node_resource_group_length = (length(local.node_resource_group) > 80 ?
+                                         file("Error: node resource group length exceeds maximium allowed (80 characters)") : null)
+
   validate_windows_config = (local.windows_nodes && var.windows_profile == null ?
                              file("ERROR: windows node pools require a windows_profile") : null)
 
