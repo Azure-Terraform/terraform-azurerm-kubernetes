@@ -111,7 +111,7 @@ resource "azurerm_role_assignment" "rbac_admin" {
   principal_id         = each.value
 }
 
-resource "azurerm_kubernetes_cluster_node_pool" "example" {
+resource "azurerm_kubernetes_cluster_node_pool" "additional" {
   for_each = local.additional_node_pools
 
   kubernetes_cluster_id        = azurerm_kubernetes_cluster.aks.id
