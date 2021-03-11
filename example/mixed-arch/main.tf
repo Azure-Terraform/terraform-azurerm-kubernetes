@@ -143,13 +143,14 @@ module "kubernetes" {
   aks_managed_vnet           = false
   configure_subnet_nsg_rules = true
   
-
+/*
   network_profile_options     = ({
                   docker_bridge_cidr = "172.17.0.1/16"
                   dns_service_ip     = "172.20.0.10"
                   service_cidr       = "172.20.0.0/16"
                 })
 
+*/
   node_pool_subnets = {
     private = {
       id                          = module.virtual_network.subnets["iaas-private"].id
