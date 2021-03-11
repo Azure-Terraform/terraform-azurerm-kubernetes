@@ -36,8 +36,12 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
 | location | Azure region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
+| network\_mode | network mode to br used with Azure CNI | `string` | `"transparent"` | no |
 | network\_plugin | network plugin to use for networking (azure or kubenet) | `string` | `"kubenet"` | no |
+| network\_profile\_options | docker\_bridge\_cidr, dns\_service\_ip and service\_cidr should all be empty or all should be set | <pre>object({<br>                  docker_bridge_cidr = string<br>                  dns_service_ip     = string<br>                  service_cidr       = string<br>                })</pre> | n/a | yes |
 | node\_pool\_subnets | Node pool subnet info. | <pre>map(object({<br>                  id                          = string<br>                  resource_group_name         = string<br>                  network_security_group_name = string<br>                }))</pre> | `{}` | no |
+| outbound\_type | outbound (egress) routing method which should be used for this Kubernetes Cluster | `string` | `"loadBalancer"` | no |
+| pod\_cidr | used for pod IP addresses | `string` | n/a | yes |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
 | service\_principal | Service principal information (for use with ServicePrincipal identity\_type). | <pre>object({<br>                  id     = string<br>                  secret = string<br>                  name   = string<br>                })</pre> | n/a | yes |
 | subnet\_nsg\_rule\_priority\_start | Starting point for NSG rulee priorities. | `number` | `1000` | no |
