@@ -1,21 +1,40 @@
 variable "resource_group_name"{
-  description = "Resource group name"
+  description = "Resource group name."
   type        = string
 }
 
 variable "location" {
-  description = "Azure region"
+  description = "Azure region."
   type        = string
 }
 
 variable "names" {
-  description = "names to be applied to resources"
+  description = "Names to be applied to resources."
   type        = map(string)
+  default     = null
 }
 
 variable "tags" {
-  description = "tags to be applied to resources"
+  description = "Tags to be applied to resources."
   type        = map(string)
+}
+
+variable "cluster_name" {
+  description = "Name of AKS cluster."
+  type        = string
+  default     = null # null value will create name based on var.names
+}
+
+variable "dns_prefix" {
+  description = "DNS prefix specified when creating the managed cluster."
+  type        = string
+  default     = null # null value will create name based on var.names
+}
+
+variable "node_resource_group" {
+  description = "The name of the Resource Group where the Kubernetes Nodes should exist."
+  type        = string
+  default     = null
 }
 
 variable "identity_type" {
@@ -57,7 +76,7 @@ variable "network_plugin" {
 
 variable "node_pools" {
   description = "node pools"
-  type        = map(map(any))
+  type        = map(map(any)) # top level keys are node pool names, sub-keys are subset of node_pool_defaults keys
   default     = { default = {} }
 }
 
@@ -80,7 +99,7 @@ variable "node_pool_defaults"  {
                   os_disk_type                       = string
                   type                               = string
                   tags                               = map(string)
-                  subnet                             = string
+                  subnet                             = string # must be key from node_pool_subnets variable
 
                   # settings below not available in default node pools
                   mode                               = string
@@ -109,7 +128,7 @@ variable "node_pool_defaults"  {
                   os_disk_type                       = "Managed"
                   type                               = "VirtualMachineScaleSets"
                   tags                               = null
-                  subnet                             = null
+                  subnet                             = null # must be a key from node_pool_subnets variable
 
                   # settings below not available in default node pools
                   mode                               = "User"

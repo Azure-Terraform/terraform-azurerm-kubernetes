@@ -34,10 +34,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   name                = local.cluster_name
   location            = var.location
   resource_group_name = var.resource_group_name
-  dns_prefix          = "${var.names.product_name}-${var.names.environment}-${var.names.location}"
   tags                = var.tags
 
-  kubernetes_version = var.kubernetes_version
+  kubernetes_version  = var.kubernetes_version
+  node_resource_group = local.node_resource_group
+  dns_prefix          = local.dns_prefix
 
   network_profile {
     network_plugin = var.network_plugin
@@ -93,10 +94,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   role_based_access_control {
     enabled = var.rbac.enabled
-                
     dynamic "azure_active_directory" {
       for_each = (var.rbac.ad_integration ? [1] : [])
-                 
       content {
         managed                = true
         admin_group_object_ids = values(var.rbac_admin_object_ids)
