@@ -149,115 +149,117 @@ module "kubernetes" {
     system = {
       subnet = "private"
     }
-#    linuxweb = {
-#      enable_auto_scaling = true
-#      min_count           = 1
-#      max_count           = 3
-#      subnet              = "public"
-#    }
-#    winweb = {
-#      os_type             = "Windows"
-#      enable_auto_scaling = true
-#      min_count           = 1
-#      max_count           = 3
-#      subnet              = "public"
-#    }
+    linuxweb = {
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
+    }
+    winweb = {
+      os_type             = "Windows"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
+    }
   }
 
   default_node_pool = "system"
 
 }
 
-#resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
-#  name                        = "AllowNginx"
-#  priority                    = 100
-#  direction                   = "Inbound"
-#  access                      = "Allow"
-#  protocol                    = "tcp"
-#  source_port_range           = "*"
-#  destination_port_range      = "80"
-#  source_address_prefix       = "Internet"
-#  destination_address_prefix  = data.kubernetes_service.nginx.load_balancer_ingress.0.ip
-#  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-#  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
-#}
-#
-#resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
-#  name                        = "AllowIIS"
-#  priority                    = 101
-#  direction                   = "Inbound"
-#  access                      = "Allow"
-#  protocol                    = "tcp"
-#  source_port_range           = "*"
-#  destination_port_range      = "80"
-#  source_address_prefix       = "Internet"
-#  destination_address_prefix  = data.kubernetes_service.iis.load_balancer_ingress.0.ip
-#  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-#  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
-#}
-#
-#resource "helm_release" "nginx" {
-#  name       = "nginx"
-#  chart      = "./helm_chart"
-#
-#  set {
-#    name  = "name"
-#    value = "nginx"
-#  }
-#
-#  set {
-#    name  = "image"
-#    value = "nginx:latest"
-#  }
-#
-#  set {
-#    name  = "nodeSelector"
-#    value = yamlencode({agentpool = "linuxweb"})
-#  }
-#}
-#
-#resource "helm_release" "iis" {
-#  name       = "iis"
-#  chart      = "./helm_chart"
-#  timeout    = 600
-#
-#  set {
-#    name  = "name"
-#    value = "iis"
-#  }
-#
-#  set {
-#    name  = "image"
-#    value = "microsoft/iis:latest"
-#  }
-#
-#  set {
-#    name  = "nodeSelector"
-#    value = yamlencode({agentpool = "winweb"})
-#  }
-#}
-#
-#data "kubernetes_service" "nginx" {
-#  depends_on = [helm_release.nginx] 
-#  metadata {
-#    name = "nginx"
-#  }
-#}
-#
-#data "kubernetes_service" "iis" {
-#  depends_on = [helm_release.iis] 
-#  metadata {
-#    name = "iis"
-#  }
-#}
-#
-#output "nginx_url" {
-#  value = "http://${data.kubernetes_service.nginx.load_balancer_ingress.0.ip}"
-#}
-#
-#output "iis_url" {
-#  value = "http://${data.kubernetes_service.iis.load_balancer_ingress.0.ip}"
-#}
+resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
+  name                        = "AllowNginx"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "tcp"
+  source_port_range           = "*"
+  destination_port_range      = "80"
+  source_address_prefix       = "Internet"
+  destination_address_prefix  = data.kubernetes_service.nginx.load_balancer_ingress.0.ip
+  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+}
+
+resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
+  name                        = "AllowIIS"
+  priority                    = 101
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "tcp"
+  source_port_range           = "*"
+  destination_port_range      = "80"
+  source_address_prefix       = "Internet"
+  destination_address_prefix  = data.kubernetes_service.iis.load_balancer_ingress.0.ip
+  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+}
+
+resource "helm_release" "nginx" {
+  depends_on = [module.kubernetes] 
+  name       = "nginx"
+  chart      = "./helm_chart"
+
+  set {
+    name  = "name"
+    value = "nginx"
+  }
+
+  set {
+    name  = "image"
+    value = "nginx:latest"
+  }
+
+  set {
+    name  = "nodeSelector"
+    value = yamlencode({agentpool = "linuxweb"})
+  }
+}
+
+resource "helm_release" "iis" {
+  depends_on = [module.kubernetes] 
+  name       = "iis"
+  chart      = "./helm_chart"
+  timeout    = 600
+
+  set {
+    name  = "name"
+    value = "iis"
+  }
+
+  set {
+    name  = "image"
+    value = "microsoft/iis:latest"
+  }
+
+  set {
+    name  = "nodeSelector"
+    value = yamlencode({agentpool = "winweb"})
+  }
+}
+
+data "kubernetes_service" "nginx" {
+  depends_on = [helm_release.nginx] 
+  metadata {
+    name = "nginx"
+  }
+}
+
+data "kubernetes_service" "iis" {
+  depends_on = [helm_release.iis] 
+  metadata {
+    name = "iis"
+  }
+}
+
+output "nginx_url" {
+  value = "http://${data.kubernetes_service.nginx.load_balancer_ingress.0.ip}"
+}
+
+output "iis_url" {
+  value = "http://${data.kubernetes_service.iis.load_balancer_ingress.0.ip}"
+}
 
 output "aks_login" {
   value = "az aks get-credentials --name ${module.kubernetes.name} --resource-group ${module.resource_group.name}"
