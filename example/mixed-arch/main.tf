@@ -116,7 +116,6 @@ module "virtual_network" {
 
 module "kubernetes" {
   source = "../../"
-  #source = "github.com/llanse01/terraform-azurerm-kubernetes.git?ref=network_profile"
   kubernetes_version = "1.18.10"
 
   location                 = module.metadata.location
