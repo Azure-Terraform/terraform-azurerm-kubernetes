@@ -150,6 +150,7 @@ module "kubernetes" {
                 })
 
 */
+
   node_pool_subnets = {
     private = {
       id                          = module.virtual_network.subnets["iaas-private"].id

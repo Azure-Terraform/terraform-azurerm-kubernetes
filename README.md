@@ -36,17 +36,14 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
 | location | Azure region | `string` | n/a | yes |
 | names | names to be applied to resources | `map(string)` | n/a | yes |
-| network\_mode | network mode to br used with Azure CNI | `string` | `"transparent"` | no |
 | network\_plugin | network plugin to use for networking (azure or kubenet) | `string` | `"kubenet"` | no |
-| network\_profile\_options | docker\_bridge\_cidr, dns\_service\_ip and service\_cidr should all be empty or all should be set | <pre>object({<br>                  docker_bridge_cidr = string<br>                  dns_service_ip     = string<br>                  service_cidr       = string<br>                })</pre> | n/a | yes |
 | node\_pool\_subnets | Node pool subnet info. | <pre>map(object({<br>                  id                          = string<br>                  resource_group_name         = string<br>                  network_security_group_name = string<br>                }))</pre> | `{}` | no |
-| outbound\_type | outbound (egress) routing method which should be used for this Kubernetes Cluster | `string` | `"loadBalancer"` | no |
-| pod\_cidr | used for pod IP addresses | `string` | n/a | yes |
+| rbac | role based access control settings | <pre>object({<br>                  enabled        = bool<br>                  ad_integration = bool<br>                })</pre> | <pre>{<br>  "ad_integration": false,<br>  "enabled": true<br>}</pre> | no |
+| rbac\_admin\_object\_ids | Admin group object ids for use with rbac active directory integration | `map(string)` | `{}` | no |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
 | service\_principal | Service principal information (for use with ServicePrincipal identity\_type). | <pre>object({<br>                  id     = string<br>                  secret = string<br>                  name   = string<br>                })</pre> | n/a | yes |
 | subnet\_nsg\_rule\_priority\_start | Starting point for NSG rulee priorities. | `number` | `1000` | no |
 | tags | tags to be applied to resources | `map(string)` | n/a | yes |
-| use\_service\_principal | use service principal (false will use identity) | `bool` | `false` | no |
 | user\_assigned\_identity | User assigned identity for the manged cluster (leave and the module will create one). | <pre>object({<br>                  id           = string<br>                  principal_id = string<br>                  client_id    = string<br>                })</pre> | n/a | yes |
 | windows\_profile\_admin\_password | windows profile admin password | `string` | `""` | no |
 | windows\_profile\_admin\_username | windows profile admin username | `string` | `"aks-windows-admin"` | no |
@@ -62,6 +59,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | fqdn | kubernetes managed cluster fqdn |
 | host | kubernetes host |
 | id | kubernetes managed cluster id |
+| kube\_config | kubernetes config to be used by kubectl and other compatible tools |
 | kube\_config\_raw | raw kubernetes config to be used by kubectl and other compatible tools |
 | kubelet\_identity | kubelet identity information |
 | name | kubernetes managed cluster name |
@@ -183,3 +181,4 @@ module "aad-pod-identity" {
   aad_pod_identity_version = "1.6.0"
 }
 ~~~~
+
