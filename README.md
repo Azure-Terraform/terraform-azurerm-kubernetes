@@ -40,6 +40,8 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | network\_plugin | network plugin to use for networking (azure or kubenet) | `string` | `"kubenet"` | no |
 | network\_profile\_options | docker\_bridge\_cidr, dns\_service\_ip and service\_cidr should all be empty or all should be set | <pre>object({<br>                  docker_bridge_cidr = string<br>                  dns_service_ip     = string<br>                  service_cidr       = string<br>                })</pre> | n/a | yes |
 | node\_pool\_subnets | Node pool subnet info. | <pre>map(object({<br>                  id                          = string<br>                  resource_group_name         = string<br>                  network_security_group_name = string<br>                }))</pre> | `{}` | no |
+| rbac | role based access control settings | <pre>object({<br>                  enabled        = bool<br>                  ad_integration = bool<br>                })</pre> | <pre>{<br>  "ad_integration": false,<br>  "enabled": true<br>}</pre> | no |
+| rbac\_admin\_object\_ids | Admin group object ids for use with rbac active directory integration | `map(string)` | `{}` | no |
 | outbound\_type | outbound (egress) routing method which should be used for this Kubernetes Cluster | `string` | `"loadBalancer"` | no |
 | pod\_cidr | used for pod IP addresses | `string` | n/a | yes |
 | resource\_group\_name | Resource group name | `string` | n/a | yes |
