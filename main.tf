@@ -7,7 +7,7 @@ resource "azurerm_user_assigned_identity" "aks" {
 }
 
 resource "azurerm_role_assignment" "route_table_network_contributor" {
-  for_each             = (var.identity_type == "UserAssigned" ? var.custom_route_table_ids : {})
+  for_each             = ((var.identity_type == "UserAssigned" && var.configure_network_role) ? var.custom_route_table_ids : {})
 
   scope                = each.value
   role_definition_name = "Network Contributor"
