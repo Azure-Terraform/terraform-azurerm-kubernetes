@@ -10,43 +10,36 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 
 | Name | Version |
 |------|---------|
-| azuread | n/a |
-| azurerm | >= 2.0.0 |
+| azurerm | >= 2.48.0 |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
 | acr\_pull\_access | map of ACR ids to allow AcrPull | `map(string)` | `{}` | no |
-| aks\_managed\_vnet | use AKS managed vnet/subnet (false requires default\_node\_pool\_subnet and node\_pool\_subnets is specified) | `bool` | `true` | no |
-| configure\_network\_role | Add Network Contributor role for service principal or identity on input subnets. | `bool` | `true` | no |
+| cluster\_name | Name of AKS cluster. | `string` | n/a | yes |
+| configure\_network\_role | Add Network Contributor role for identity on input subnets. | `bool` | `true` | no |
 | configure\_subnet\_nsg\_rules | Configure required AKS NSG rules on input subnets. | `bool` | `true` | no |
 | custom\_route\_table\_ids | Custom route tables used by node pool subnets. | `map(string)` | `{}` | no |
-| default\_node\_pool\_availability\_zones | default node pool availability zones | `list(number)` | <pre>[<br>  1,<br>  2,<br>  3<br>]</pre> | no |
-| default\_node\_pool\_enable\_auto\_scaling | enable default node pool auto scaling | `bool` | `true` | no |
-| default\_node\_pool\_name | default node pool name | `string` | `"default"` | no |
-| default\_node\_pool\_node\_count | default node pool node count | `number` | `1` | no |
-| default\_node\_pool\_node\_max\_count | enable default node pool auto scaling (only valid with auto scaling) | `number` | `5` | no |
-| default\_node\_pool\_node\_min\_count | enable default node pool auto scaling (only valid for auto scaling) | `number` | `1` | no |
-| default\_node\_pool\_subnet | name of key from node\_pool\_subnets map to use for default node pool | `string` | `""` | no |
-| default\_node\_pool\_vm\_size | default node pool VM size | `string` | `"Standard_D2s_v3"` | no |
+| default\_node\_pool | Default node pool.  Value refers to key within node\_pools variable. | `string` | `"default"` | no |
+| dns\_prefix | DNS prefix specified when creating the managed cluster. | `string` | n/a | yes |
 | enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `false` | no |
-| enable\_windows\_node\_pools | configure profile for windows node pools (requires windows\_profile\_admin\_username/password) | `bool` | `false` | no |
-| identity\_type | ServicePrincipal, SystemAssigned or UserAssigned. | `string` | `"UserAssigned"` | no |
+| identity\_type | SystemAssigned or UserAssigned. | `string` | `"UserAssigned"` | no |
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
-| location | Azure region | `string` | n/a | yes |
-| names | names to be applied to resources | `map(string)` | n/a | yes |
+| location | Azure region. | `string` | n/a | yes |
+| names | Names to be applied to resources. | `map(string)` | n/a | yes |
 | network\_plugin | network plugin to use for networking (azure or kubenet) | `string` | `"kubenet"` | no |
-| node\_pool\_subnets | Node pool subnet info. | <pre>map(object({<br>                  id                          = string<br>                  resource_group_name         = string<br>                  network_security_group_name = string<br>                }))</pre> | `{}` | no |
+| node\_pool\_defaults | node pool defaults | <pre>object({<br>                  vm_size                            = string<br>                  availability_zones                 = list(number)<br>                  node_count                         = number<br>                  enable_auto_scaling                = bool<br>                  min_count                          = number<br>                  max_count                          = number<br>                  enable_host_encryption             = bool<br>                  enable_node_public_ip              = bool<br>                  max_pods                           = number<br>                  node_labels                        = map(string)<br>                  only_critical_addons_enabled       = bool<br>                  orchestrator_version               = string<br>                  os_disk_size_gb                    = number<br>                  os_disk_type                       = string<br>                  type                               = string<br>                  tags                               = map(string)<br>                  subnet                             = string # must be key from node_pool_subnets variable<br><br>                  # settings below not available in default node pools<br>                  mode                               = string<br>                  node_taints                        = list(string)<br>                  max_surge                          = string<br>                  eviction_policy                    = string<br>                  os_type                            = string<br>                  priority                           = string<br>                  proximity_placement_group_id       = string<br>                  spot_max_price                     = number<br>  })</pre> | <pre>{<br>  "availability_zones": [<br>    1,<br>    2,<br>    3<br>  ],<br>  "enable_auto_scaling": false,<br>  "enable_host_encryption": false,<br>  "enable_node_public_ip": false,<br>  "eviction_policy": null,<br>  "max_count": null,<br>  "max_pods": null,<br>  "max_surge": "1",<br>  "min_count": null,<br>  "mode": "User",<br>  "name": null,<br>  "node_count": 1,<br>  "node_labels": null,<br>  "node_taints": null,<br>  "only_critical_addons_enabled": false,<br>  "orchestrator_version": null,<br>  "os_disk_size_gb": null,<br>  "os_disk_type": "Managed",<br>  "os_type": "Linux",<br>  "priority": "Regular",<br>  "proximity_placement_group_id": null,<br>  "spot_max_price": null,<br>  "subnet": null,<br>  "tags": null,<br>  "type": "VirtualMachineScaleSets",<br>  "vm_size": "Standard_B2s"<br>}</pre> | no |
+| node\_pool\_subnets | Subnet info used with node\_pools variable. | <pre>map(object({<br>                  id                          = string # subnet_id<br>                  resource_group_name         = string # resource group containing virtual_network/subnets<br>                  network_security_group_name = string # network_security_group name associated with subnet<br>                }))</pre> | `{}` | no |
+| node\_pools | node pools | `map(map(any))` | <pre>{<br>  "default": {}<br>}</pre> | no |
+| node\_resource\_group | The name of the Resource Group where the Kubernetes Nodes should exist. | `string` | n/a | yes |
 | rbac | role based access control settings | <pre>object({<br>                  enabled        = bool<br>                  ad_integration = bool<br>                })</pre> | <pre>{<br>  "ad_integration": false,<br>  "enabled": true<br>}</pre> | no |
 | rbac\_admin\_object\_ids | Admin group object ids for use with rbac active directory integration | `map(string)` | `{}` | no |
-| resource\_group\_name | Resource group name | `string` | n/a | yes |
-| service\_principal | Service principal information (for use with ServicePrincipal identity\_type). | <pre>object({<br>                  id     = string<br>                  secret = string<br>                  name   = string<br>                })</pre> | n/a | yes |
+| resource\_group\_name | Resource group name. | `string` | n/a | yes |
 | subnet\_nsg\_rule\_priority\_start | Starting point for NSG rulee priorities. | `number` | `1000` | no |
-| tags | tags to be applied to resources | `map(string)` | n/a | yes |
+| tags | Tags to be applied to resources. | `map(string)` | n/a | yes |
 | user\_assigned\_identity | User assigned identity for the manged cluster (leave and the module will create one). | <pre>object({<br>                  id           = string<br>                  principal_id = string<br>                  client_id    = string<br>                })</pre> | n/a | yes |
-| windows\_profile\_admin\_password | windows profile admin password | `string` | `""` | no |
-| windows\_profile\_admin\_username | windows profile admin username | `string` | `"aks-windows-admin"` | no |
+| windows\_profile | windows profile admin user/pass | <pre>object({ <br>                  admin_username = string<br>                  admin_password = string<br>                })</pre> | n/a | yes |
 
 ## Outputs
 
