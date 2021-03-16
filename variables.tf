@@ -76,7 +76,7 @@ variable "network_plugin" {
 
 variable "node_pools" {
   description = "node pools"
-  type        = map(map(any)) # top level keys are node pool names, sub-keys are subset of node_pool_defaults keys
+  type        = any # top level keys are node pool names, sub-keys are subset of node_pool_defaults keys
   default     = { default = {} }
 }
 
