@@ -1,47 +1,55 @@
 variable "resource_group_name"{
-  description = "Resource group name"
+  description = "Resource group name."
   type        = string
 }
 
 variable "location" {
-  description = "Azure region"
+  description = "Azure region."
   type        = string
 }
 
 variable "names" {
-  description = "names to be applied to resources"
+  description = "Names to be applied to resources."
   type        = map(string)
+  default     = null
 }
 
 variable "tags" {
-  description = "tags to be applied to resources"
+  description = "Tags to be applied to resources."
   type        = map(string)
 }
 
+variable "cluster_name" {
+  description = "Name of AKS cluster."
+  type        = string
+  default     = null # null value will create name based on var.names
+}
+
+variable "dns_prefix" {
+  description = "DNS prefix specified when creating the managed cluster."
+  type        = string
+  default     = null # null value will create name based on var.names
+}
+
+variable "node_resource_group" {
+  description = "The name of the Resource Group where the Kubernetes Nodes should exist."
+  type        = string
+  default     = null
+}
+
 variable "identity_type" {
-  description = "ServicePrincipal, SystemAssigned or UserAssigned."
+  description = "SystemAssigned or UserAssigned."
   type        = string
   default     = "UserAssigned"
 
   validation {
     condition = (
-      var.identity_type == "ServicePrincipal" ||
       var.identity_type == "UserAssigned" ||
       var.identity_type == "SystemAssigned"
     )
-    error_message = "Identity must be one of 'ServicePrincipal', 'SystemAssigned' or 'UserAssigned'."
+    error_message = "Identity must be one of 'SystemAssigned' or 'UserAssigned'."
   }
 
-}
-
-variable "service_principal" {
-  description = "Service principal information (for use with ServicePrincipal identity_type)."
-  type        = object({
-                  id     = string
-                  secret = string
-                  name   = string
-                })
-  default     = null
 }
 
 variable "user_assigned_identity" {
@@ -66,66 +74,86 @@ variable "network_plugin" {
   default     = "kubenet"
 }
 
-variable "default_node_pool_name" {
-  description = "default node pool name"
+variable "node_pools" {
+  description = "node pools"
+  type        = map(map(any)) # top level keys are node pool names, sub-keys are subset of node_pool_defaults keys
+  default     = { default = {} }
+}
+
+variable "node_pool_defaults"  {
+  description = "node pool defaults"
+  type        = object({
+                  vm_size                            = string
+                  availability_zones                 = list(number)
+                  node_count                         = number
+                  enable_auto_scaling                = bool
+                  min_count                          = number
+                  max_count                          = number
+                  enable_host_encryption             = bool
+                  enable_node_public_ip              = bool
+                  max_pods                           = number
+                  node_labels                        = map(string)
+                  only_critical_addons_enabled       = bool
+                  orchestrator_version               = string
+                  os_disk_size_gb                    = number
+                  os_disk_type                       = string
+                  type                               = string
+                  tags                               = map(string)
+                  subnet                             = string # must be key from node_pool_subnets variable
+
+                  # settings below not available in default node pools
+                  mode                               = string
+                  node_taints                        = list(string)
+                  max_surge                          = string
+                  eviction_policy                    = string
+                  os_type                            = string
+                  priority                           = string
+                  proximity_placement_group_id       = string
+                  spot_max_price                     = number
+  })
+  default     = { name                               = null
+                  vm_size                            = "Standard_B2s"
+                  availability_zones                 = [1,2,3]
+                  node_count                         = 1
+                  enable_auto_scaling                = false
+                  min_count                          = null
+                  max_count                          = null
+                  enable_host_encryption             = false
+                  enable_node_public_ip              = false
+                  max_pods                           = null
+                  node_labels                        = null
+                  only_critical_addons_enabled       = false
+                  orchestrator_version               = null
+                  os_disk_size_gb                    = null
+                  os_disk_type                       = "Managed"
+                  type                               = "VirtualMachineScaleSets"
+                  tags                               = null
+                  subnet                             = null # must be a key from node_pool_subnets variable
+
+                  # settings below not available in default node pools
+                  mode                               = "User"
+                  node_taints                        = null
+                  max_surge                          = "1"
+                  eviction_policy                    = null
+                  os_type                            = "Linux"
+                  priority                           = "Regular"
+                  proximity_placement_group_id       = null
+                  spot_max_price                     = null
+  }
+}
+
+variable "default_node_pool" {
+  description = "Default node pool.  Value refers to key within node_pools variable."
   type        = string
   default     = "default"
 }
 
-variable "default_node_pool_vm_size" {
-  description = "default node pool VM size"
-  type        = string
-  default     = "Standard_D2s_v3"
-}
-
-variable "default_node_pool_node_count" {
-  description  = "default node pool node count"
-  type         = number
-  default      = 1
-}
-
-variable "default_node_pool_enable_auto_scaling" {
-  description = "enable default node pool auto scaling"
-  type        = bool
-  default     = true
-}
-
-variable "default_node_pool_node_min_count" {
-  description = "enable default node pool auto scaling (only valid for auto scaling)"
-  type        = number
-  default     = 1
-}
-
-variable "default_node_pool_node_max_count" {
-  description = "enable default node pool auto scaling (only valid with auto scaling)"
-  type        = number
-  default     = 5
-}
-
-variable "default_node_pool_availability_zones" {
-  description = "default node pool availability zones"
-  type        = list(number)
-  default     = [1,2,3]
-}
-
-variable "aks_managed_vnet" {
-  description = "use AKS managed vnet/subnet (false requires default_node_pool_subnet and node_pool_subnets is specified)"
-  type        = bool
-  default     = true
-}
-
-variable "default_node_pool_subnet" {
-  description = "name of key from node_pool_subnets map to use for default node pool"
-  type        = string
-  default     = ""
-}
-
 variable "node_pool_subnets" {
-  description = "Node pool subnet info."
+  description = "Subnet info used with node_pools variable."
   type        = map(object({
-                  id                          = string
-                  resource_group_name         = string
-                  network_security_group_name = string
+                  id                          = string # subnet_id
+                  resource_group_name         = string # resource group containing virtual_network/subnets
+                  network_security_group_name = string # network_security_group name associated with subnet
                 }))
   default     = {}
 }
@@ -137,7 +165,7 @@ variable "custom_route_table_ids" {
 }
 
 variable "configure_network_role" {
-  description = "Add Network Contributor role for service principal or identity on input subnets."
+  description = "Add Network Contributor role for identity on input subnets."
   type        = bool
   default     = true
 }
@@ -154,22 +182,24 @@ variable "subnet_nsg_rule_priority_start" {
   default     = 1000
 }
 
-variable "enable_windows_node_pools" {
-  description = "configure profile for windows node pools (requires windows_profile_admin_username/password)"
-  type        = bool
-  default     = false
-}
+variable "windows_profile" {
+  description = "windows profile admin user/pass"
+  type        = object({ 
+                  admin_username = string
+                  admin_password = string
+                })
+  default     = null
 
-variable "windows_profile_admin_username" {
-  description = "windows profile admin username"
-  type        = string
-  default     = "aks-windows-admin"
-}
-
-variable "windows_profile_admin_password" {
-  description = "windows profile admin password"
-  type        = string
-  default     = ""
+  validation {
+    condition = (
+      var.windows_profile == null ? true :
+      ((var.windows_profile.admin_username != null) &&
+       (var.windows_profile.admin_username != "") &&
+       (var.windows_profile.admin_password != null) &&
+       (var.windows_profile.admin_password != ""))
+    )
+    error_message = "Windows profile requires both admin_username and admin_password."
+  }
 }
 
 variable "rbac" {
