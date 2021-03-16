@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.48.0"
+      version = "=2.51.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -10,11 +10,11 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "=1.13.0"
+      version = "=2.0.2"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "=1.3.2"
+      version = "=2.0.3"
     }
   }
    required_version = "=0.14.7"
@@ -177,7 +177,7 @@ resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
   source_port_range           = "*"
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
-  destination_address_prefix  = data.kubernetes_service.nginx.load_balancer_ingress.0.ip
+  destination_address_prefix  = data.kubernetes_service.nginx.status.0.load_balancer.0.ingress.0.ip
   resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
   network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
@@ -191,7 +191,7 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
   source_port_range           = "*"
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
-  destination_address_prefix  = data.kubernetes_service.iis.load_balancer_ingress.0.ip
+  destination_address_prefix  = data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip
   resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
   network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
@@ -254,11 +254,11 @@ data "kubernetes_service" "iis" {
 }
 
 output "nginx_url" {
-  value = "http://${data.kubernetes_service.nginx.load_balancer_ingress.0.ip}"
+  value = "http://${data.kubernetes_service.nginx.status.0.load_balancer.0.ingress.0.ip}"
 }
 
 output "iis_url" {
-  value = "http://${data.kubernetes_service.iis.load_balancer_ingress.0.ip}"
+  value = "http://${data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip}"
 }
 
 output "aks_login" {
