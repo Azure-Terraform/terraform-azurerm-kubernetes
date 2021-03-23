@@ -17,7 +17,7 @@ terraform {
       version = "=2.0.3"
     }
   }
-   required_version = "=0.14.7"
+   required_version = "~> 0.14.0"
 }
 
 provider "azurerm" {
@@ -94,7 +94,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.5.1"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.6.0"
 
   naming_rules = module.naming.yaml
 
@@ -147,15 +147,19 @@ module "kubernetes" {
 
   node_pools = {
     system = {
-      subnet = "private"
+      subnet     = "private"
+      vm_size    = "Standard_B2s"
+      node_count = 2
     }
     linuxweb = {
+      vm_size             = "Standard_B2ms"
       enable_auto_scaling = true
       min_count           = 1
       max_count           = 3
       subnet              = "public"
     }
     winweb = {
+      vm_size             = "Standard_D4a_v4"
       os_type             = "Windows"
       enable_auto_scaling = true
       min_count           = 1
