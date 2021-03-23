@@ -167,7 +167,7 @@ module "virtual_network" {
     }
 
     rbac_admin_object_ids = {
-      rbac_admin_object_ids = user_name_object_id
+      rbac_admin_object_ids = "ac8267b1-5d9a-449d-b65c-0000000000"
     }
 
     windows_profile = {
