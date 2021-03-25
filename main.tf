@@ -15,17 +15,12 @@ resource "azurerm_role_assignment" "route_table_network_contributor" {
                           var.user_assigned_identity.id)
 }
 
-module "subnet_config" {
-  source = "./subnet_config"
+resource "azurerm_role_assignment" "subnet_network_contributor" {
+  for_each             = (var.configure_network_role ? var.node_pool_subnets : {})
 
-  for_each = var.node_pool_subnets
-
-  subnet_info  = each.value
-  principal_id = local.aks_identity_id
-
-  configure_network_role  = var.configure_network_role
-  configure_nsg_rules     = var.configure_subnet_nsg_rules
-  nsg_rule_priority_start = var.subnet_nsg_rule_priority_start
+  scope                = each.value.id
+  role_definition_name = "Network Contributor"
+  principal_id         = local.aks_identity_id
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
