@@ -64,3 +64,18 @@ resource "azurerm_network_security_rule" "aks_ssl" {
   resource_group_name         = var.subnet_info.resource_group_name
   network_security_group_name = var.subnet_info.network_security_group_name
 }
+
+resource "azurerm_network_security_rule" "aks_front_door_ssl" {
+  count                       = (var.configure_nsg_rules ? 1 : 0)
+  name                        = "AKS_AllowFrontDoor"
+  priority                    = (var.nsg_rule_priority_start + 4)
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "AzureFrontDoor.FirstParty"
+  resource_group_name         = var.subnet_info.resource_group_name
+  network_security_group_name = var.subnet_info.network_security_group_name
+}
