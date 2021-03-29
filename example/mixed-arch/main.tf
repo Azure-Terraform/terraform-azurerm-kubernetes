@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.44.0"
+      version = "=2.51.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -10,14 +10,14 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "=1.13.0"
+      version = "=2.0.2"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "=1.3.2"
+      version = "=2.0.3"
     }
   }
-   required_version = "=0.14.7"
+   required_version = "~> 0.14.0"
 }
 
 provider "azurerm" {
@@ -25,19 +25,18 @@ provider "azurerm" {
 }
 
 provider "kubernetes" {
-  host                   = module.kubernetes.host
-  client_certificate     = base64decode(module.kubernetes.client_certificate)
-  client_key             = base64decode(module.kubernetes.client_key)
-  cluster_ca_certificate = base64decode(module.kubernetes.cluster_ca_certificate)
-  load_config_file       = false
+  host                   = module.kubernetes.kube_config.host
+  client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
+  client_key             = base64decode(module.kubernetes.kube_config.client_key)
+  cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.kubernetes.host
-    client_certificate     = base64decode(module.kubernetes.client_certificate)
-    client_key             = base64decode(module.kubernetes.client_key)
-    cluster_ca_certificate = base64decode(module.kubernetes.cluster_ca_certificate)
+    host                   = module.kubernetes.kube_config.host
+    client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
+    client_key             = base64decode(module.kubernetes.kube_config.client_key)
+    cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
   }
 }
 
@@ -70,7 +69,7 @@ module "naming" {
 }
 
 module "metadata" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-metadata.git?ref=v1.1.0"
+  source = "github.com/Azure-Terraform/terraform-azurerm-metadata.git?ref=v1.5.0"
 
   naming_rules = module.naming.yaml
 
@@ -95,7 +94,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.5.1"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.6.0"
 
   naming_rules = module.naming.yaml
 
@@ -117,8 +116,6 @@ module "virtual_network" {
 module "kubernetes" {
   source = "../../"
 
-  kubernetes_version = "1.18.10"
-
   location                 = module.metadata.location
   names                    = module.metadata.names
   tags                     = module.metadata.tags
@@ -126,23 +123,16 @@ module "kubernetes" {
 
   identity_type = "UserAssigned"
 
-  default_node_pool_name                = "default"
-  default_node_pool_vm_size             = "Standard_B2s"
-  default_node_pool_enable_auto_scaling = true
-  default_node_pool_node_min_count      = 1
-  default_node_pool_node_max_count      = 3
-  default_node_pool_availability_zones  = [1,2,3]
-  default_node_pool_subnet              = "private"
-
-  enable_windows_node_pools      = true
-  windows_profile_admin_username = "testadmin"
-  windows_profile_admin_password = random_password.admin.result
+  windows_profile = {
+    admin_username = "testadmin"
+    admin_password = random_password.admin.result
+  }
 
   network_plugin             = "azure"
-  aks_managed_vnet           = false
+  configure_network_role     = true
   configure_subnet_nsg_rules = true
 
-  node_pool_subnets = {
+  node_pool_subnets = { 
     private = {
       id                          = module.virtual_network.subnets["iaas-private"].id
       resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
@@ -154,32 +144,32 @@ module "kubernetes" {
       network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
     }
   }
-}
 
-resource "azurerm_kubernetes_cluster_node_pool" "linux_webservers" {
-  name                  = "linuxweb"
-  kubernetes_cluster_id = module.kubernetes.id
-  vm_size               = "Standard_B2s"
-  availability_zones    = [1,2,3]
-  enable_auto_scaling   = true
-  min_count             = 1
-  max_count             = 3
+  node_pools = {
+    system = {
+      subnet     = "private"
+      vm_size    = "Standard_B2s"
+      node_count = 2
+    }
+    linuxweb = {
+      vm_size             = "Standard_B2ms"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
+    }
+    winweb = {
+      vm_size             = "Standard_D4a_v4"
+      os_type             = "Windows"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      subnet              = "public"
+    }
+  }
 
-  vnet_subnet_id = module.virtual_network.subnet["iaas-public"].id
+  default_node_pool = "system"
 
-  tags = module.metadata.tags
-}
-
-resource "azurerm_kubernetes_cluster_node_pool" "windows_webservers" {
-  name                  = "winweb"
-  kubernetes_cluster_id = module.kubernetes.id
-  vm_size               = "Standard_D2_v3"
-  availability_zones    = [1,2,3]
-  node_count            = 1
-  os_type               = "Windows"
-  vnet_subnet_id        = module.virtual_network.subnet["iaas-public"].id
-
-  tags = module.metadata.tags
 }
 
 resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
@@ -191,7 +181,7 @@ resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
   source_port_range           = "*"
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
-  destination_address_prefix  = data.kubernetes_service.nginx.load_balancer_ingress.0.ip
+  destination_address_prefix  = data.kubernetes_service.nginx.status.0.load_balancer.0.ingress.0.ip
   resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
   network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
@@ -205,13 +195,13 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
   source_port_range           = "*"
   destination_port_range      = "80"
   source_address_prefix       = "Internet"
-  destination_address_prefix  = data.kubernetes_service.iis.load_balancer_ingress.0.ip
+  destination_address_prefix  = data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip
   resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
   network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
 
 resource "helm_release" "nginx" {
-  depends_on = [azurerm_kubernetes_cluster_node_pool.linux_webservers]
+  depends_on = [module.kubernetes] 
   name       = "nginx"
   chart      = "./helm_chart"
 
@@ -232,7 +222,7 @@ resource "helm_release" "nginx" {
 }
 
 resource "helm_release" "iis" {
-  depends_on = [azurerm_kubernetes_cluster_node_pool.windows_webservers]
+  depends_on = [module.kubernetes] 
   name       = "iis"
   chart      = "./helm_chart"
   timeout    = 600
@@ -268,11 +258,11 @@ data "kubernetes_service" "iis" {
 }
 
 output "nginx_url" {
-  value = "http://${data.kubernetes_service.nginx.load_balancer_ingress.0.ip}"
+  value = "http://${data.kubernetes_service.nginx.status.0.load_balancer.0.ingress.0.ip}"
 }
 
 output "iis_url" {
-  value = "http://${data.kubernetes_service.iis.load_balancer_ingress.0.ip}"
+  value = "http://${data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip}"
 }
 
 output "aks_login" {
