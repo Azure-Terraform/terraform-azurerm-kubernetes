@@ -12,7 +12,7 @@ resource "azurerm_role_assignment" "route_table_network_contributor" {
   scope                = each.value
   role_definition_name = "Network Contributor"
   principal_id         = (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
-                          var.user_assigned_identity.id)
+                          var.user_assigned_identity.principal_id)
 }
 
 module "subnet_config" {
