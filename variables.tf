@@ -19,6 +19,17 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "sku_tier" {
+  description = "Sets the cluster's SKU tier. The paid tier has a financially-backed uptime SLA. Read doc [here](https://docs.microsoft.com/en-us/azure/aks/uptime-sla)."
+  type        = string
+  default     = "Free"
+
+  validation {
+    condition     = (var.sku_tier == "Free" || var.sku_tier == "Paid")
+    error_message = "The SKU tier must be either 'Free' or 'Paid'."
+  }
+}
+
 variable "cluster_name" {
   description = "Name of AKS cluster."
   type        = string

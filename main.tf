@@ -32,6 +32,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on          = [azurerm_role_assignment.route_table_network_contributor]
 
   name                = local.cluster_name
+  sku_tier            = var.sku_tier
   location            = var.location
   resource_group_name = var.resource_group_name
   tags                = var.tags
