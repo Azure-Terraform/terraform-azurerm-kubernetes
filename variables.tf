@@ -62,6 +62,17 @@ variable "user_assigned_identity" {
   default     = null
 }
 
+variable "sku_tier" {
+  description = "The SKU Tier that should be used for this Kubernetes Cluster."
+  type        = string
+  default     = "Free"
+
+  validation {
+    condition     = contains(["free", "paid"], lower(var.sku_tier))
+    error_message = "Available SKU Tiers are \"Free\" and \"Paid\"." 
+  }
+}
+
 variable "kubernetes_version" {
   description = "kubernetes version"
   type        = string
