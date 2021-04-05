@@ -36,6 +36,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | rbac | role based access control settings | <pre>object({<br>                  enabled        = bool<br>                  ad_integration = bool<br>                })</pre> | <pre>{<br>  "ad_integration": false,<br>  "enabled": true<br>}</pre> | no |
 | rbac\_admin\_object\_ids | Admin group object ids for use with rbac active directory integration | `map(string)` | `{}` | no |
 | resource\_group\_name | Resource group name. | `string` | n/a | yes |
+| sku\_tier | Sets the cluster's SKU tier. The paid tier has a financially-backed uptime SLA. Read doc [here](https://docs.microsoft.com/en-us/azure/aks/uptime-sla). | `string` | `"Free"` | no |
 | subnet\_nsg\_rule\_priority\_start | Starting point for NSG rulee priorities. | `number` | `1000` | no |
 | tags | Tags to be applied to resources. | `map(string)` | n/a | yes |
 | user\_assigned\_identity | User assigned identity for the manged cluster (leave and the module will create one). | <pre>object({<br>                  id           = string<br>                  principal_id = string<br>                  client_id    = string<br>                })</pre> | n/a | yes |
