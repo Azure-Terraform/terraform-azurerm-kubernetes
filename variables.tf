@@ -240,3 +240,15 @@ variable "acr_pull_access" {
   type        = map(string)
   default     = {}
 }
+
+variable "log_analytics_workspace_enabled" {
+  description = "Enable Azure Log Analytics Workspace"
+  type        = bool
+  default     = false
+}
+
+variable "log_analytics_workspace_id" {
+  description = "ID of the Azure Log Analytics Workspace"
+  type        = string
+  default     = ""
+}
