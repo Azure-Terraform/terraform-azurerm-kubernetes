@@ -69,10 +69,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
       max_surge = local.node_pools[var.default_node_pool].max_surge
     }
   }
-
+  
   addon_profile {
     kube_dashboard {
       enabled = var.enable_kube_dashboard
+    }
+    oms_agent {
+      enabled                    = var.log_analytics_workspace_enabled
+      log_analytics_workspace_id = var.log_analytics_workspace_id
     }
   }
 
