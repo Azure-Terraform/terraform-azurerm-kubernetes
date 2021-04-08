@@ -62,6 +62,17 @@ variable "user_assigned_identity" {
   default     = null
 }
 
+variable "sku_tier" {
+  description = "Sets the cluster's SKU tier. The paid tier has a financially-backed uptime SLA. Read doc [here](https://docs.microsoft.com/en-us/azure/aks/uptime-sla)."
+  type        = string
+  default     = "Free"
+
+  validation {
+    condition     = contains(["free", "paid"], lower(var.sku_tier))
+    error_message = "Available SKU Tiers are \"Free\" and \"Paid\"." 
+  }
+}
+
 variable "kubernetes_version" {
   description = "kubernetes version"
   type        = string
@@ -239,4 +250,10 @@ variable "acr_pull_access" {
   description = "map of ACR ids to allow AcrPull"
   type        = map(string)
   default     = {}
+}
+
+variable "log_analytics_workspace_id" {
+  description = "ID of the Azure Log Analytics Workspace"
+  type        = string
+  default     = ""
 }
