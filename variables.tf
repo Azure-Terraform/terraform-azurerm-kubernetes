@@ -63,7 +63,7 @@ variable "user_assigned_identity" {
 }
 
 variable "sku_tier" {
-  description = "The SKU Tier that should be used for this Kubernetes Cluster."
+  description = "Sets the cluster's SKU tier. The paid tier has a financially-backed uptime SLA. Read doc [here](https://docs.microsoft.com/en-us/azure/aks/uptime-sla)."
   type        = string
   default     = "Free"
 
