@@ -36,6 +36,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   resource_group_name = var.resource_group_name
   tags                = var.tags
 
+  sku_tier            = var.sku_tier
   kubernetes_version  = var.kubernetes_version
   node_resource_group = local.node_resource_group
   dns_prefix          = local.dns_prefix
