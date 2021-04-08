@@ -255,5 +255,5 @@ variable "acr_pull_access" {
 variable "log_analytics_workspace_id" {
   description = "ID of the Azure Log Analytics Workspace"
   type        = string
-  default     = ""
+  default     = null
 }
