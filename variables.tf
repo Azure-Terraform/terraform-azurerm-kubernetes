@@ -83,6 +83,57 @@ variable "network_plugin" {
   description = "network plugin to use for networking (azure or kubenet)"
   type        = string
   default     = "kubenet"
+
+  validation {
+    condition = (
+      var.network_plugin == "kubenet" ||
+      var.network_plugin == "azure"
+    )
+    error_message = "Network Plugin must set to kubenet or azure."
+
+  }
+
+}
+
+variable "network_mode" {
+  description = "network mode to br used with Azure CNI"
+  type        = string
+  default     = "transparent"
+}
+
+variable "outbound_type" {
+  description = "outbound (egress) routing method which should be used for this Kubernetes Cluster"
+  type        = string
+  default     = "loadBalancer"
+
+}
+
+variable "pod_cidr" {
+  description = "used for pod IP addresses"
+  type        = string
+  default     = null
+  
+}
+
+variable "network_profile_options" {
+  description = "docker_bridge_cidr, dns_service_ip and service_cidr should all be empty or all should be set"
+  type        = object({
+                  docker_bridge_cidr = string
+                  dns_service_ip     = string
+                  service_cidr       = string
+                })
+  default     = null
+
+validation {
+    condition = (
+      ((var.network_profile_options == null) ? true :
+      ((var.network_profile_options.docker_bridge_cidr != null) &&
+      (var.network_profile_options.dns_service_ip != null) &&
+      (var.network_profile_options.service_cidr != null)))
+    )
+    error_message = "Incorrect values set. docker_bridge_cidr, dns_service_ip and service_cidr should all be empty or all should be set."
+
+  }
 }
 
 variable "node_pools" {
@@ -255,5 +306,5 @@ variable "acr_pull_access" {
 variable "log_analytics_workspace_id" {
   description = "ID of the Azure Log Analytics Workspace"
   type        = string
-  default     = ""
+  default     = null
 }
