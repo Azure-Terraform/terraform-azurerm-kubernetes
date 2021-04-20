@@ -40,4 +40,7 @@ locals {
 
   validate_dns_prefix = ((var.dns_prefix == null && var.names == null) ?
                           file("ERROR: dns_prefix or names variable must be specified.") : null)
+
+  validate_critical_addons = ((length([for k,v in local.additional_node_pools : k if v.only_critical_addons_enabled == true]) > 0) ?
+                               file("ERROR: node pool attribute only_critical_addons_enabled can only be set to true for the default node pool") : null)
 }
