@@ -150,6 +150,7 @@ module "kubernetes" {
       subnet     = "private"
       vm_size    = "Standard_B2s"
       node_count = 2
+      only_critical_addons_enabled = true
     }
     linuxweb = {
       vm_size             = "Standard_B2ms"
