@@ -49,8 +49,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     service_cidr       = (var.network_profile_options == null ? null : var.network_profile_options.service_cidr)
     outbound_type      = var.outbound_type
     pod_cidr           = (var.network_plugin == "kubenet" ? var.pod_cidr : null)
-    
-
   }
 
   default_node_pool {

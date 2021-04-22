@@ -96,23 +96,29 @@ variable "network_plugin" {
 }
 
 variable "network_mode" {
-  description = "network mode to br used with Azure CNI"
+  description = "network mode to be used with Azure CNI"
   type        = string
-  default     = "transparent"
+  default     = null
+
+  validation {
+    condition = (
+      (var.network_mode == null ? true :
+      (var.network_mode == "transparent" ? true : false)) 
+    )
+    error_message = "Invalid network_mode.  Valid values are:  transparent."
+  }
 }
 
 variable "outbound_type" {
   description = "outbound (egress) routing method which should be used for this Kubernetes Cluster"
   type        = string
   default     = "loadBalancer"
-
 }
 
 variable "pod_cidr" {
   description = "used for pod IP addresses"
   type        = string
   default     = null
-  
 }
 
 variable "network_profile_options" {
