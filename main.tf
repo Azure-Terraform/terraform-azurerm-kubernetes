@@ -43,7 +43,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin     = var.network_plugin
-    network_mode       = (var.network_plugin == "azure" ? var.network_mode : null)
     dns_service_ip     = (var.network_profile_options == null ? null : var.network_profile_options.dns_service_ip)
     docker_bridge_cidr = (var.network_profile_options == null ? null : var.network_profile_options.docker_bridge_cidr)
     service_cidr       = (var.network_profile_options == null ? null : var.network_profile_options.service_cidr)
