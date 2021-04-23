@@ -92,27 +92,18 @@ variable "network_plugin" {
     error_message = "Network Plugin must set to kubenet or azure."
 
   }
-
-}
-
-variable "network_mode" {
-  description = "network mode to br used with Azure CNI"
-  type        = string
-  default     = "transparent"
 }
 
 variable "outbound_type" {
   description = "outbound (egress) routing method which should be used for this Kubernetes Cluster"
   type        = string
   default     = "loadBalancer"
-
 }
 
 variable "pod_cidr" {
   description = "used for pod IP addresses"
   type        = string
   default     = null
-  
 }
 
 variable "network_profile_options" {
