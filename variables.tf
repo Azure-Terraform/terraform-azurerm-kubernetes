@@ -92,7 +92,6 @@ variable "network_plugin" {
     error_message = "Network Plugin must set to kubenet or azure."
 
   }
-
 }
 
 variable "outbound_type" {
