@@ -24,16 +24,18 @@ jobs:
         tf_docs_output_method: inject
         tf_docs_git_push: 'true'
 
-  kics:
+  kics-scan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           ref: '${{ github.event.pull_request.head.ref }}'
-      - continue-on-error: true
-        name: run kics Scan
+      - name: KICS GitHub Action
         uses: checkmarx/kics-action@v1.0
         with:
-          output_path: kics.json
           path: .
+          output_path: kics.json
+      - name: Display KICS Results
+        run: |
+          cat kics.json
