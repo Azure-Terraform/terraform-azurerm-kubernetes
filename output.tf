@@ -78,11 +78,5 @@ output "principal_id" {
 
 output "kubelet_identity" {
   description = "kubelet identity information" 
-
-  value       = { client_id                 = azurerm_kubernetes_cluster.aks.kubelet_identity.0.client_id
-                  # Workaround for https://github.com/terraform-providers/terraform-provider-azurerm/issues/10406
-                  object_id                 = replace(azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id,"resourceGroups","resourcegroups") 
-                  # This is the correct code
-                  #object_id                 = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
-                  user_assigned_identity_id = azurerm_kubernetes_cluster.aks.kubelet_identity.0.user_assigned_identity_id }
+  value       = azurerm_kubernetes_cluster.aks.kubelet_identity.0
 }
