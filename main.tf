@@ -102,12 +102,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type                      = var.identity_type
     user_assigned_identity_id = (var.identity_type == "SystemAssigned" ? null :
                                 (var.user_assigned_identity != null ? 
-                                # Workaround for https://github.com/terraform-providers/terraform-provider-azurerm/issues/10406
-                                replace(var.user_assigned_identity.id,"resourceGroups","resourcegroups") : 
-                                replace(azurerm_user_assigned_identity.aks.0.id,"resourceGroups","resourcegroups"))) 
-                                # This is the correct code
-                                # var.user_assigned_identity.id : 
-                                # azurerm_user_assigned_identity.aks.0.id))
+                                 var.user_assigned_identity.id : 
+                                 azurerm_user_assigned_identity.aks.0.id))
   }
 
   role_based_access_control {
