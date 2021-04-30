@@ -10,7 +10,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 
 | Name | Version |
 |------|---------|
-| azurerm | >= 2.48.0 |
+| azurerm | >= 2.57.0 |
 
 ## Inputs
 
