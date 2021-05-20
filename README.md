@@ -62,6 +62,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | kubelet\_identity | kubelet identity information |
 | name | kubernetes managed cluster name |
 | node\_resource\_group | auto-generated resource group which contains the resources for this managed kubernetes cluster |
+| outbound\_cluster\_ip | The public outbound IP address of the AKS cluster |
 | password | kubernetes password |
 | principal\_id | id of the principal used by this managed kubernetes cluster |
 | username | kubernetes username |
