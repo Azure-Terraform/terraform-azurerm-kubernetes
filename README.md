@@ -53,6 +53,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | client\_certificate | kubernetes client certificate |
 | client\_key | kubernetes client key |
 | cluster\_ca\_certificate | kubernetes cluster ca certificate |
+| cluster\_outbound\_ip | The public outbound IP address of the AKS cluster |
 | effective\_outbound\_ips\_ids | The outcome (resource IDs) of the specified arguments. |
 | fqdn | kubernetes managed cluster fqdn |
 | host | kubernetes host |
