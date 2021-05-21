@@ -28,7 +28,7 @@ module "subnet_config" {
   nsg_rule_priority_start = var.subnet_nsg_rule_priority_start
 }
 
-resource "azurerm_public_ip" "outbound_cluster_ip" {
+resource "azurerm_public_ip" "cluster_outbound_ip" {
   name                = "${local.cluster_name}-publicip"
   resource_group_name = var.resource_group_name
   location            = var.location
@@ -60,7 +60,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     load_balancer_sku  = "Standard"
 
     load_balancer_profile {
-      outbound_ip_address_ids = [azurerm_public_ip.outbound_cluster_ip.id]
+      outbound_ip_address_ids = [azurerm_public_ip.cluster_outbound_ip.id]
     }
   }
 

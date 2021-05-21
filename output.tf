@@ -23,9 +23,9 @@ output "effective_outbound_ips_ids" {
   value       = azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
 }
 
-output "outbound_cluster_ip" {
+output "cluster_outbound_ip" {
   description = "The public outbound IP address of the AKS cluster"
-  value       = azurerm_public_ip.outbound_cluster_ip.ip_address
+  value       = azurerm_public_ip.cluster_outbound_ip.ip_address
 }
   
 output "kube_config" {
