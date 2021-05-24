@@ -22,6 +22,11 @@ output "effective_outbound_ips_ids" {
   description = "The outcome (resource IDs) of the specified arguments."
   value       = azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
 }
+
+output "cluster_outbound_ip" {
+  description = "The public outbound IP address of the AKS cluster"
+  value       = azurerm_public_ip.cluster_outbound_ip.ip_address
+}
   
 output "kube_config" {
   description = "kubernetes config to be used by kubectl and other compatible tools"
@@ -78,8 +83,5 @@ output "principal_id" {
 
 output "kubelet_identity" {
   description = "kubelet identity information" 
-
-  value       = { client_id                 = azurerm_kubernetes_cluster.aks.kubelet_identity.0.client_id
-                  object_id                 = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
-                  user_assigned_identity_id = azurerm_kubernetes_cluster.aks.kubelet_identity.0.user_assigned_identity_id }
+  value       = azurerm_kubernetes_cluster.aks.kubelet_identity.0
 }
