@@ -6,26 +6,21 @@ resource "azurerm_user_assigned_identity" "aks" {
   name                = "uai-${local.cluster_name}"
 }
 
-resource "azurerm_role_assignment" "route_table_network_contributor" {
-  for_each             = ((var.identity_type == "UserAssigned" && var.configure_network_role) ? var.custom_route_table_ids : {})
+resource "azurerm_role_assignment" "subnet_network_contributor" {
+  for_each = (var.network == null ? {} : (var.configure_network_role ? var.network.subnets : {}))
 
-  scope                = each.value
+  scope                = each.value.id
+  role_definition_name = "Network Contributor"
+  principal_id         = local.aks_identity_id
+}
+
+resource "azurerm_role_assignment" "route_table_network_contributor" {
+  count = (try(var.network.route_table_id, null) == null ? 0 : ((var.identity_type == "UserAssigned" && var.configure_network_role) ? 1 : 0))
+
+  scope                = var.network.route_table_id
   role_definition_name = "Network Contributor"
   principal_id         = (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
                           var.user_assigned_identity.principal_id)
-}
-
-module "subnet_config" {
-  source = "./subnet_config"
-
-  for_each = var.node_pool_subnets
-
-  subnet_info  = each.value
-  principal_id = local.aks_identity_id
-
-  configure_network_role  = var.configure_network_role
-  configure_nsg_rules     = var.configure_subnet_nsg_rules
-  nsg_rule_priority_start = var.subnet_nsg_rule_priority_start
 }
 
 resource "azurerm_public_ip" "cluster_outbound_ip" {
@@ -83,7 +78,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_labels                  = local.node_pools[var.default_node_pool].node_labels
     tags                         = local.node_pools[var.default_node_pool].tags
     vnet_subnet_id               = (local.node_pools[var.default_node_pool].subnet != null ?
-                                    var.node_pool_subnets[local.node_pools[var.default_node_pool].subnet].id : null)
+                                    var.network.subnets[local.node_pools[var.default_node_pool].subnet].id : null)
 
     upgrade_settings {
       max_surge = local.node_pools[var.default_node_pool].max_surge
@@ -161,7 +156,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "additional" {
   orchestrator_version         = each.value.orchestrator_version
   tags                         = each.value.tags
   vnet_subnet_id               = (each.value.subnet != null ?
-                                  var.node_pool_subnets[each.value.subnet].id : null)
+                                  var.network.subnets[each.value.subnet].id : null)
 
   node_taints                  = each.value.node_taints
   eviction_policy              = each.value.eviction_policy

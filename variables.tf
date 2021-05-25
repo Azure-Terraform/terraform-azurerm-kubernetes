@@ -201,38 +201,27 @@ variable "default_node_pool" {
   default     = "default"
 }
 
-variable "node_pool_subnets" {
-  description = "Subnet info used with node_pools variable."
-  type        = map(object({
-                  id                          = string # subnet_id
-                  resource_group_name         = string # resource group containing virtual_network/subnets
-                  network_security_group_name = string # network_security_group name associated with subnet
-                }))
-  default     = {}
+variable "network" {
+  description = "Virtual network info."
+  type        = object({
+    subnets = map(object({ 
+      id = string
+    }))
+    route_table_id = string
+  })
+  default     = null
 }
 
-variable "custom_route_table_ids" {
-  description = "Custom route tables used by node pool subnets."
-  type        = map(string)
-  default     = {}
+variable "route_table_id" {
+  description = "Route table ID (optional)."
+  type        = string
+  default     = null
 }
 
 variable "configure_network_role" {
   description = "Add Network Contributor role for identity on input subnets."
   type        = bool
   default     = true
-}
-
-variable "configure_subnet_nsg_rules" {
-  description = "Configure required AKS NSG rules on input subnets."
-  type        = bool
-  default     = true
-}
-
-variable "subnet_nsg_rule_priority_start" {
-  description = "Starting point for NSG rulee priorities."
-  type        = number
-  default     = 1000
 }
 
 variable "windows_profile" {

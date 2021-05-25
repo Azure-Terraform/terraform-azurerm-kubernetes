@@ -26,8 +26,14 @@ locals {
   validate_windows_config = (local.windows_nodes && var.windows_profile == null ?
                              file("ERROR: windows node pools require a windows_profile") : null)
 
-  validate_custom_route_table_support = (var.identity_type == "SystemAssigned" && length(var.custom_route_table_ids) > 0 ?
-                                         file("ERROR: custom route tables unavailable with SystemAssigned identity type") : null)
+  validate_node_pool_subnets_identity = (lower(var.network_plugin) == "kubenet" && length(try(var.network.subnets, {})) > 1 && var.identity_type == "SystemAssigned" ?
+                                         file("ERROR: Using multiple subnets with kubnet incompatible with SystemAssigned identity type.") : null)
+
+  validate_node_pool_subnets_routing = (lower(var.network_plugin) == "kubenet" && length(try(var.network.subnets, {})) > 1 && var.route_table_id == null ?
+                                        file("ERROR: Using multiple subnets with kubenet requires route_table_id input.") : null)
+
+  validate_route_table_support = (var.identity_type == "SystemAssigned" && var.route_table_id != null ?
+                                  file("ERROR: input route table unavailable with SystemAssigned identity type") : null)
 
   validate_multiple_node_pools = (((local.node_pools[var.default_node_pool].type != "VirtualMachineScaleSets") && (length(local.additional_node_pools) > 0)) ?
                                     file("ERROR: multiple node pools only allowed when default node pool type is VirtualMachineScaleSets") : null)
