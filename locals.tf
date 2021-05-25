@@ -29,7 +29,7 @@ locals {
   validate_node_pool_subnets_identity = (lower(var.network_plugin) == "kubenet" && length(try(var.network.subnets, {})) > 1 && var.identity_type == "SystemAssigned" ?
                                          file("ERROR: Using multiple subnets with kubnet incompatible with SystemAssigned identity type.") : null)
 
-  validate_node_pool_subnets_routing = (lower(var.network_plugin) == "kubenet" && length(try(var.network.subnets, {})) > 1 && var.route_table_id == null ?
+  validate_node_pool_subnets_routing = (lower(var.network_plugin) == "kubenet" && length(try(var.network.subnets, {})) > 1 && var.network.route_table_id == null ?
                                         file("ERROR: Using multiple subnets with kubenet requires route_table_id input.") : null)
 
   validate_route_table_support = (var.identity_type == "SystemAssigned" && var.route_table_id != null ?

@@ -212,12 +212,6 @@ variable "network" {
   default     = null
 }
 
-variable "route_table_id" {
-  description = "Route table ID (optional)."
-  type        = string
-  default     = null
-}
-
 variable "configure_network_role" {
   description = "Add Network Contributor role for identity on input subnets."
   type        = bool
