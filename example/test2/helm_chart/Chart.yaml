@@ -1,4 +1,0 @@
-apiVersion: v1
-description: A Helm chart to install a test httpd service.
-name: webserver
-version: 0.1.0
