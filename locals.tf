@@ -8,8 +8,7 @@ locals {
   "${var.names.product_name}-${var.names.environment}-${var.names.location}")
 
   aks_identity_id = (var.identity_type == "SystemAssigned" ? azurerm_kubernetes_cluster.aks.identity.0.principal_id :
-    (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
-  var.user_assigned_identity.principal_id))
+    (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id : var.user_assigned_identity.principal_id))
 
   node_pools            = zipmap(keys(var.node_pools), [for node_pool in values(var.node_pools) : merge(var.node_pool_defaults, node_pool)])
   additional_node_pools = { for k, v in local.node_pools : k => v if k != var.default_node_pool }
@@ -26,14 +25,8 @@ locals {
   validate_windows_config = (local.windows_nodes && var.windows_profile == null ?
   file("ERROR: windows node pools require a windows_profile") : null)
 
-  validate_node_pool_subnets_identity = (lower(var.network_plugin) == "kubenet" && length(try(var.network.subnets, {})) > 1 && var.identity_type == "SystemAssigned" ?
-  file("ERROR: Using multiple subnets with kubnet incompatible with SystemAssigned identity type.") : null)
-
-  validate_node_pool_subnets_routing = (lower(var.network_plugin) == "kubenet" && length(try(var.network.subnets, {})) > 1 && var.network.route_table_id == null ?
-  file("ERROR: Using multiple subnets with kubenet requires route_table_id input.") : null)
-
-  validate_route_table_support = (var.identity_type == "SystemAssigned" && var.route_table_id != null ?
-  file("ERROR: input route table unavailable with SystemAssigned identity type") : null)
+  validate_virtual_network_support = (var.identity_type == "SystemAssigned" && var.virtual_network != null ?
+  file("ERROR: virtual network unavailable with SystemAssigned identity type") : null)
 
   validate_multiple_node_pools = (((local.node_pools[var.default_node_pool].type != "VirtualMachineScaleSets") && (length(local.additional_node_pools) > 0)) ?
   file("ERROR: multiple node pools only allowed when default node pool type is VirtualMachineScaleSets") : null)

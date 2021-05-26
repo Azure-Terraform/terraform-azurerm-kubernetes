@@ -201,7 +201,7 @@ variable "default_node_pool" {
   default     = "default"
 }
 
-variable "network" {
+variable "virtual_network" {
   description = "Virtual network info."
   type = object({
     subnets = map(object({

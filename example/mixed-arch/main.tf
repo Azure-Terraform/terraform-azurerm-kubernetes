@@ -17,7 +17,7 @@ terraform {
       version = ">=2.0.3"
     }
   }
-   required_version = "~> 0.14.0"
+   required_version = "~> 0.15.0"
 }
 
 provider "azurerm" {
@@ -150,10 +150,10 @@ module "kubernetes" {
     admin_password = random_password.admin.result
   }
 
-  network_plugin             = "azure"
+  network_plugin             = "kubenet"
   configure_network_role     = true
 
-  network = { 
+  virtual_network = { 
     subnets = {
       private = {
         id = module.virtual_network.subnets["iaas-private"].id

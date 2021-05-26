@@ -7,7 +7,7 @@ resource "azurerm_user_assigned_identity" "aks" {
 }
 
 resource "azurerm_role_assignment" "subnet_network_contributor" {
-  for_each = (var.network == null ? {} : (var.configure_network_role ? var.network.subnets : {}))
+  for_each = (var.virtual_network == null ? {} : (var.configure_network_role ? var.virtual_network.subnets : {}))
 
   scope                = each.value.id
   role_definition_name = "Network Contributor"
@@ -15,9 +15,9 @@ resource "azurerm_role_assignment" "subnet_network_contributor" {
 }
 
 resource "azurerm_role_assignment" "route_table_network_contributor" {
-  count = (try(var.network.route_table_id, null) == null ? 0 : ((var.identity_type == "UserAssigned" && var.configure_network_role) ? 1 : 0))
+  count = (var.virtual_network == null ? 0 : 1)
 
-  scope                = var.network.route_table_id
+  scope                = var.virtual_network.route_table_id
   role_definition_name = "Network Contributor"
   principal_id = (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id :
   var.user_assigned_identity.principal_id)
@@ -78,7 +78,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_labels                  = local.node_pools[var.default_node_pool].node_labels
     tags                         = local.node_pools[var.default_node_pool].tags
     vnet_subnet_id = (local.node_pools[var.default_node_pool].subnet != null ?
-    var.network.subnets[local.node_pools[var.default_node_pool].subnet].id : null)
+    var.virtual_network.subnets[local.node_pools[var.default_node_pool].subnet].id : null)
 
     upgrade_settings {
       max_surge = local.node_pools[var.default_node_pool].max_surge
@@ -156,7 +156,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "additional" {
   orchestrator_version   = each.value.orchestrator_version
   tags                   = each.value.tags
   vnet_subnet_id = (each.value.subnet != null ?
-  var.network.subnets[each.value.subnet].id : null)
+  var.virtual_network.subnets[each.value.subnet].id : null)
 
   node_taints                  = each.value.node_taints
   eviction_policy              = each.value.eviction_policy
