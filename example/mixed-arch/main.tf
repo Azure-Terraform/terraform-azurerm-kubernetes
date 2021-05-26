@@ -150,7 +150,7 @@ module "kubernetes" {
     admin_password = random_password.admin.result
   }
 
-  network_plugin             = "kubenet"
+  network_plugin             = "azure"
   configure_network_role     = true
 
   virtual_network = { 
