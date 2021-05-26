@@ -2,22 +2,22 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.51.0"
+      version = "~>2.60.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "=2.3.0"
+      version = "~>3.1.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "=2.0.2"
+      version = "~>2.2.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "=2.0.3"
+      version = "~>2.1.2"
     }
   }
-   required_version = "~> 0.14.0"
+   required_version = "~>0.15.0"
 }
 
 provider "azurerm" {
@@ -94,7 +94,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.6.0"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.9.0"
 
   naming_rules = module.naming.yaml
 
@@ -106,10 +106,32 @@ module "virtual_network" {
   address_space = ["10.1.0.0/22"]
 
   subnets = {
-    "iaas-private" = { cidrs = ["10.1.0.0/24"] }
-    "iaas-public"  = { cidrs                   = ["10.1.1.0/24"]
-                       allow_lb_inbound        = true    # Allow traffic from Azure Load Balancer to pods
-                       allow_internet_outbound = true }  # Allow traffic to Internet for image download
+    iaas-private = {
+      cidrs                   = ["10.1.0.0/24"]
+      route_table_association = "default"
+      configure_nsg_rules     = false
+    }
+    iaas-public  = {
+       cidrs                   = ["10.1.1.0/24"]
+       route_table_association = "default"
+       configure_nsg_rules     = false
+    }
+  }
+
+  route_tables = {
+    default = {
+      disable_bgp_route_propagation = true
+      routes = {
+        internet = {
+          address_prefix         = "0.0.0.0/0"
+          next_hop_type          = "Internet"
+        }
+        local-vnet = {
+          address_prefix         = "10.1.0.0/22"
+          next_hop_type          = "vnetlocal"
+        }
+      }
+    }
   }
 }
 
@@ -130,27 +152,25 @@ module "kubernetes" {
 
   network_plugin             = "azure"
   configure_network_role     = true
-  configure_subnet_nsg_rules = true
 
-  node_pool_subnets = { 
-    private = {
-      id                          = module.virtual_network.subnets["iaas-private"].id
-      resource_group_name         = module.virtual_network.subnets["iaas-private"].resource_group_name
-      network_security_group_name = module.virtual_network.subnets["iaas-private"].network_security_group_name
+  virtual_network = { 
+    subnets = {
+      private = {
+        id = module.virtual_network.subnets["iaas-private"].id
+      }
+      public = {
+        id = module.virtual_network.subnets["iaas-public"].id
+      }
     }
-    public = {
-      id                          = module.virtual_network.subnets["iaas-public"].id
-      resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-      network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
-    }
+    route_table_id = module.virtual_network.route_tables["default"].id
   }
 
   node_pools = {
     system = {
-      subnet     = "private"
       vm_size    = "Standard_B2s"
       node_count = 2
       only_critical_addons_enabled = true
+      subnet     = "private"
     }
     linuxweb = {
       vm_size             = "Standard_B2ms"
