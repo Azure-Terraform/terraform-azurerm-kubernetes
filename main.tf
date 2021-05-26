@@ -23,15 +23,6 @@ resource "azurerm_role_assignment" "route_table_network_contributor" {
   var.user_assigned_identity.principal_id)
 }
 
-resource "azurerm_public_ip" "cluster_outbound_ip" {
-  name                = "${local.cluster_name}-publicip"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  tags                = var.tags
-  sku                 = "Standard"
-  allocation_method   = "Static"
-}
-
 resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_role_assignment.route_table_network_contributor]
 
@@ -52,11 +43,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     service_cidr       = (var.network_profile_options == null ? null : var.network_profile_options.service_cidr)
     outbound_type      = var.outbound_type
     pod_cidr           = (var.network_plugin == "kubenet" ? var.pod_cidr : null)
-    load_balancer_sku  = "Standard"
-
-    load_balancer_profile {
-      outbound_ip_address_ids = [azurerm_public_ip.cluster_outbound_ip.id]
-    }
   }
 
   default_node_pool {
