@@ -75,6 +75,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     kube_dashboard {
       enabled = var.enable_kube_dashboard
     }
+    
+    azure_policy {
+      enabled = var.enable_azure_policy
+    }
 
     dynamic "oms_agent" {
       for_each = (var.log_analytics_workspace_id != null ? [1] : [])
