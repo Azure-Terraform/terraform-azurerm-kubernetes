@@ -271,6 +271,12 @@ variable "enable_kube_dashboard" {
   default     = false
 }
 
+variable "enable_azure_policy" {
+  description = "to apply at-scale enforcements and safeguards on your clusters in a centralized, consistent manner"
+  type        = bool
+  default     = false
+}
+
 variable "acr_pull_access" {
   description = "map of ACR ids to allow AcrPull"
   type        = map(string)
