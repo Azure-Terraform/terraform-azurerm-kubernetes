@@ -115,6 +115,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
       }
     }
   }
+  timeouts {
+    create = "12h"
+    delete = "12h"
+    update = "12h"
+  }
 }
 
 resource "azurerm_role_assignment" "rbac_admin" {
@@ -157,6 +162,11 @@ resource "azurerm_kubernetes_cluster_node_pool" "additional" {
 
   upgrade_settings {
     max_surge = each.value.max_surge
+  }
+  timeouts {
+    create = "12h"
+    delete = "12h"
+    update = "12h"
   }
 }
 
