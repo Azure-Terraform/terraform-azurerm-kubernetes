@@ -42,4 +42,7 @@ locals {
 
   validate_critical_addons = ((length([for k, v in local.additional_node_pools : k if v.only_critical_addons_enabled == true]) > 0) ?
   file("ERROR: node pool attribute only_critical_addons_enabled can only be set to true for the default node pool") : null)
+
+  validate_network_policy = ((var.network_policy == "azure" && var.network_plugin != "azure") ?
+  file("ERROR: When network_policy is set to azure, the network_plugin field can only be set to azure.") : null)
 }
