@@ -85,7 +85,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  api_server_authorized_ip_ranges = var.api_server_authorized_ip_ranges
+  api_server_authorized_ip_ranges = values(var.api_server_authorized_ip_ranges)
 
   dynamic "windows_profile" {
     for_each = local.windows_nodes ? [1] : []
