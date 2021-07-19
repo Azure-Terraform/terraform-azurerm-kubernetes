@@ -17,6 +17,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
 | acr\_pull\_access | map of ACR ids to allow AcrPull | `map(string)` | `{}` | no |
+| api\_server\_authorized\_ip\_ranges | authorized IP ranges to communicate with K8s API | `map(string)` | n/a | yes |
 | cluster\_name | Name of AKS cluster. | `string` | n/a | yes |
 | configure\_network\_role | Add Network Contributor role for identity on input subnets. | `bool` | `true` | no |
 | default\_node\_pool | Default node pool.  Value refers to key within node\_pools variable. | `string` | `"default"` | no |
