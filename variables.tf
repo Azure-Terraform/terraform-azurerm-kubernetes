@@ -273,7 +273,8 @@ variable "enable_kube_dashboard" {
 
 variable "api_server_authorized_ip_ranges" {
   description = "authorized IP ranges to communicate with K8s API"
-  type = list
+  type = map(string)
+  default = null
 }
 
 variable "acr_pull_access" {
