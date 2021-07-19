@@ -21,6 +21,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | configure\_network\_role | Add Network Contributor role for identity on input subnets. | `bool` | `true` | no |
 | default\_node\_pool | Default node pool.  Value refers to key within node\_pools variable. | `string` | `"default"` | no |
 | dns\_prefix | DNS prefix specified when creating the managed cluster. | `string` | n/a | yes |
+| enable\_azure\_policy | to apply at-scale enforcements and safeguards on your clusters in a centralized, consistent manner | `bool` | `false` | no |
 | enable\_kube\_dashboard | enable kubernetes dashboard | `bool` | `false` | no |
 | identity\_type | SystemAssigned or UserAssigned. | `string` | `"UserAssigned"` | no |
 | kubernetes\_version | kubernetes version | `string` | n/a | yes |
