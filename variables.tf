@@ -127,6 +127,21 @@ variable "network_profile_options" {
   }
 }
 
+variable "network_policy" {
+  description = "Sets up network policy to be used with Azure CNI."
+  type        = string
+  default     = null
+
+  validation {
+    condition = (
+      (var.network_policy == null) ||
+      (var.network_policy == "azure") ||
+      (var.network_policy == "calico")
+    )
+    error_message = "Network pollicy must be azure or calico."
+  }
+}
+
 variable "node_pools" {
   description = "node pools"
   type        = any # top level keys are node pool names, sub-keys are subset of node_pool_defaults keys

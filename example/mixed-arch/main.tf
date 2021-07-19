@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>2.60.0"
+      version = "~>2.67.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -17,7 +17,7 @@ terraform {
       version = "~>2.1.2"
     }
   }
-   required_version = "~>0.15.0"
+   required_version = "~> 1.0"
 }
 
 provider "azurerm" {
@@ -94,7 +94,7 @@ module "resource_group" {
 }
 
 module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.9.0"
+  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v5.0.0"
 
   naming_rules = module.naming.yaml
 
@@ -108,19 +108,20 @@ module "virtual_network" {
   subnets = {
     iaas-private = {
       cidrs                   = ["10.1.0.0/24"]
-      route_table_association = "default"
+      route_table_association = "aks"
       configure_nsg_rules     = false
     }
     iaas-public  = {
        cidrs                   = ["10.1.1.0/24"]
-       route_table_association = "default"
+       route_table_association = "aks"
        configure_nsg_rules     = false
     }
   }
 
   route_tables = {
-    default = {
+    aks = {
       disable_bgp_route_propagation = true
+      use_inline_routes             = false
       routes = {
         internet = {
           address_prefix         = "0.0.0.0/0"
@@ -151,6 +152,7 @@ module "kubernetes" {
   }
 
   network_plugin             = "azure"
+
   configure_network_role     = true
 
   virtual_network = { 
@@ -162,7 +164,7 @@ module "kubernetes" {
         id = module.virtual_network.subnets["iaas-public"].id
       }
     }
-    route_table_id = module.virtual_network.route_tables["default"].id
+    route_table_id = module.virtual_network.route_tables["aks"].id
   }
 
   node_pools = {
