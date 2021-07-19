@@ -127,6 +127,21 @@ variable "network_profile_options" {
   }
 }
 
+variable "network_policy" {
+  description = "Sets up network policy to be used with Azure CNI."
+  type        = string
+  default     = null
+
+  validation {
+    condition = (
+      (var.network_policy == null) ||
+      (var.network_policy == "azure") ||
+      (var.network_policy == "calico")
+    )
+    error_message = "Network pollicy must be azure or calico."
+  }
+}
+
 variable "node_pools" {
   description = "node pools"
   type        = any # top level keys are node pool names, sub-keys are subset of node_pool_defaults keys
@@ -269,6 +284,18 @@ variable "enable_kube_dashboard" {
   description = "enable kubernetes dashboard"
   type        = bool
   default     = false
+}
+
+variable "enable_azure_policy" {
+  description = "to apply at-scale enforcements and safeguards on your clusters in a centralized, consistent manner"
+  type        = bool
+  default     = false
+}
+
+variable "api_server_authorized_ip_ranges" {
+  description = "authorized IP ranges to communicate with K8s API"
+  type = map(string)
+  default = null
 }
 
 variable "acr_pull_access" {

@@ -38,6 +38,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin     = var.network_plugin
+    network_policy     = var.network_policy
     dns_service_ip     = (var.network_profile_options == null ? null : var.network_profile_options.dns_service_ip)
     docker_bridge_cidr = (var.network_profile_options == null ? null : var.network_profile_options.docker_bridge_cidr)
     service_cidr       = (var.network_profile_options == null ? null : var.network_profile_options.service_cidr)
@@ -71,9 +72,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  apapi_server_authorized_ip_ranges = values(var.api_server_authorized_ip_ranges)
+
   addon_profile {
     kube_dashboard {
       enabled = var.enable_kube_dashboard
+    }
+    
+    azure_policy {
+      enabled = var.enable_azure_policy
     }
 
     dynamic "oms_agent" {
