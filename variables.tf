@@ -271,6 +271,11 @@ variable "enable_kube_dashboard" {
   default     = false
 }
 
+variable "api_server_authorized_ip_ranges" {
+  description = "authorized IP ranges to communicate with K8s API"
+  type = list
+}
+
 variable "acr_pull_access" {
   description = "map of ACR ids to allow AcrPull"
   type        = map(string)
