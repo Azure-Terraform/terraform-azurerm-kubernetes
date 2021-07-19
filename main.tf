@@ -72,6 +72,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  apapi_server_authorized_ip_ranges = values(var.api_server_authorized_ip_ranges)
+
   addon_profile {
     kube_dashboard {
       enabled = var.enable_kube_dashboard
