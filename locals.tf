@@ -1,11 +1,13 @@
 locals {
   cluster_name = (var.cluster_name != null ? var.cluster_name :
-  "aks-${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}")
+    "${var.names.resource_group_type}-${var.names.product_name}-${var.names.environment}-${var.names.location}")
+
+  user_assigned_identity_name = (var.user_assigned_identity_name == null ? "aks-${local.cluster_name}-control-plane" : var.user_assigned_identity_name)
 
   node_resource_group = (var.node_resource_group != null ? var.node_resource_group : "MC_${local.cluster_name}")
 
   dns_prefix = (var.dns_prefix != null ? var.dns_prefix :
-  "${var.names.product_name}-${var.names.environment}-${var.names.location}")
+    "${var.names.product_name}-${var.names.environment}-${var.names.location}")
 
   aks_identity_id = (var.identity_type == "SystemAssigned" ? azurerm_kubernetes_cluster.aks.identity.0.principal_id :
     (var.user_assigned_identity == null ? azurerm_user_assigned_identity.aks.0.principal_id : var.user_assigned_identity.principal_id))
@@ -17,7 +19,7 @@ locals {
 
   api_server_authorized_ip_ranges = (var.api_server_authorized_ip_ranges == null ? null : values(var.api_server_authorized_ip_ranges))
 
-  invalid_node_pool_attributes = join(",", flatten([for np in values(var.node_pools) : [for k, v in np : k if !(contains(keys(var.node_pool_defaults), k))]]))
+  invalid_node_pool_attributes  = join(",", flatten([for np in values(var.node_pools) : [for k, v in np : k if !(contains(keys(var.node_pool_defaults), k))]]))
   validate_node_pool_attributes = (length(local.invalid_node_pool_attributes) > 0 ?
   file("ERROR: invalid node pool attribute:  ${local.invalid_node_pool_attributes}") : null)
 

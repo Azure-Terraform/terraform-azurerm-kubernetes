@@ -49,7 +49,6 @@ variable "identity_type" {
     )
     error_message = "Identity must be one of 'SystemAssigned' or 'UserAssigned'."
   }
-
 }
 
 variable "user_assigned_identity" {
@@ -60,6 +59,12 @@ variable "user_assigned_identity" {
     client_id    = string
   })
   default = null
+}
+
+variable "user_assigned_identity_name" {
+  description = "Name of user assigned identity to be created (if applicable)."
+  type        = string
+  default     = null
 }
 
 variable "sku_tier" {
