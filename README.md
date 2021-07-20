@@ -10,7 +10,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 
 | Name | Version |
 |------|---------|
-| azurerm | >= 2.57.0 |
+| azurerm | >= 2.67.0 |
 
 ## Inputs
 
@@ -68,115 +68,6 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | username | kubernetes username |
 <!--- END_TF_DOCS --->
 
-## Example
+## Examples
 
-~~~~
-provider "azurerm" {
-  version = ">=2.0.0"
-  features {}
-  subscription_id = "00000-0000-0000-0000-0000000"
-}
-
-# Subscription
-module "subscription" {
-  source = "git@github.com:Azure-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
-}
-
-# Metadata
-module "metadata" {
-  source = "git@github.com:Azure-Terraform/terraform-azurerm-metadata.git?ref=v1.0.0"
-
-  subscription_id     = module.subscription.output.subscription_id
-  # These values should be taken from https://github.com/openrba/python-azure-naming
-  business_unit       = "rba.businessUnit"
-  cost_center         = "rba.costCenter"
-  environment         = "rba.environment"
-  location            = "rba.azureRegion"
-  market              = "rba.market"
-  product_name        = "rba.productName"
-  product_group       = "rba.productGroup"
-  project             = "project-url"
-  sre_team            = "team-name"
-  subscription_type   = "rba.subscriptionType"
-  resource_group_type = "rba.resourceGroupType"
-
-  additional_tags = {
-    "example" = "an additional tag"
-  }
-}
-
-# Resource group
-module "resource_group" {
-  source = "git@github.com:Azure-Terraform/terraform-azurerm-resource-group.git?ref=v1.0.0"
-
-  location = module.metadata.location
-  tags     = module.metadata.tags
-  name     = module.metadata.names
-}
-
-# AKS
-## This will create a managed kubernetes cluster
-module "aks" {
-  source = "git@github.com:Azure-Terraform/terraform-azurerm-kubernetes.git"
-
-  service_principal_id     = var.service_principal_id
-  service_principal_secret = var.service_principal_secret
-  service_principal_name   = "service-principal-name"
-
-  resource_group_name = module.resource_group.name
-  location            = module.resource_group.location
-
-  names = module.metadata.names
-  tags  = module.metadata.tags
-
-  kubernetes_version = "1.16.7"
-
-  default_node_pool_name                = "default"
-  default_node_pool_vm_size             = "Standard_D2s_v3"
-  default_node_pool_enable_auto_scaling = true
-  default_node_pool_node_min_count      = 1
-  default_node_pool_node_max_count      = 5
-  default_node_pool_availability_zones  = [1,2,3]
-
-  enable_kube_dashboard = true
-  
-}
-
-resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
-  name                  = "gpu"
-  kubernetes_cluster_id = module.aks.id
-  vm_size               = "Standard_NC6s_v3"
-  availability_zones    = [1,2,3]
-
-  enable_auto_scaling = true
-  node_count          = 1
-  min_count           = 1
-  max_count           = 5
-
-  tags = module.metadata.tags
-}
-
-# Helm
-provider "helm" {
-  alias = "aks"
-  kubernetes {
-    host                   = module.aks.host
-    client_certificate     = base64decode(module.aks.client_certificate)
-    client_key             = base64decode(module.aks.client_key)
-    cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-  }
-}
-
-module "aad-pod-identity" {
-  source = "git@github.com:Azure-Terraform/terraform-azurerm-kubernetes.git/aad-pod-identity"
-  
-  providers = {
-    helm = helm.aks
-  }
-
-  resource_group_name    = module.resource_group.name
-  service_principal_name = "service-principal-name"
-
-  aad_pod_identity_version = "1.6.0"
-}
-~~~~
+See [examples](/examples) folder.  These are designed to test module updates and use random_string to run without any user input.
