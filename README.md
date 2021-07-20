@@ -43,6 +43,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | sku\_tier | Sets the cluster's SKU tier. The paid tier has a financially-backed uptime SLA. Read doc [here](https://docs.microsoft.com/en-us/azure/aks/uptime-sla). | `string` | `"Free"` | no |
 | tags | Tags to be applied to resources. | `map(string)` | n/a | yes |
 | user\_assigned\_identity | User assigned identity for the manged cluster (leave and the module will create one). | <pre>object({<br>    id           = string<br>    principal_id = string<br>    client_id    = string<br>  })</pre> | n/a | yes |
+| user\_assigned\_identity\_name | Name of user assigned identity to be created (if applicable). | `string` | n/a | yes |
 | virtual\_network | Virtual network info. | <pre>object({<br>    subnets = map(object({<br>      id = string<br>    }))<br>    route_table_id = string<br>  })</pre> | n/a | yes |
 | windows\_profile | windows profile admin user/pass | <pre>object({<br>    admin_username = string<br>    admin_password = string<br>  })</pre> | n/a | yes |
 

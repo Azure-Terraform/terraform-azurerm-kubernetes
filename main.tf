@@ -3,7 +3,7 @@ resource "azurerm_user_assigned_identity" "aks" {
 
   resource_group_name = var.resource_group_name
   location            = var.location
-  name                = "uai-${local.cluster_name}"
+  name                = local.user_assigned_identity_name
 }
 
 resource "azurerm_role_assignment" "subnet_network_contributor" {
