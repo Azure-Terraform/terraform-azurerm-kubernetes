@@ -33,6 +33,7 @@ output "kube_config_raw" {
   description = "raw kubernetes config to be used by kubectl and other compatible tools"
   value = (var.rbac.ad_integration ?
   azurerm_kubernetes_cluster.aks.kube_admin_config_raw : azurerm_kubernetes_cluster.aks.kube_config_raw)
+  sensitive = true
 }
 
 output "host" {
