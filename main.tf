@@ -75,10 +75,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   api_server_authorized_ip_ranges = local.api_server_authorized_ip_ranges
 
   addon_profile {
-    kube_dashboard {
-      enabled = var.enable_kube_dashboard
+    dynamic "kube_dashboard" {
+      for_each = (var.enable_kube_dashboard ? [1] : [])
+      content {
+        enabled = true
+      }
     }
-    
+
     azure_policy {
       enabled = var.enable_azure_policy
     }

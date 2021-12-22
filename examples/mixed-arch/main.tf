@@ -155,7 +155,7 @@ module "kubernetes" {
 
   configure_network_role     = true
 
-  virtual_network = { 
+  virtual_network = {
     subnets = {
       private = {
         id = module.virtual_network.subnets["iaas-private"].id
@@ -224,7 +224,7 @@ resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
 }
 
 resource "helm_release" "nginx" {
-  depends_on = [module.kubernetes] 
+  depends_on = [module.kubernetes]
   name       = "nginx"
   chart      = "./helm_chart"
 
@@ -245,7 +245,7 @@ resource "helm_release" "nginx" {
 }
 
 resource "helm_release" "iis" {
-  depends_on = [module.kubernetes] 
+  depends_on = [module.kubernetes]
   name       = "iis"
   chart      = "./helm_chart"
   timeout    = 600
@@ -267,14 +267,14 @@ resource "helm_release" "iis" {
 }
 
 data "kubernetes_service" "nginx" {
-  depends_on = [helm_release.nginx] 
+  depends_on = [helm_release.nginx]
   metadata {
     name = "nginx"
   }
 }
 
 data "kubernetes_service" "iis" {
-  depends_on = [helm_release.iis] 
+  depends_on = [helm_release.iis]
   metadata {
     name = "iis"
   }
