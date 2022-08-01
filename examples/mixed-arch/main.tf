@@ -75,7 +75,7 @@ module "metadata" {
 
   market              = "us"
   project             = "https://github.com/Azure-Terraform/terraform-azurerm-kubernetes/tree/master/example/mixed-arch"
-  location            = "eastus2"
+  location            = "eastus"
   environment         = "sandbox"
   product_name        = random_string.random.result
   business_unit       = "infra"
@@ -181,14 +181,14 @@ module "kubernetes" {
       max_count           = 3
       subnet              = "public"
     }
-    winweb = {
-      vm_size             = "Standard_D4a_v4"
-      os_type             = "Windows"
-      enable_auto_scaling = true
-      min_count           = 1
-      max_count           = 3
-      subnet              = "public"
-    }
+    # winweb = {
+    #   vm_size             = "Standard_D4a_v4"
+    #   os_type             = "Windows"
+    #   enable_auto_scaling = true
+    #   min_count           = 1
+    #   max_count           = 3
+    #   subnet              = "public"
+    # }
   }
 
   default_node_pool = "system"
@@ -209,19 +209,19 @@ resource "azurerm_network_security_rule" "ingress_public_allow_nginx" {
   network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
 }
 
-resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
-  name                        = "AllowIIS"
-  priority                    = 101
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "tcp"
-  source_port_range           = "*"
-  destination_port_range      = "80"
-  source_address_prefix       = "Internet"
-  destination_address_prefix  = data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip
-  resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
-  network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
-}
+# resource "azurerm_network_security_rule" "ingress_public_allow_iis" {
+#   name                        = "AllowIIS"
+#   priority                    = 101
+#   direction                   = "Inbound"
+#   access                      = "Allow"
+#   protocol                    = "tcp"
+#   source_port_range           = "*"
+#   destination_port_range      = "80"
+#   source_address_prefix       = "Internet"
+#   destination_address_prefix  = data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip
+#   resource_group_name         = module.virtual_network.subnets["iaas-public"].resource_group_name
+#   network_security_group_name = module.virtual_network.subnets["iaas-public"].network_security_group_name
+# }
 
 resource "helm_release" "nginx" {
   depends_on = [module.kubernetes]
@@ -244,27 +244,27 @@ resource "helm_release" "nginx" {
   }
 }
 
-resource "helm_release" "iis" {
-  depends_on = [module.kubernetes]
-  name       = "iis"
-  chart      = "./helm_chart"
-  timeout    = 600
+# resource "helm_release" "iis" {
+#   depends_on = [module.kubernetes]
+#   name       = "iis"
+#   chart      = "./helm_chart"
+#   timeout    = 600
 
-  set {
-    name  = "name"
-    value = "iis"
-  }
+#   set {
+#     name  = "name"
+#     value = "iis"
+#   }
 
-  set {
-    name  = "image"
-    value = "microsoft/iis:latest"
-  }
+#   set {
+#     name  = "image"
+#     value = "microsoft/iis:latest"
+#   }
 
-  set {
-    name  = "nodeSelector"
-    value = yamlencode({agentpool = "winweb"})
-  }
-}
+#   set {
+#     name  = "nodeSelector"
+#     value = yamlencode({agentpool = "winweb"})
+#   }
+# }
 
 data "kubernetes_service" "nginx" {
   depends_on = [helm_release.nginx]
@@ -273,20 +273,20 @@ data "kubernetes_service" "nginx" {
   }
 }
 
-data "kubernetes_service" "iis" {
-  depends_on = [helm_release.iis]
-  metadata {
-    name = "iis"
-  }
-}
+# data "kubernetes_service" "iis" {
+#   depends_on = [helm_release.iis]
+#   metadata {
+#     name = "iis"
+#   }
+# }
 
 output "nginx_url" {
   value = "http://${data.kubernetes_service.nginx.status.0.load_balancer.0.ingress.0.ip}"
 }
 
-output "iis_url" {
-  value = "http://${data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip}"
-}
+# output "iis_url" {
+#   value = "http://${data.kubernetes_service.iis.status.0.load_balancer.0.ingress.0.ip}"
+# }
 
 output "aks_login" {
   value = "az aks get-credentials --name ${module.kubernetes.name} --resource-group ${module.resource_group.name}"
