@@ -17,7 +17,7 @@ terraform {
       version = "~>2.1.2"
     }
   }
-   required_version = "~> 1.0"
+  required_version = "~> 1.0"
 }
 
 provider "azurerm" {
@@ -55,12 +55,12 @@ resource "random_string" "random" {
 }
 
 resource "random_password" "admin" {
-  length      = 14
-  special     = true
+  length  = 14
+  special = true
 }
 
 module "subscription" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
+  source          = "github.com/Azure-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
   subscription_id = data.azurerm_subscription.current.subscription_id
 }
 
@@ -111,10 +111,14 @@ module "virtual_network" {
       route_table_association = "aks"
       configure_nsg_rules     = false
     }
-    iaas-public  = {
-       cidrs                   = ["10.1.1.0/24"]
-       route_table_association = "aks"
-       configure_nsg_rules     = false
+    iaas-public = {
+      cidrs                   = ["10.1.1.0/24"]
+      route_table_association = "aks"
+      configure_nsg_rules     = false
+    }
+    azure-firewall = {
+      cidrs                   = ["10.1.1.0/24"]
+      configure_nsg_rules     = false
     }
   }
 
@@ -124,12 +128,12 @@ module "virtual_network" {
       use_inline_routes             = false
       routes = {
         internet = {
-          address_prefix         = "0.0.0.0/0"
-          next_hop_type          = "Internet"
+          address_prefix = "0.0.0.0/0"
+          next_hop_type  = "Internet"
         }
         local-vnet = {
-          address_prefix         = "10.1.0.0/22"
-          next_hop_type          = "vnetlocal"
+          address_prefix = "10.1.0.0/22"
+          next_hop_type  = "vnetlocal"
         }
       }
     }
@@ -139,10 +143,10 @@ module "virtual_network" {
 module "kubernetes" {
   source = "../../"
 
-  location                 = module.metadata.location
-  names                    = module.metadata.names
-  tags                     = module.metadata.tags
-  resource_group_name      = module.resource_group.name
+  location            = module.metadata.location
+  names               = module.metadata.names
+  tags                = module.metadata.tags
+  resource_group_name = module.resource_group.name
 
   identity_type = "UserAssigned"
 
@@ -151,9 +155,9 @@ module "kubernetes" {
     admin_password = random_password.admin.result
   }
 
-  network_plugin             = "azure"
+  network_plugin = "azure"
 
-  configure_network_role     = true
+  configure_network_role = true
 
   virtual_network = {
     subnets = {
@@ -169,10 +173,10 @@ module "kubernetes" {
 
   node_pools = {
     system = {
-      vm_size    = "Standard_B2s"
-      node_count = 2
+      vm_size                      = "Standard_B2s"
+      node_count                   = 2
       only_critical_addons_enabled = true
-      subnet     = "private"
+      subnet                       = "private"
     }
     linuxweb = {
       vm_size             = "Standard_B2ms"
@@ -240,7 +244,7 @@ resource "helm_release" "nginx" {
 
   set {
     name  = "nodeSelector"
-    value = yamlencode({agentpool = "linuxweb"})
+    value = yamlencode({ agentpool = "linuxweb" })
   }
 }
 
