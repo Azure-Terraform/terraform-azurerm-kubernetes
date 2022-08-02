@@ -65,7 +65,7 @@ module "subscription" {
 }
 
 module "naming" {
-  source = "github.com/Azure-Terraform/example-naming-template.git?ref=v1.0.0"
+  source = "github.com/vermacodes/example-naming-template.git?ref=v1.0.0"
 }
 
 module "metadata" {
@@ -116,9 +116,10 @@ module "virtual_network" {
       route_table_association = "aks"
       configure_nsg_rules     = false
     }
-    azure-firewall = {
-      cidrs                   = ["10.1.1.0/24"]
-      configure_nsg_rules     = false
+    AzureFirewallSubnet = {
+      cidrs                         = ["10.1.2.0/24"]
+      create_network_security_group = false
+      configure_nsg_rules           = false
     }
   }
 
