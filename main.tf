@@ -36,6 +36,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   node_resource_group = local.node_resource_group
   dns_prefix          = local.dns_prefix
 
+  private_cluster_enabled = var.private_cluster_enabled
+
   network_profile {
     network_plugin     = var.network_plugin
     network_policy     = var.network_policy

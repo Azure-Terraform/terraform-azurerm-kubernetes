@@ -132,6 +132,12 @@ variable "network_profile_options" {
   }
 }
 
+variable "private_cluster_enabled" {
+  description = "Private Cluster"
+  type = string
+  default = "false"
+}
+
 variable "network_policy" {
   description = "Sets up network policy to be used with Azure CNI."
   type        = string
