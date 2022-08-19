@@ -37,6 +37,7 @@ This module will create a managed Kubernetes cluster using Azure Kubernetes Serv
 | node\_resource\_group | The name of the Resource Group where the Kubernetes Nodes should exist. | `string` | n/a | yes |
 | outbound\_type | outbound (egress) routing method which should be used for this Kubernetes Cluster | `string` | `"loadBalancer"` | no |
 | pod\_cidr | used for pod IP addresses | `string` | n/a | yes |
+| private\_cluster\_enabled | Private Cluster | `string` | `"false"` | no |
 | rbac | role based access control settings | <pre>object({<br>    enabled        = bool<br>    ad_integration = bool<br>  })</pre> | <pre>{<br>  "ad_integration": false,<br>  "enabled": true<br>}</pre> | no |
 | rbac\_admin\_object\_ids | Admin group object ids for use with rbac active directory integration | `map(string)` | `{}` | no |
 | resource\_group\_name | Resource group name. | `string` | n/a | yes |
