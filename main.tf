@@ -53,7 +53,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vm_size                      = local.node_pools[var.default_node_pool].vm_size
     os_disk_size_gb              = local.node_pools[var.default_node_pool].os_disk_size_gb
     os_disk_type                 = local.node_pools[var.default_node_pool].os_disk_type
-    availability_zones           = local.node_pools[var.default_node_pool].availability_zones
+    zones                        = local.node_pools[var.default_node_pool].availability_zones
     enable_auto_scaling          = local.node_pools[var.default_node_pool].enable_auto_scaling
     node_count                   = (local.node_pools[var.default_node_pool].enable_auto_scaling ? null : local.node_pools[var.default_node_pool].node_count)
     min_count                    = (local.node_pools[var.default_node_pool].enable_auto_scaling ? local.node_pools[var.default_node_pool].min_count : null)
@@ -75,14 +75,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   api_server_authorized_ip_ranges = local.api_server_authorized_ip_ranges
-
-  addon_profile {
-    dynamic "kube_dashboard" {
-      for_each = (var.enable_kube_dashboard ? [1] : [])
-      content {
-        enabled = true
-      }
-    }
 
     azure_policy {
       enabled = var.enable_azure_policy
@@ -107,23 +99,19 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   identity {
     type = var.identity_type
-    user_assigned_identity_id = (var.identity_type == "SystemAssigned" ? null :
+    identity_ids = (var.identity_type == "SystemAssigned" ? null :
       (var.user_assigned_identity != null ?
         var.user_assigned_identity.id :
     azurerm_user_assigned_identity.aks.0.id))
   }
 
-  role_based_access_control {
-    enabled = var.rbac.enabled
-    dynamic "azure_active_directory" {
-      for_each = (var.rbac.ad_integration ? [1] : [])
-      content {
-        managed                = true
-        admin_group_object_ids = values(var.rbac_admin_object_ids)
-      }
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = (var.rbac.ad_integration ? [1] : [])
+    content {
+      managed                = true
+      tenant_id              = values(var.rbac_admin_object_ids)
     }
   }
-}
 
 resource "azurerm_role_assignment" "rbac_admin" {
   for_each             = (var.rbac.ad_integration ? var.rbac_admin_object_ids : {})
