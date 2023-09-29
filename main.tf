@@ -118,7 +118,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "additional" {
   vm_size                = each.value.vm_size
   os_disk_size_gb        = each.value.os_disk_size_gb
   os_disk_type           = each.value.os_disk_type
-  availability_zones     = each.value.availability_zones
+  zones                  = each.value.availability_zones
   enable_auto_scaling    = each.value.enable_auto_scaling
   node_count             = (each.value.enable_auto_scaling ? null : each.value.node_count)
   min_count              = (each.value.enable_auto_scaling ? each.value.min_count : null)
