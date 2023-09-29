@@ -89,14 +89,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  dynamic "windows_profile" {
-    for_each = local.windows_nodes ? [1] : []
-    content {
-      admin_username = var.windows_profile.admin_username
-      admin_password = var.windows_profile.admin_password
-    }
-  }
-
   identity {
     type = var.identity_type
     identity_ids = (var.identity_type == "SystemAssigned" ? null :
