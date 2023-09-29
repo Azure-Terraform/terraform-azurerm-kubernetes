@@ -87,7 +87,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
         log_analytics_workspace_id = var.log_analytics_workspace_id
       }
     }
-  }
 
   identity {
     type = var.identity_type
