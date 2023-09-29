@@ -76,14 +76,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   api_server_authorized_ip_ranges = local.api_server_authorized_ip_ranges
 
-    azure_policy {
-      enabled = var.enable_azure_policy
-    }
+  azure_policy_enabled = var.enable_azure_policy
 
     dynamic "oms_agent" {
       for_each = (var.log_analytics_workspace_id != null ? [1] : [])
       content {
-        enabled                    = true
         log_analytics_workspace_id = var.log_analytics_workspace_id
       }
     }
