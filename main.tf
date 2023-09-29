@@ -104,6 +104,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       tenant_id              = values(var.rbac_admin_object_ids)
     }
   }
+}
 
 resource "azurerm_role_assignment" "rbac_admin" {
   for_each             = (var.rbac.ad_integration ? var.rbac_admin_object_ids : {})
